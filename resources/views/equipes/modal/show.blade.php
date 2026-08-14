@@ -24,7 +24,7 @@
 
                     <small class="text-white">
 
-                        {{ $equipe->nom }}
+                        {{ $equipe->code }}
 
                     </small>
 

@@ -30,7 +30,7 @@
 
                         <small class="text-white">
 
-                            {{ $equipe->nom }}
+                            {{ $equipe->code }}
 
                         </small>
 
@@ -46,107 +46,164 @@
 
                 </div>
 
+
                 <div class="modal-body p-4">
+
+                    {{-- =====================================================
+                        NOM DE L'ÉQUIPE
+                    ====================================================== --}}
 
                     <div class="form-group">
 
                         <label>
-                            Code de l'équipe
+
+                            Nom de l'équipe
+
+                            <span class="text-danger">*</span>
+
                         </label>
 
-                        <input type="text"
-                            value="{{ $equipe->code }}"
-                            class="form-control bg-light"
-                            readonly>
+                        <div class="input-group">
 
-                        <small class="text-muted">
-                            Le code de l'équipe est généré automatiquement et ne peut pas être modifié.
-                        </small>
+                            <div class="input-group-prepend">
 
-                    </div>
+                                <span class="input-group-text ocn-light">
 
+                                    <i class="fas fa-users ocn-green"></i>
 
-                    <div class="row">
-
-                        <div class="col-md-6">
-
-                            <div class="form-group">
-
-                                <label>
-
-                                    Chauffeur titulaire
-                                    <span class="text-danger">*</span>
-
-                                </label>
-
-                                <select name="chauffeur_titulaire_id"
-                                        class="form-control"
-                                        required>
-
-                                    @foreach($equipe->chauffeursEdit as $chauffeur)
-
-                                        <option value="{{ $chauffeur->id }}"
-                                            {{ $equipe->chauffeur_titulaire_id == $chauffeur->id ? 'selected' : '' }}>
-
-                                            {{ $chauffeur->matricule }}
-                                            —
-                                            {{ $chauffeur->nom }}
-                                            {{ $chauffeur->prenom }}
-
-                                        </option>
-
-                                    @endforeach
-
-                                </select>
+                                </span>
 
                             </div>
 
-                        </div>
-
-
-                        <div class="col-md-6">
-
-                            <div class="form-group">
-
-                                <label>
-
-                                    Chauffeur secondaire
-                                    <span class="text-danger">*</span>
-
-                                </label>
-
-                                <select name="chauffeur_secondaire_id"
-                                        class="form-control"
-                                        required>
-
-                                    @foreach($equipe->chauffeursEdit as $chauffeur)
-
-                                        <option value="{{ $chauffeur->id }}"
-                                            {{ $equipe->chauffeur_secondaire_id == $chauffeur->id ? 'selected' : '' }}>
-
-                                            {{ $chauffeur->matricule }}
-                                            —
-                                            {{ $chauffeur->nom }}
-                                            {{ $chauffeur->prenom }}
-
-                                        </option>
-
-                                    @endforeach
-
-                                </select>
-
-                            </div>
+                            <input type="text"
+                                name="nom"
+                                value="{{ old('nom', $equipe->nom) }}"
+                                class="form-control"
+                                placeholder="Ex : Alpha 1"
+                                autocomplete="off"
+                                required>
 
                         </div>
 
                     </div>
 
 
-                   <div class="form-group">
+                    {{-- =====================================================
+                        COMPOSITION DE L'ÉQUIPE
+                    ====================================================== --}}
+
+                    <div class="mb-4">
+
+                        <h6 class="ocn-title font-weight-bold border-bottom pb-2">
+
+                            <i class="fas fa-user-friends mr-2"></i>
+
+                            Composition de l'équipe
+
+                        </h6>
+
+
+                        <div class="row mt-3">
+
+
+                            {{-- CHAUFFEUR TITULAIRE --}}
+
+                            <div class="col-md-6">
+
+                                <div class="form-group">
+
+                                    <label>
+
+                                        Chauffeur titulaire
+
+                                        <span class="text-danger">*</span>
+
+                                    </label>
+
+                                    <select name="chauffeur_titulaire_id"
+                                            class="form-control"
+                                            required>
+
+                                        @foreach($equipe->chauffeursEdit as $chauffeur)
+
+                                            <option value="{{ $chauffeur->id }}"
+                                                {{ $equipe->chauffeur_titulaire_id == $chauffeur->id ? 'selected' : '' }}>
+
+                                                {{ $chauffeur->matricule }}
+
+                                                —
+
+                                                {{ $chauffeur->nom }}
+                                                {{ $chauffeur->prenom }}
+
+                                            </option>
+
+                                        @endforeach
+
+                                    </select>
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- CHAUFFEUR SECONDAIRE --}}
+
+                            <div class="col-md-6">
+
+                                <div class="form-group">
+
+                                    <label>
+
+                                        Chauffeur secondaire
+
+                                        <span class="text-danger">*</span>
+
+                                    </label>
+
+                                    <select name="chauffeur_secondaire_id"
+                                            class="form-control"
+                                            required>
+
+                                        @foreach($equipe->chauffeursEdit as $chauffeur)
+
+                                            <option value="{{ $chauffeur->id }}"
+                                                {{ $equipe->chauffeur_secondaire_id == $chauffeur->id ? 'selected' : '' }}>
+
+                                                {{ $chauffeur->matricule }}
+
+                                                —
+
+                                                {{ $chauffeur->nom }}
+                                                {{ $chauffeur->prenom }}
+
+                                            </option>
+
+                                        @endforeach
+
+                                    </select>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    {{-- =====================================================
+                        STATUT
+                    ====================================================== --}}
+
+                    <div class="form-group">
 
                         <label>
+
                             Statut
+
                             <span class="text-danger">*</span>
+
                         </label>
 
                         <select name="statut"
@@ -154,21 +211,21 @@
                                 required>
 
                             <option value="disponible"
-                                {{ $equipe->statut === 'disponible' ? 'selected' : '' }}>
+                                {{ old('statut', $equipe->statut) === 'disponible' ? 'selected' : '' }}>
 
                                 Disponible
 
                             </option>
 
                             <option value="en_voyage"
-                                {{ $equipe->statut === 'en_voyage' ? 'selected' : '' }}>
+                                {{ old('statut', $equipe->statut) === 'en_voyage' ? 'selected' : '' }}>
 
                                 En voyage
 
                             </option>
 
                             <option value="indisponible"
-                                {{ $equipe->statut === 'indisponible' ? 'selected' : '' }}>
+                                {{ old('statut', $equipe->statut) === 'indisponible' ? 'selected' : '' }}>
 
                                 Indisponible
 
@@ -179,15 +236,37 @@
                     </div>
 
 
+                    {{-- =====================================================
+                        OBSERVATION
+                    ====================================================== --}}
+
                     <div class="form-group">
 
-                        <label>Observation</label>
+                        <label>
+
+                            <i class="fas fa-comment-alt mr-1 ocn-green"></i>
+
+                            Observation
+
+                        </label>
 
                         <textarea name="observation"
-                                  class="form-control"
-                                  rows="3">{{ $equipe->observation }}</textarea>
+                                class="form-control"
+                                rows="3"
+                                placeholder="Informations supplémentaires...">{{ old('observation', $equipe->observation) }}</textarea>
 
                     </div>
+
+
+                    {{-- CHAMPS OBLIGATOIRES --}}
+
+                    <small class="text-muted">
+
+                        <span class="text-danger">*</span>
+
+                        Champs obligatoires.
+
+                    </small>
 
                 </div>
 

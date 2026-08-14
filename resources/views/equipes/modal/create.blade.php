@@ -3,16 +3,24 @@
      data-backdrop="static"
      data-keyboard="false"
      tabindex="-1"
-     role="dialog">
+     role="dialog"
+     aria-hidden="true">
 
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-lg modal-dialog-centered"
+         role="document">
 
         <div class="modal-content shadow-lg border-0">
 
             <form action="{{ route('equipes.store') }}"
-                  method="POST">
+                  method="POST"
+                  autocomplete="off">
 
                 @csrf
+
+
+                {{-- =====================================================
+                     HEADER
+                ====================================================== --}}
 
                 <div class="modal-header ocn-modal-header">
 
@@ -34,127 +42,199 @@
 
                     </div>
 
+
                     <button type="button"
                             class="close text-white"
-                            data-dismiss="modal">
+                            data-dismiss="modal"
+                            aria-label="Fermer">
 
-                        <span>&times;</span>
+                        <span aria-hidden="true">&times;</span>
 
                     </button>
 
                 </div>
 
 
+                {{-- =====================================================
+                     BODY
+                ====================================================== --}}
+
                 <div class="modal-body p-4">
+
+
+                    {{-- =================================================
+                         NOM DE L'ÉQUIPE
+                    ================================================== --}}
 
                     <div class="form-group">
 
                         <label>
 
                             Nom de l'équipe
+
                             <span class="text-danger">*</span>
 
                         </label>
 
-                        <input type="text"
-                               name="nom"
-                               value="{{ old('nom') }}"
-                               class="form-control"
-                               placeholder="Ex : Équipe A"
-                               required>
+                        <div class="input-group">
 
-                    </div>
+                            <div class="input-group-prepend">
 
+                                <span class="input-group-text ocn-light">
 
-                    <div class="row">
+                                    <i class="fas fa-users ocn-green"></i>
 
-                        <div class="col-md-6">
-
-                            <div class="form-group">
-
-                                <label>
-
-                                    Chauffeur titulaire
-                                    <span class="text-danger">*</span>
-
-                                </label>
-
-                                <select name="chauffeur_titulaire_id"
-                                        class="form-control"
-                                        required>
-
-                                    <option value="">
-                                        Sélectionner
-                                    </option>
-
-                                    @foreach($chauffeursDisponibles as $chauffeur)
-
-                                        <option value="{{ $chauffeur->id }}"
-                                            {{ old('chauffeur_titulaire_id') == $chauffeur->id ? 'selected' : '' }}>
-
-                                            {{ $chauffeur->matricule }}
-                                            —
-                                            {{ $chauffeur->nom }}
-                                            {{ $chauffeur->prenom }}
-
-                                        </option>
-
-                                    @endforeach
-
-                                </select>
+                                </span>
 
                             </div>
 
-                        </div>
-
-
-                        <div class="col-md-6">
-
-                            <div class="form-group">
-
-                                <label>
-
-                                    Chauffeur secondaire
-                                    <span class="text-danger">*</span>
-
-                                </label>
-
-                                <select name="chauffeur_secondaire_id"
-                                        class="form-control"
-                                        required>
-
-                                    <option value="">
-                                        Sélectionner
-                                    </option>
-
-                                    @foreach($chauffeursDisponibles as $chauffeur)
-
-                                        <option value="{{ $chauffeur->id }}"
-                                            {{ old('chauffeur_secondaire_id') == $chauffeur->id ? 'selected' : '' }}>
-
-                                            {{ $chauffeur->matricule }}
-                                            —
-                                            {{ $chauffeur->nom }}
-                                            {{ $chauffeur->prenom }}
-
-                                        </option>
-
-                                    @endforeach
-
-                                </select>
-
-                            </div>
+                            <input type="text"
+                                   name="nom"
+                                   value="{{ old('nom') }}"
+                                   class="form-control"
+                                   placeholder="Ex : Alpha 1"
+                                   autocomplete="off"
+                                   required>
 
                         </div>
 
                     </div>
 
+
+                    {{-- =================================================
+                         COMPOSITION DE L'ÉQUIPE
+                    ================================================== --}}
+
+                    <div class="mb-4">
+
+                        <h6 class="ocn-title font-weight-bold border-bottom pb-2">
+
+                            <i class="fas fa-user-friends mr-2"></i>
+
+                            Composition de l'équipe
+
+                        </h6>
+
+
+                        <div class="row mt-3">
+
+
+                            {{-- =========================================
+                                 CHAUFFEUR TITULAIRE
+                            ========================================== --}}
+
+                            <div class="col-md-6">
+
+                                <div class="form-group">
+
+                                    <label>
+
+                                        Chauffeur titulaire
+
+                                        <span class="text-danger">*</span>
+
+                                    </label>
+
+                                    <select name="chauffeur_titulaire_id"
+                                            class="form-control"
+                                            required>
+
+                                        <option value="">
+
+                                            Sélectionner un chauffeur
+
+                                        </option>
+
+
+                                        @foreach($chauffeursDisponibles as $chauffeur)
+
+                                            <option value="{{ $chauffeur->id }}"
+                                                {{ old('chauffeur_titulaire_id') == $chauffeur->id ? 'selected' : '' }}>
+
+                                                {{ $chauffeur->matricule }}
+
+                                                —
+
+                                                {{ $chauffeur->nom }}
+                                                {{ $chauffeur->prenom }}
+
+                                            </option>
+
+                                        @endforeach
+
+                                    </select>
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- =========================================
+                                 CHAUFFEUR SECONDAIRE
+                            ========================================== --}}
+
+                            <div class="col-md-6">
+
+                                <div class="form-group">
+
+                                    <label>
+
+                                        Chauffeur secondaire
+
+                                        <span class="text-danger">*</span>
+
+                                    </label>
+
+                                    <select name="chauffeur_secondaire_id"
+                                            class="form-control"
+                                            required>
+
+                                        <option value="">
+
+                                            Sélectionner un chauffeur
+
+                                        </option>
+
+
+                                        @foreach($chauffeursDisponibles as $chauffeur)
+
+                                            <option value="{{ $chauffeur->id }}"
+                                                {{ old('chauffeur_secondaire_id') == $chauffeur->id ? 'selected' : '' }}>
+
+                                                {{ $chauffeur->matricule }}
+
+                                                —
+
+                                                {{ $chauffeur->nom }}
+                                                {{ $chauffeur->prenom }}
+
+                                            </option>
+
+                                        @endforeach
+
+                                    </select>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    {{-- =================================================
+                         STATUT
+                    ================================================== --}}
 
                     <div class="form-group">
 
                         <label>
+
                             Statut
+
                             <span class="text-danger">*</span>
+
                         </label>
 
                         <select name="statut"
@@ -186,9 +266,20 @@
 
                     </div>
 
+
+                    {{-- =================================================
+                         OBSERVATION
+                    ================================================== --}}
+
                     <div class="form-group">
 
-                        <label>Observation</label>
+                        <label>
+
+                            <i class="fas fa-comment-alt mr-1 ocn-green"></i>
+
+                            Observation
+
+                        </label>
 
                         <textarea name="observation"
                                   class="form-control"
@@ -197,8 +288,23 @@
 
                     </div>
 
+
+                    {{-- CHAMPS OBLIGATOIRES --}}
+
+                    <small class="text-muted">
+
+                        <span class="text-danger">*</span>
+
+                        Champs obligatoires.
+
+                    </small>
+
                 </div>
 
+
+                {{-- =====================================================
+                     FOOTER
+                ====================================================== --}}
 
                 <div class="modal-footer ocn-modal-footer">
 
@@ -211,6 +317,7 @@
                         Annuler
 
                     </button>
+
 
                     <button type="submit"
                             class="btn ocn-btn">

@@ -109,6 +109,7 @@
                     <tr>
 
                         <th>#</th>
+                        <th>Code équipe</th>
                         <th>Nom de l'équipe</th>
                         <th>Chauffeur titulaire</th>
                         <th>Chauffeur secondaire</th>
@@ -131,9 +132,19 @@
 
                             <td>
 
-                                <strong class="ocn-green">
+                                <strong class="">
 
                                     {{ $equipe->code }}
+
+                                </strong>
+
+                            </td>
+
+                            <td>
+
+                                <strong class="">
+
+                                    {{ $equipe->nom }}
 
                                 </strong>
 

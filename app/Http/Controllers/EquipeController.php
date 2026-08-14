@@ -12,80 +12,28 @@ class EquipeController extends Controller
     /**
      * Afficher la liste des équipes.
      */
-    // public function index(Request $request)
-    // {
-    //     $search = $request->input('search');
-
-    //     $equipes = Equipe::with([
-    //         'chauffeurTitulaire',
-    //         'chauffeurSecondaire'
-    //     ])
-    //         ->when($search, function ($query) use ($search) {
-
-    //             $query->where(function ($q) use ($search) {
-
-    //                 $q->where('code', 'like', '%' . $search . '%')
-    //                     ->orWhere('statut', 'like', '%' . $search . '%');
-    //             });
-    //         })
-    //         ->latest()
-    //         ->paginate(10)
-    //         ->withQueryString();
-
-    //     /*
-    //  * Important :
-    //  * On garde les chauffeurs disponibles pour les formulaires.
-    //  * Les chauffeurs déjà affectés à une équipe ne doivent pas
-    //  * être proposés pour une nouvelle affectation.
-    //  */
-
-    //     $chauffeursDisponibles = Chauffeur::where('disponible', true)
-    //         ->where('statut', 'actif')
-    //         ->whereNotIn('id', function ($query) {
-
-    //             $query->select('chauffeur_titulaire_id')
-    //                 ->from('equipes')
-    //                 ->whereNotNull('chauffeur_titulaire_id');
-    //         })
-    //         ->whereNotIn('id', function ($query) {
-
-    //             $query->select('chauffeur_secondaire_id')
-    //                 ->from('equipes')
-    //                 ->whereNotNull('chauffeur_secondaire_id');
-    //         })
-    //         ->orderBy('nom')
-    //         ->get();
-
-    //     return view('equipes.index', compact(
-    //         'equipes',
-    //         'chauffeursDisponibles',
-    //         'search'
-    //     ));
-    // }
     public function index(Request $request)
-{
-    $search = $request->input('search');
+    {
+        $search = $request->input('search');
 
-    $equipes = Equipe::with([
-        'chauffeurTitulaire',
-        'chauffeurSecondaire'
-    ])
-        ->when($search, function ($query) use ($search) {
+        $equipes = Equipe::with([
+            'chauffeurTitulaire',
+            'chauffeurSecondaire'
+        ])
+            ->when($search, function ($query) use ($search) {
 
-            $query->where(function ($q) use ($search) {
+                $query->where(function ($q) use ($search) {
 
-                $q->where('code', 'like', '%' . $search . '%')
-                    ->orWhere('statut', 'like', '%' . $search . '%');
-
-            });
-
-        })
-        ->latest()
-        ->paginate(10)
-        ->withQueryString();
+                    $q->where('nom', 'like', '%' . $search . '%')
+                        ->orWhere('code', 'like', '%' . $search . '%');
+                });
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
 
 
-    /*
+        /*
     |--------------------------------------------------------------------------
     | Chauffeurs disponibles pour la création
     |--------------------------------------------------------------------------
@@ -95,27 +43,25 @@ class EquipeController extends Controller
     |
     */
 
-    $chauffeursDisponibles = Chauffeur::where('disponible', true)
-        ->where('statut', 'actif')
-        ->whereNotIn('id', function ($query) {
+        $chauffeursDisponibles = Chauffeur::where('disponible', true)
+            ->where('statut', 'actif')
+            ->whereNotIn('id', function ($query) {
 
-            $query->select('chauffeur_titulaire_id')
-                ->from('equipes')
-                ->whereNotNull('chauffeur_titulaire_id');
+                $query->select('chauffeur_titulaire_id')
+                    ->from('equipes')
+                    ->whereNotNull('chauffeur_titulaire_id');
+            })
+            ->whereNotIn('id', function ($query) {
 
-        })
-        ->whereNotIn('id', function ($query) {
-
-            $query->select('chauffeur_secondaire_id')
-                ->from('equipes')
-                ->whereNotNull('chauffeur_secondaire_id');
-
-        })
-        ->orderBy('nom')
-        ->get();
+                $query->select('chauffeur_secondaire_id')
+                    ->from('equipes')
+                    ->whereNotNull('chauffeur_secondaire_id');
+            })
+            ->orderBy('nom')
+            ->get();
 
 
-    /*
+        /*
     |--------------------------------------------------------------------------
     | Chauffeurs disponibles pour la modification
     |--------------------------------------------------------------------------
@@ -128,42 +74,38 @@ class EquipeController extends Controller
     |
     */
 
-    foreach ($equipes as $equipe) {
+        foreach ($equipes as $equipe) {
 
-        $equipe->chauffeursEdit = Chauffeur::where('disponible', true)
-            ->where('statut', 'actif')
-            ->where(function ($query) use ($equipe) {
+            $equipe->chauffeursEdit = Chauffeur::where('disponible', true)
+                ->where('statut', 'actif')
+                ->where(function ($query) use ($equipe) {
 
-                $query->whereNotIn('id', function ($subQuery) use ($equipe) {
+                    $query->whereNotIn('id', function ($subQuery) use ($equipe) {
 
-                    $subQuery->select('chauffeur_titulaire_id')
-                        ->from('equipes')
-                        ->whereNotNull('chauffeur_titulaire_id')
-                        ->where('id', '!=', $equipe->id);
+                        $subQuery->select('chauffeur_titulaire_id')
+                            ->from('equipes')
+                            ->whereNotNull('chauffeur_titulaire_id')
+                            ->where('id', '!=', $equipe->id);
+                    })
+                        ->whereNotIn('id', function ($subQuery) use ($equipe) {
 
+                            $subQuery->select('chauffeur_secondaire_id')
+                                ->from('equipes')
+                                ->whereNotNull('chauffeur_secondaire_id')
+                                ->where('id', '!=', $equipe->id);
+                        });
                 })
-                ->whereNotIn('id', function ($subQuery) use ($equipe) {
+                ->orderBy('nom')
+                ->get();
+        }
 
-                    $subQuery->select('chauffeur_secondaire_id')
-                        ->from('equipes')
-                        ->whereNotNull('chauffeur_secondaire_id')
-                        ->where('id', '!=', $equipe->id);
 
-                });
-
-            })
-            ->orderBy('nom')
-            ->get();
-
+        return view('equipes.index', compact(
+            'equipes',
+            'chauffeursDisponibles',
+            'search'
+        ));
     }
-
-
-    return view('equipes.index', compact(
-        'equipes',
-        'chauffeursDisponibles',
-        'search'
-    ));
-}
 
     /**
      * Enregistrer une nouvelle équipe.
@@ -171,6 +113,12 @@ class EquipeController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+
+            'nom' => [
+                'required',
+                'string',
+                'max:100',
+            ],
 
             'chauffeur_titulaire_id' => [
                 'required',
@@ -291,6 +239,12 @@ class EquipeController extends Controller
     public function update(Request $request, Equipe $equipe)
     {
         $validated = $request->validate([
+
+            'nom' => [
+                'required',
+                'string',
+                'max:100',
+            ],
 
             'chauffeur_titulaire_id' => [
                 'required',

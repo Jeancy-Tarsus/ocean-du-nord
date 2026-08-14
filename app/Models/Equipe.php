@@ -9,6 +9,7 @@ class Equipe extends Model
 {
     protected $fillable = [
         'code',
+        'nom',
         'chauffeur_titulaire_id',
         'chauffeur_secondaire_id',
         'statut',
