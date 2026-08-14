@@ -6,27 +6,37 @@
 
 @section('content')
 
+
 {{-- =========================================================
      MESSAGES POUR SWEETALERT
 ========================================================= --}}
 
 @if(session('success'))
+
     <div id="ocn-success-message"
          data-message="{{ session('success') }}">
     </div>
+
 @endif
 
+
 @if(session('error'))
+
     <div id="ocn-error-message"
          data-message="{{ session('error') }}">
     </div>
+
 @endif
 
+
 @if($errors->any())
+
     <div id="ocn-validation-errors"
          data-errors='@json($errors->all())'>
     </div>
+
 @endif
+
 
 
 {{-- =========================================================
@@ -35,11 +45,18 @@
 
 <div class="card ocn-card shadow-sm">
 
+
+    {{-- =====================================================
+         HEADER
+    ====================================================== --}}
+
     <div class="card-header bg-white">
 
         <div class="row align-items-center">
 
+
             {{-- TITRE --}}
+
             <div class="col-md-4">
 
                 <h3 class="card-title ocn-title mb-0">
@@ -53,13 +70,18 @@
             </div>
 
 
-            {{-- RECHERCHE --}}
+
+            {{-- =================================================
+                 RECHERCHE
+            ================================================== --}}
+
             <div class="col-md-5">
 
                 <form action="{{ route('chauffeurs.index') }}"
                       method="GET">
 
                     <div class="input-group">
+
 
                         <input type="text"
                                name="search"
@@ -68,7 +90,11 @@
                                placeholder="Rechercher un chauffeur..."
                                autocomplete="off">
 
+
                         <div class="input-group-append">
+
+
+                            {{-- BOUTON X --}}
 
                             @if(!empty($search))
 
@@ -81,6 +107,9 @@
                                 </a>
 
                             @endif
+
+
+                            {{-- RECHERCHER --}}
 
                             <button type="submit"
                                     class="btn ocn-btn">
@@ -100,7 +129,11 @@
             </div>
 
 
-            {{-- NOUVEAU --}}
+
+            {{-- =================================================
+                 NOUVEAU CHAUFFEUR
+            ================================================== --}}
+
             <div class="col-md-3 text-right">
 
                 <button type="button"
@@ -121,28 +154,6 @@
     </div>
 
 
-    {{-- =====================================================
-         RESULTAT RECHERCHE
-    ====================================================== --}}
-
-    @if(!empty($search))
-
-        <div class="alert alert-info mx-3 mt-3 mb-0">
-
-            <i class="fas fa-search mr-2"></i>
-
-            Résultats pour :
-
-            <strong>{{ $search }}</strong>
-
-            —
-
-            {{ $chauffeurs->total() }} résultat(s)
-
-        </div>
-
-    @endif
-
 
     {{-- =====================================================
          TABLEAU
@@ -152,7 +163,13 @@
 
         <div class="table-responsive">
 
+
             <table class="table table-hover mb-0">
+
+
+                {{-- =================================================
+                     EN-TÊTE
+                ================================================== --}}
 
                 <thead class="ocn-table-header">
 
@@ -173,7 +190,9 @@
                         <th>Statut</th>
 
                         <th class="text-center">
+
                             Actions
+
                         </th>
 
                     </tr>
@@ -181,16 +200,31 @@
                 </thead>
 
 
+
+                {{-- =================================================
+                     CORPS
+                ================================================== --}}
+
                 <tbody>
+
 
                     @forelse($chauffeurs as $chauffeur)
 
+
                         <tr>
 
+
+                            {{-- ID --}}
+
                             <td>
+
                                 {{ $chauffeur->id }}
+
                             </td>
 
+
+
+                            {{-- MATRICULE --}}
 
                             <td>
 
@@ -203,11 +237,15 @@
                             </td>
 
 
+
+                            {{-- NOM COMPLET --}}
+
                             <td>
 
                                 <strong>
 
                                     {{ $chauffeur->nom }}
+
                                     {{ $chauffeur->prenom }}
 
                                 </strong>
@@ -215,12 +253,18 @@
                             </td>
 
 
+
+                            {{-- TELEPHONE --}}
+
                             <td>
 
                                 {{ $chauffeur->telephone ?? '-' }}
 
                             </td>
 
+
+
+                            {{-- PERMIS --}}
 
                             <td>
 
@@ -233,6 +277,7 @@
                                     <small class="text-muted">
 
                                         Expire le
+
                                         {{ $chauffeur->date_expiration_permis->format('d/m/Y') }}
 
                                     </small>
@@ -240,6 +285,7 @@
                                 @endif
 
                             </td>
+
 
 
                             {{-- DISPONIBILITÉ --}}
@@ -271,48 +317,64 @@
                             </td>
 
 
+
                             {{-- STATUT --}}
 
                             <td>
 
                                 @switch($chauffeur->statut)
 
+
                                     @case('actif')
 
                                         <span class="badge badge-success">
+
                                             Actif
+
                                         </span>
 
                                         @break
+
 
                                     @case('en_voyage')
 
                                         <span class="badge badge-primary">
+
                                             En voyage
+
                                         </span>
 
                                         @break
+
 
                                     @case('indisponible')
 
                                         <span class="badge badge-warning">
+
                                             Indisponible
+
                                         </span>
 
                                         @break
+
 
                                     @case('suspendu')
 
                                         <span class="badge badge-danger">
+
                                             Suspendu
+
                                         </span>
 
                                         @break
 
+
                                     @case('inactif')
 
                                         <span class="badge badge-secondary">
+
                                             Inactif
+
                                         </span>
 
                                         @break
@@ -322,9 +384,13 @@
                             </td>
 
 
-                            {{-- ACTIONS --}}
+
+                            {{-- =================================================
+                                 ACTIONS
+                            ================================================== --}}
 
                             <td class="text-center">
+
 
                                 {{-- VOIR --}}
 
@@ -337,6 +403,7 @@
                                     <i class="fas fa-eye"></i>
 
                                 </button>
+
 
 
                                 {{-- MODIFIER --}}
@@ -352,6 +419,7 @@
                                 </button>
 
 
+
                                 {{-- SUPPRIMER --}}
 
                                 <form action="{{ route('chauffeurs.destroy', $chauffeur) }}"
@@ -363,6 +431,7 @@
 
                                     @method('DELETE')
 
+
                                     <button type="submit"
                                             class="btn btn-danger btn-sm"
                                             title="Supprimer">
@@ -373,28 +442,42 @@
 
                                 </form>
 
+
                             </td>
+
 
                         </tr>
 
+
                     @empty
+
+
+                        {{-- =================================================
+                             AUCUN RÉSULTAT
+                        ================================================== --}}
 
                         <tr>
 
                             <td colspan="8"
                                 class="text-center py-5">
 
+
                                 <i class="fas fa-user-tie fa-3x text-muted mb-3"></i>
+
 
                                 <p class="text-muted mb-0">
 
+
                                     @if(!empty($search))
 
-                                        Aucun chauffeur trouvé pour
+                                        Aucun chauffeur trouvé pour :
 
                                         <strong>
+
                                             {{ $search }}
-                                        </strong>.
+
+                                        </strong>
+
 
                                     @else
 
@@ -402,21 +485,26 @@
 
                                     @endif
 
+
                                 </p>
 
                             </td>
 
                         </tr>
 
+
                     @endforelse
 
+
                 </tbody>
+
 
             </table>
 
         </div>
 
     </div>
+
 
 
     {{-- =====================================================
@@ -433,7 +521,9 @@
 
     @endif
 
+
 </div>
+
 
 
 {{-- =========================================================
@@ -445,5 +535,6 @@
 @include('chauffeurs.modal.edit')
 
 @include('chauffeurs.modal.show')
+
 
 @endsection

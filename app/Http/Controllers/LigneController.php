@@ -23,9 +23,7 @@ class LigneController extends Controller
                     $q->where('code', 'like', "%{$search}%")
                         ->orWhere('nom', 'like', "%{$search}%")
                         ->orWhere('description', 'like', "%{$search}%");
-
                 });
-
             })
             ->latest()
             ->paginate(10)
@@ -42,13 +40,6 @@ class LigneController extends Controller
     {
         $validated = $request->validate([
 
-            'code' => [
-                'required',
-                'string',
-                'max:50',
-                'unique:lignes,code',
-            ],
-
             'nom' => [
                 'required',
                 'string',
@@ -67,19 +58,69 @@ class LigneController extends Controller
 
         ]);
 
-        $validated['active'] =
-            $request->boolean('active');
+
+        /*
+    |--------------------------------------------------------------------------
+    | Génération automatique du code
+    |--------------------------------------------------------------------------
+    */
+
+        $dernierCode = Ligne::where('code', 'like', 'LIG-%')
+            ->orderByDesc('id')
+            ->value('code');
+
+
+        if ($dernierCode) {
+
+            $numero = (int) str_replace('LIG-', '', $dernierCode) + 1;
+        } else {
+
+            $numero = 1;
+        }
+
+
+        $code = 'LIG-' . str_pad(
+            $numero,
+            3,
+            '0',
+            STR_PAD_LEFT
+        );
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | Ajouter le code généré
+    |--------------------------------------------------------------------------
+    */
+
+        $validated['code'] = $code;
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | Statut
+    |--------------------------------------------------------------------------
+    */
+
+        $validated['active'] = $request->boolean('active');
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | Création
+    |--------------------------------------------------------------------------
+    */
 
         Ligne::create($validated);
+
 
         return redirect()
             ->route('lignes.index')
             ->with(
                 'success',
-                'Ligne enregistrée avec succès.'
+                "La ligne {$code} a été créée avec succès."
             );
     }
-
 
     /**
      * Modifier une ligne
@@ -88,15 +129,6 @@ class LigneController extends Controller
     {
         $validated = $request->validate([
 
-            'code' => [
-                'required',
-                'string',
-                'max:50',
-
-                Rule::unique('lignes', 'code')
-                    ->ignore($ligne->id),
-            ],
-
             'nom' => [
                 'required',
                 'string',
@@ -115,16 +147,18 @@ class LigneController extends Controller
 
         ]);
 
-        $validated['active'] =
-            $request->boolean('active');
+
+        $validated['active'] = $request->boolean('active');
+
 
         $ligne->update($validated);
+
 
         return redirect()
             ->route('lignes.index')
             ->with(
                 'success',
-                'Ligne modifiée avec succès.'
+                "La ligne {$ligne->code} a été modifiée avec succès."
             );
     }
 

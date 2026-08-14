@@ -11,11 +11,32 @@ class AgenceController extends Controller
     /**
      * Afficher la liste des agences.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $agences = Agence::latest()->paginate(10);
+        $search = $request->input('search');
 
-        return view('agences.index', compact('agences'));
+        $agences = Agence::query()
+
+            ->when($search, function ($query) use ($search) {
+
+                $query->where(function ($q) use ($search) {
+
+                    $q->where('code', 'like', '%' . $search . '%')
+                        ->orWhere('nom', 'like', '%' . $search . '%')
+                        ->orWhere('ville', 'like', '%' . $search . '%');
+                });
+            })
+
+            ->latest()
+
+            ->paginate(10)
+
+            ->withQueryString();
+
+        return view('agences.index', compact(
+            'agences',
+            'search'
+        ));
     }
 
     /**
@@ -24,12 +45,6 @@ class AgenceController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'code' => [
-                'required',
-                'string',
-                'max:50',
-                'unique:agences,code',
-            ],
 
             'nom' => [
                 'required',
@@ -59,15 +74,77 @@ class AgenceController extends Controller
                 'nullable',
                 'boolean',
             ],
+
         ]);
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | Génération automatique du code agence
+    |--------------------------------------------------------------------------
+    |
+    | Exemple :
+    | AG-001
+    | AG-002
+    | AG-003
+    |
+    */
+
+        $dernierCode = Agence::where('code', 'like', 'AG-%')
+            ->orderByDesc('id')
+            ->value('code');
+
+
+        if ($dernierCode) {
+
+            $numero = (int) str_replace('AG-', '', $dernierCode) + 1;
+        } else {
+
+            $numero = 1;
+        }
+
+
+        $code = 'AG-' . str_pad(
+            $numero,
+            3,
+            '0',
+            STR_PAD_LEFT
+        );
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | Ajouter le code généré
+    |--------------------------------------------------------------------------
+    */
+
+        $validated['code'] = $code;
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | Statut
+    |--------------------------------------------------------------------------
+    */
 
         $validated['active'] = $request->boolean('active');
 
+
+        /*
+    |--------------------------------------------------------------------------
+    | Création de l'agence
+    |--------------------------------------------------------------------------
+    */
+
         Agence::create($validated);
+
 
         return redirect()
             ->route('agences.index')
-            ->with('success', 'Agence créée avec succès.');
+            ->with(
+                'success',
+                "L'agence {$code} a été créée avec succès."
+            );
     }
 
     /**
@@ -84,12 +161,6 @@ class AgenceController extends Controller
     public function update(Request $request, Agence $agence)
     {
         $validated = $request->validate([
-            'code' => [
-                'required',
-                'string',
-                'max:50',
-                Rule::unique('agences', 'code')->ignore($agence->id),
-            ],
 
             'nom' => [
                 'required',
@@ -119,17 +190,39 @@ class AgenceController extends Controller
                 'nullable',
                 'boolean',
             ],
+
         ]);
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | Statut
+    |--------------------------------------------------------------------------
+    */
 
         $validated['active'] = $request->boolean('active');
 
+
+        /*
+    |--------------------------------------------------------------------------
+    | Modification
+    |--------------------------------------------------------------------------
+    |
+    | Le code de l'agence n'est volontairement pas inclus.
+    | Il reste donc inchangé.
+    |
+    */
+
         $agence->update($validated);
+
 
         return redirect()
             ->route('agences.index')
-            ->with('success', 'Agence modifiée avec succès.');
+            ->with(
+                'success',
+                "L'agence {$agence->code} a été modifiée avec succès."
+            );
     }
-
     /**
      * Supprimer une agence.
      */

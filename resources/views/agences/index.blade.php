@@ -6,70 +6,34 @@
 
 @section('content')
 
+
 {{-- =========================================================
-     MESSAGES DE SUCCÈS / ERREUR
+     MESSAGES POUR SWEETALERT
 ========================================================= --}}
 
 @if(session('success'))
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-
-            Swal.fire({
-                icon: 'success',
-                title: 'Succès',
-                text: @json(session('success')),
-                confirmButtonText: 'OK'
-            });
-
-        });
-    </script>
+    <div id="ocn-success-message"
+         data-message="{{ session('success') }}">
+    </div>
 
 @endif
 
 
 @if(session('error'))
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-
-            Swal.fire({
-                icon: 'error',
-                title: 'Erreur',
-                text: @json(session('error')),
-                confirmButtonText: 'OK'
-            });
-
-        });
-    </script>
+    <div id="ocn-error-message"
+         data-message="{{ session('error') }}">
+    </div>
 
 @endif
 
 
-{{-- =========================================================
-     ERREURS DE VALIDATION
-========================================================= --}}
-
 @if($errors->any())
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-
-            Swal.fire({
-                icon: 'error',
-                title: 'Erreur de validation',
-                html: `
-                    <ul style="text-align:left;">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                `,
-                confirmButtonText: 'OK'
-            });
-
-        });
-    </script>
+    <div id="ocn-validation-errors"
+         data-errors='@json($errors->all())'>
+    </div>
 
 @endif
 
@@ -78,32 +42,109 @@
      CARD PRINCIPALE
 ========================================================= --}}
 
-<div class="card">
-
-    <div class="card-header">
-
-        <h3 class="card-title">
-
-            <i class="fas fa-building mr-2"></i>
-
-            Liste des agences
-
-        </h3>
+<div class="card ocn-card shadow-sm">
 
 
-        <div class="card-tools">
+    {{-- =====================================================
+         HEADER
+    ====================================================== --}}
 
-            {{-- BOUTON NOUVELLE AGENCE --}}
-            <button type="button"
-                    class="btn btn-primary btn-sm"
-                    data-toggle="modal"
-                    data-target="#modalCreateAgence">
+    <div class="card-header bg-white">
 
-                <i class="fas fa-plus mr-1"></i>
+        <div class="row align-items-center">
 
-                Nouvelle agence
 
-            </button>
+            {{-- TITRE --}}
+
+            <div class="col-md-4">
+
+                <h3 class="card-title ocn-title mb-0">
+
+                    <i class="fas fa-building mr-2"></i>
+
+                    Liste des agences
+
+                </h3>
+
+            </div>
+
+
+            {{-- =================================================
+                 RECHERCHE
+            ================================================== --}}
+
+            <div class="col-md-5">
+
+                <form action="{{ route('agences.index') }}"
+                      method="GET">
+
+                    <div class="input-group">
+
+
+                        <input type="text"
+                               name="search"
+                               value="{{ $search ?? '' }}"
+                               class="form-control"
+                               placeholder="Rechercher par code, nom ou ville..."
+                               autocomplete="off">
+
+
+                        <div class="input-group-append">
+
+
+                            {{-- BOUTON X --}}
+
+                            @if(!empty($search))
+
+                                <a href="{{ route('agences.index') }}"
+                                   class="btn btn-secondary"
+                                   title="Réinitialiser la recherche">
+
+                                    <i class="fas fa-times"></i>
+
+                                </a>
+
+                            @endif
+
+
+                            {{-- RECHERCHER --}}
+
+                            <button type="submit"
+                                    class="btn ocn-btn">
+
+                                <i class="fas fa-search mr-1"></i>
+
+                                Rechercher
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+
+            {{-- =================================================
+                 NOUVELLE AGENCE
+            ================================================== --}}
+
+            <div class="col-md-3 text-right">
+
+                <button type="button"
+                        class="btn ocn-btn"
+                        data-toggle="modal"
+                        data-target="#modalCreateAgence">
+
+                    <i class="fas fa-plus mr-1"></i>
+
+                    Nouvelle agence
+
+                </button>
+
+            </div>
 
         </div>
 
@@ -118,9 +159,12 @@
 
         <div class="table-responsive">
 
-            <table class="table table-hover">
+            <table class="table table-hover mb-0">
 
-                <thead>
+
+                {{-- EN-TÊTE --}}
+
+                <thead class="ocn-table-header">
 
                     <tr>
 
@@ -137,7 +181,9 @@
                         <th>Statut</th>
 
                         <th class="text-center">
+
                             Actions
+
                         </th>
 
                     </tr>
@@ -145,50 +191,91 @@
                 </thead>
 
 
+                {{-- CORPS --}}
+
                 <tbody>
+
 
                     @forelse($agences as $agence)
 
                         <tr>
 
+
+                            {{-- ID --}}
+
                             <td>
+
                                 {{ $agence->id }}
+
                             </td>
+
+
+                            {{-- CODE --}}
 
                             <td>
 
-                                <span class="font-weight-bold">
+                                <strong class="ocn-green">
+
                                     {{ $agence->code }}
-                                </span>
+
+                                </strong>
 
                             </td>
 
-                            <td>
-                                {{ $agence->nom }}
-                            </td>
+
+                            {{-- NOM --}}
 
                             <td>
+
+                                <strong>
+
+                                    {{ $agence->nom }}
+
+                                </strong>
+
+                            </td>
+
+
+                            {{-- VILLE --}}
+
+                            <td>
+
                                 {{ $agence->ville }}
+
                             </td>
 
+
+                            {{-- TELEPHONE --}}
+
                             <td>
+
                                 {{ $agence->telephone ?? '-' }}
+
                             </td>
 
 
                             {{-- STATUT --}}
+
                             <td>
 
                                 @if($agence->active)
 
                                     <span class="badge badge-success">
+
+                                        <i class="fas fa-check mr-1"></i>
+
                                         Active
+
                                     </span>
 
                                 @else
 
                                     <span class="badge badge-secondary">
+
+                                        <i class="fas fa-times mr-1"></i>
+
                                         Inactive
+
                                     </span>
 
                                 @endif
@@ -196,10 +283,15 @@
                             </td>
 
 
-                            {{-- ACTIONS --}}
+                            {{-- =================================================
+                                 ACTIONS
+                            ================================================== --}}
+
                             <td class="text-center">
 
+
                                 {{-- VOIR --}}
+
                                 <button type="button"
                                         class="btn btn-info btn-sm"
                                         data-toggle="modal"
@@ -212,6 +304,7 @@
 
 
                                 {{-- MODIFIER --}}
+
                                 <button type="button"
                                         class="btn btn-warning btn-sm"
                                         data-toggle="modal"
@@ -224,13 +317,16 @@
 
 
                                 {{-- SUPPRIMER --}}
+
                                 <form action="{{ route('agences.destroy', $agence) }}"
                                       method="POST"
-                                      class="d-inline delete-agence-form">
+                                      class="d-inline delete-form"
+                                      data-delete-message="Cette agence sera définitivement supprimée.">
 
                                     @csrf
 
                                     @method('DELETE')
+
 
                                     <button type="submit"
                                             class="btn btn-danger btn-sm"
@@ -242,355 +338,10 @@
 
                                 </form>
 
+
                             </td>
 
                         </tr>
-
-
-                        {{-- =================================================
-                             MODAL VOIR
-                        ================================================== --}}
-
-                        <div class="modal fade"
-                             id="modalShowAgence{{ $agence->id }}"
-                             data-backdrop="static"
-                             data-keyboard="false"
-                             tabindex="-1"
-                             role="dialog"
-                             aria-hidden="true">
-
-                            <div class="modal-dialog modal-md"
-                                 role="document">
-
-                                <div class="modal-content">
-
-
-                                    <div class="modal-header bg-info">
-
-                                        <h5 class="modal-title text-white">
-
-                                            <i class="fas fa-building mr-2"></i>
-
-                                            Détails de l'agence
-
-                                        </h5>
-
-
-                                        <button type="button"
-                                                class="close text-white"
-                                                data-dismiss="modal">
-
-                                            <span>&times;</span>
-
-                                        </button>
-
-                                    </div>
-
-
-                                    <div class="modal-body">
-
-
-                                        <div class="row mb-3">
-
-                                            <div class="col-md-4 font-weight-bold">
-                                                Code :
-                                            </div>
-
-                                            <div class="col-md-8">
-                                                {{ $agence->code }}
-                                            </div>
-
-                                        </div>
-
-
-                                        <div class="row mb-3">
-
-                                            <div class="col-md-4 font-weight-bold">
-                                                Nom :
-                                            </div>
-
-                                            <div class="col-md-8">
-                                                {{ $agence->nom }}
-                                            </div>
-
-                                        </div>
-
-
-                                        <div class="row mb-3">
-
-                                            <div class="col-md-4 font-weight-bold">
-                                                Ville :
-                                            </div>
-
-                                            <div class="col-md-8">
-                                                {{ $agence->ville }}
-                                            </div>
-
-                                        </div>
-
-
-                                        <div class="row mb-3">
-
-                                            <div class="col-md-4 font-weight-bold">
-                                                Adresse :
-                                            </div>
-
-                                            <div class="col-md-8">
-
-                                                {{ $agence->adresse ?? 'Non renseignée' }}
-
-                                            </div>
-
-                                        </div>
-
-
-                                        <div class="row mb-3">
-
-                                            <div class="col-md-4 font-weight-bold">
-                                                Téléphone :
-                                            </div>
-
-                                            <div class="col-md-8">
-
-                                                {{ $agence->telephone ?? 'Non renseigné' }}
-
-                                            </div>
-
-                                        </div>
-
-
-                                        <div class="row">
-
-                                            <div class="col-md-4 font-weight-bold">
-                                                Statut :
-                                            </div>
-
-                                            <div class="col-md-8">
-
-                                                @if($agence->active)
-
-                                                    <span class="badge badge-success">
-                                                        Active
-                                                    </span>
-
-                                                @else
-
-                                                    <span class="badge badge-secondary">
-                                                        Inactive
-                                                    </span>
-
-                                                @endif
-
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-
-
-                                    <div class="modal-footer">
-
-                                        <button type="button"
-                                                class="btn btn-secondary"
-                                                data-dismiss="modal">
-
-                                            Fermer
-
-                                        </button>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-
-                        {{-- =================================================
-                             MODAL MODIFIER
-                        ================================================== --}}
-
-                        <div class="modal fade"
-                             id="modalEditAgence{{ $agence->id }}"
-                             data-backdrop="static"
-                             data-keyboard="false"
-                             tabindex="-1"
-                             role="dialog"
-                             aria-hidden="true">
-
-                            <div class="modal-dialog modal-lg"
-                                 role="document">
-
-                                <div class="modal-content">
-
-
-                                    <form action="{{ route('agences.update', $agence) }}"
-                                          method="POST">
-
-                                        @csrf
-
-                                        @method('PUT')
-
-
-                                        <div class="modal-header bg-warning">
-
-                                            <h5 class="modal-title">
-
-                                                <i class="fas fa-edit mr-2"></i>
-
-                                                Modifier l'agence
-
-                                            </h5>
-
-
-                                            <button type="button"
-                                                    class="close"
-                                                    data-dismiss="modal">
-
-                                                <span>&times;</span>
-
-                                            </button>
-
-                                        </div>
-
-
-                                        <div class="modal-body">
-
-
-                                            {{-- CODE --}}
-                                            <div class="form-group">
-
-                                                <label>
-                                                    Code de l'agence
-                                                </label>
-
-                                                <input type="text"
-                                                       name="code"
-                                                       value="{{ $agence->code }}"
-                                                       class="form-control"
-                                                       required>
-
-                                            </div>
-
-
-                                            {{-- NOM --}}
-                                            <div class="form-group">
-
-                                                <label>
-                                                    Nom de l'agence
-                                                </label>
-
-                                                <input type="text"
-                                                       name="nom"
-                                                       value="{{ $agence->nom }}"
-                                                       class="form-control"
-                                                       required>
-
-                                            </div>
-
-
-                                            {{-- VILLE --}}
-                                            <div class="form-group">
-
-                                                <label>
-                                                    Ville
-                                                </label>
-
-                                                <input type="text"
-                                                       name="ville"
-                                                       value="{{ $agence->ville }}"
-                                                       class="form-control"
-                                                       required>
-
-                                            </div>
-
-
-                                            {{-- ADRESSE --}}
-                                            <div class="form-group">
-
-                                                <label>
-                                                    Adresse
-                                                </label>
-
-                                                <input type="text"
-                                                       name="adresse"
-                                                       value="{{ $agence->adresse }}"
-                                                       class="form-control">
-
-                                            </div>
-
-
-                                            {{-- TELEPHONE --}}
-                                            <div class="form-group">
-
-                                                <label>
-                                                    Téléphone
-                                                </label>
-
-                                                <input type="text"
-                                                       name="telephone"
-                                                       value="{{ $agence->telephone }}"
-                                                       class="form-control">
-
-                                            </div>
-
-
-                                            {{-- STATUT --}}
-                                            <div class="form-group">
-
-                                                <div class="custom-control custom-switch">
-
-                                                    <input type="checkbox"
-                                                           class="custom-control-input"
-                                                           id="activeEdit{{ $agence->id }}"
-                                                           name="active"
-                                                           value="1"
-                                                           {{ $agence->active ? 'checked' : '' }}>
-
-                                                    <label class="custom-control-label"
-                                                           for="activeEdit{{ $agence->id }}">
-
-                                                        Agence active
-
-                                                    </label>
-
-                                                </div>
-
-                                            </div>
-
-                                        </div>
-
-
-                                        <div class="modal-footer">
-
-                                            <button type="button"
-                                                    class="btn btn-secondary"
-                                                    data-dismiss="modal">
-
-                                                Annuler
-
-                                            </button>
-
-
-                                            <button type="submit"
-                                                    class="btn btn-warning">
-
-                                                <i class="fas fa-save mr-1"></i>
-
-                                                Enregistrer
-
-                                            </button>
-
-                                        </div>
-
-                                    </form>
-
-                                </div>
-
-                            </div>
-
-                        </div>
 
 
                     @empty
@@ -598,13 +349,31 @@
                         <tr>
 
                             <td colspan="7"
-                                class="text-center py-4">
+                                class="text-center py-5">
 
-                                <i class="fas fa-building fa-2x text-muted"></i>
 
-                                <p class="mt-2 mb-0">
+                                <i class="fas fa-building fa-3x text-muted mb-3"></i>
 
-                                    Aucune agence enregistrée.
+
+                                <p class="text-muted mb-0">
+
+
+                                    @if(!empty($search))
+
+                                        Aucune agence trouvée pour :
+
+                                        <strong>
+
+                                            {{ $search }}
+
+                                        </strong>
+
+                                    @else
+
+                                        Aucune agence enregistrée.
+
+                                    @endif
+
 
                                 </p>
 
@@ -613,6 +382,7 @@
                         </tr>
 
                     @endforelse
+
 
                 </tbody>
 
@@ -623,10 +393,13 @@
     </div>
 
 
-    {{-- PAGINATION --}}
+    {{-- =====================================================
+         PAGINATION
+    ====================================================== --}}
+
     @if($agences->hasPages())
 
-        <div class="card-footer">
+        <div class="card-footer bg-white">
 
             {{ $agences->links() }}
 
@@ -634,266 +407,19 @@
 
     @endif
 
-</div>
-
-
-
-{{-- =========================================================
-     MODAL NOUVELLE AGENCE
-========================================================= --}}
-
-<div class="modal fade"
-     id="modalCreateAgence"
-     data-backdrop="static"
-     data-keyboard="false"
-     tabindex="-1"
-     role="dialog"
-     aria-hidden="true">
-
-    <div class="modal-dialog modal-lg"
-         role="document">
-
-        <div class="modal-content">
-
-
-            <form action="{{ route('agences.store') }}"
-                  method="POST"
-                  autocomplete="off">
-
-                @csrf
-
-
-                <div class="modal-header bg-primary">
-
-                    <h5 class="modal-title text-white">
-
-                        <i class="fas fa-building mr-2"></i>
-
-                        Nouvelle agence
-
-                    </h5>
-
-
-                    <button type="button"
-                            class="close text-white"
-                            data-dismiss="modal">
-
-                        <span>&times;</span>
-
-                    </button>
-
-                </div>
-
-
-                <div class="modal-body">
-
-
-                    {{-- CODE --}}
-                    <div class="form-group">
-
-                        <label>
-                            Code de l'agence
-                        </label>
-
-                        <input type="text"
-                               name="code"
-                               value="{{ old('code') }}"
-                               class="form-control"
-                               placeholder="Ex : AG001"
-                               autocomplete="off"
-                               required>
-
-                    </div>
-
-
-                    {{-- NOM --}}
-                    <div class="form-group">
-
-                        <label>
-                            Nom de l'agence
-                        </label>
-
-                        <input type="text"
-                               name="nom"
-                               value="{{ old('nom') }}"
-                               class="form-control"
-                               placeholder="Ex : Agence Mazala"
-                               required>
-
-                    </div>
-
-
-                    {{-- VILLE --}}
-                    <div class="form-group">
-
-                        <label>
-                            Ville
-                        </label>
-
-                        <input type="text"
-                               name="ville"
-                               value="{{ old('ville') }}"
-                               class="form-control"
-                               placeholder="Ex : Brazzaville"
-                               required>
-
-                    </div>
-
-
-                    {{-- ADRESSE --}}
-                    <div class="form-group">
-
-                        <label>
-                            Adresse
-                        </label>
-
-                        <input type="text"
-                               name="adresse"
-                               value="{{ old('adresse') }}"
-                               class="form-control"
-                               placeholder="Adresse de l'agence">
-
-                    </div>
-
-
-                    {{-- TELEPHONE --}}
-                    <div class="form-group">
-
-                        <label>
-                            Téléphone
-                        </label>
-
-                        <input type="text"
-                               name="telephone"
-                               value="{{ old('telephone') }}"
-                               class="form-control"
-                               placeholder="Ex : 06 xxx xx xx"
-                               autocomplete="off">
-
-                    </div>
-
-
-                    {{-- STATUT --}}
-                    <div class="form-group">
-
-                        <div class="custom-control custom-switch">
-
-                            <input type="checkbox"
-                                   class="custom-control-input"
-                                   id="activeCreateAgence"
-                                   name="active"
-                                   value="1"
-                                   checked>
-
-                            <label class="custom-control-label"
-                                   for="activeCreateAgence">
-
-                                Agence active
-
-                            </label>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <div class="modal-footer">
-
-                    <button type="button"
-                            class="btn btn-secondary"
-                            data-dismiss="modal">
-
-                        Annuler
-
-                    </button>
-
-
-                    <button type="submit"
-                            class="btn btn-primary">
-
-                        <i class="fas fa-save mr-1"></i>
-
-                        Enregistrer
-
-                    </button>
-
-                </div>
-
-            </form>
-
-        </div>
-
-    </div>
 
 </div>
 
 
 {{-- =========================================================
-     SWEETALERT SUPPRESSION
+     MODALS
 ========================================================= --}}
 
-@push('scripts')
+@include('agences.modal.create')
 
-<script>
+@include('agences.modal.edit')
 
-document.addEventListener('DOMContentLoaded', function () {
+@include('agences.modal.show')
 
-
-    const deleteForms =
-        document.querySelectorAll('.delete-agence-form');
-
-
-    deleteForms.forEach(function (form) {
-
-
-        form.addEventListener('submit', function (event) {
-
-            event.preventDefault();
-
-
-            Swal.fire({
-
-                title: 'Êtes-vous sûr ?',
-
-                text: 'Cette agence sera définitivement supprimée.',
-
-                icon: 'warning',
-
-                showCancelButton: true,
-
-                confirmButtonColor: '#d33',
-
-                cancelButtonColor: '#6c757d',
-
-                confirmButtonText: 'Oui, supprimer',
-
-                cancelButtonText: 'Annuler',
-
-                reverseButtons: true
-
-            }).then(function (result) {
-
-
-                if (result.isConfirmed) {
-
-                    form.submit();
-
-                }
-
-            });
-
-        });
-
-
-    });
-
-
-});
-
-</script>
-
-@endpush
 
 @endsection
