@@ -260,20 +260,27 @@
                     @endif
 
                     {{-- Équipes --}}
-                    <li class="nav-item">
+                   @if(
+                        auth()->user()->role === 'admin' ||
+                        auth()->user()->role === 'chef_parc'
+                    )
 
-                        <a href="#"
-                           class="nav-link">
+                        <li class="nav-item">
 
-                            <i class="nav-icon fas fa-users"></i>
+                            <a href="{{ route('equipes.index') }}"
+                            class="nav-link">
 
-                            <p>
-                                Équipes
-                            </p>
+                                <i class="nav-icon fas fa-users-cog"></i>
 
-                        </a>
+                                <p>
+                                    Équipes
+                                </p>
 
-                    </li>
+                            </a>
+
+                        </li>
+
+                    @endif
 
 
                     {{-- Lignes --}}

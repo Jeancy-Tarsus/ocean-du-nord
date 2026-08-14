@@ -16,22 +16,31 @@ class ChauffeurController extends Controller
         $search = $request->input('search');
 
         $chauffeurs = Chauffeur::query()
-            ->when($search, function ($query, $search) {
+
+            ->when($search, function ($query) use ($search) {
+
                 $query->where(function ($q) use ($search) {
 
-                    $q->where('matricule', 'like', "%{$search}%")
-                        ->orWhere('nom', 'like', "%{$search}%")
-                        ->orWhere('prenom', 'like', "%{$search}%")
-                        ->orWhere('telephone', 'like', "%{$search}%")
-                        ->orWhere('numero_permis', 'like', "%{$search}%")
-                        ->orWhere('statut', 'like', "%{$search}%");
+                    $q->where('matricule', 'like', '%' . $search . '%')
+                        ->orWhere('nom', 'like', '%' . $search . '%')
+                        ->orWhere('prenom', 'like', '%' . $search . '%')
+                        ->orWhere('telephone', 'like', '%' . $search . '%')
+                        ->orWhere('numero_permis', 'like', '%' . $search . '%')
+                        ->orWhere('statut', 'like', '%' . $search . '%');
                 });
             })
+
             ->latest()
+
             ->paginate(10)
+
             ->withQueryString();
 
-        return view('chauffeurs.index', compact('chauffeurs', 'search'));
+
+        return view('chauffeurs.index', compact(
+            'chauffeurs',
+            'search'
+        ));
     }
 
     /**

@@ -7,64 +7,25 @@
 @section('content')
 
 {{-- =========================================================
-     MESSAGES
+     MESSAGES POUR SWEETALERT
 ========================================================= --}}
 
 @if(session('success'))
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            Swal.fire({
-                icon: 'success',
-                title: 'Succès',
-                text: @json(session('success')),
-                confirmButtonText: 'OK'
-            });
-        });
-    </script>
-
+    <div id="ocn-success-message"
+         data-message="{{ session('success') }}">
+    </div>
 @endif
-
 
 @if(session('error'))
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            Swal.fire({
-                icon: 'error',
-                title: 'Erreur',
-                text: @json(session('error')),
-                confirmButtonText: 'OK'
-            });
-        });
-    </script>
-
+    <div id="ocn-error-message"
+         data-message="{{ session('error') }}">
+    </div>
 @endif
 
-
-{{-- =========================================================
-     ERREURS DE VALIDATION
-========================================================= --}}
-
 @if($errors->any())
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            Swal.fire({
-                icon: 'error',
-                title: 'Erreur de validation',
-                html: `
-                    <ul style="text-align:left;">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                `,
-                confirmButtonText: 'OK'
-            });
-        });
-    </script>
-
+    <div id="ocn-validation-errors"
+         data-errors='@json($errors->all())'>
+    </div>
 @endif
 
 
@@ -72,67 +33,78 @@
      CARD PRINCIPALE
 ========================================================= --}}
 
-<div class="card">
+<div class="card ocn-card shadow-sm">
 
-    <div class="card-header">
+    <div class="card-header bg-white">
 
-        <h3 class="card-title">
+        <div class="row align-items-center">
 
-            <i class="fas fa-id-card mr-2"></i>
+            {{-- TITRE --}}
+            <div class="col-md-4">
 
-            Liste des chauffeurs
+                <h3 class="card-title ocn-title mb-0">
 
-        </h3>
+                    <i class="fas fa-id-card mr-2"></i>
 
+                    Liste des chauffeurs
 
-        <div class="card-tools">
+                </h3>
+
+            </div>
+
 
             {{-- RECHERCHE --}}
-            <form action="{{ route('chauffeurs.index') }}"
-                  method="GET"
-                  class="d-flex align-items-center">
+            <div class="col-md-5">
 
-                <div class="input-group input-group-sm mr-2"
-                     style="width: 300px;">
+                <form action="{{ route('chauffeurs.index') }}"
+                      method="GET">
 
-                    <input type="text"
-                           name="search"
-                           value="{{ $search ?? '' }}"
-                           class="form-control"
-                           placeholder="Rechercher un chauffeur..."
-                           autocomplete="off">
+                    <div class="input-group">
 
-                    <div class="input-group-append">
+                        <input type="text"
+                               name="search"
+                               value="{{ $search ?? '' }}"
+                               class="form-control"
+                               placeholder="Rechercher un chauffeur..."
+                               autocomplete="off">
 
-                        <button type="submit"
-                                class="btn btn-primary">
+                        <div class="input-group-append">
 
-                            <i class="fas fa-search"></i>
+                            @if(!empty($search))
 
-                        </button>
+                                <a href="{{ route('chauffeurs.index') }}"
+                                   class="btn btn-secondary"
+                                   title="Réinitialiser la recherche">
+
+                                    <i class="fas fa-times"></i>
+
+                                </a>
+
+                            @endif
+
+                            <button type="submit"
+                                    class="btn ocn-btn">
+
+                                <i class="fas fa-search mr-1"></i>
+
+                                Rechercher
+
+                            </button>
+
+                        </div>
 
                     </div>
 
-                </div>
+                </form>
+
+            </div>
 
 
-                {{-- RÉINITIALISER --}}
-                @if(!empty($search))
+            {{-- NOUVEAU --}}
+            <div class="col-md-3 text-right">
 
-                    <a href="{{ route('chauffeurs.index') }}"
-                       class="btn btn-secondary btn-sm mr-2"
-                       title="Réinitialiser">
-
-                        <i class="fas fa-times"></i>
-
-                    </a>
-
-                @endif
-
-
-                {{-- NOUVEAU --}}
                 <button type="button"
-                        class="btn btn-primary btn-sm"
+                        class="btn ocn-btn"
                         data-toggle="modal"
                         data-target="#modalCreateChauffeur">
 
@@ -142,7 +114,7 @@
 
                 </button>
 
-            </form>
+            </div>
 
         </div>
 
@@ -180,9 +152,9 @@
 
         <div class="table-responsive">
 
-            <table class="table table-hover">
+            <table class="table table-hover mb-0">
 
-                <thead>
+                <thead class="ocn-table-header">
 
                     <tr>
 
@@ -222,8 +194,10 @@
 
                             <td>
 
-                                <strong>
+                                <strong class="ocn-green">
+
                                     {{ $chauffeur->matricule }}
+
                                 </strong>
 
                             </td>
@@ -231,8 +205,12 @@
 
                             <td>
 
-                                {{ $chauffeur->nom }}
-                                {{ $chauffeur->prenom }}
+                                <strong>
+
+                                    {{ $chauffeur->nom }}
+                                    {{ $chauffeur->prenom }}
+
+                                </strong>
 
                             </td>
 
@@ -265,6 +243,7 @@
 
 
                             {{-- DISPONIBILITÉ --}}
+
                             <td>
 
                                 @if($chauffeur->disponible)
@@ -293,6 +272,7 @@
 
 
                             {{-- STATUT --}}
+
                             <td>
 
                                 @switch($chauffeur->statut)
@@ -305,7 +285,6 @@
 
                                         @break
 
-
                                     @case('en_voyage')
 
                                         <span class="badge badge-primary">
@@ -313,7 +292,6 @@
                                         </span>
 
                                         @break
-
 
                                     @case('indisponible')
 
@@ -323,7 +301,6 @@
 
                                         @break
 
-
                                     @case('suspendu')
 
                                         <span class="badge badge-danger">
@@ -331,7 +308,6 @@
                                         </span>
 
                                         @break
-
 
                                     @case('inactif')
 
@@ -347,10 +323,11 @@
 
 
                             {{-- ACTIONS --}}
+
                             <td class="text-center">
 
-
                                 {{-- VOIR --}}
+
                                 <button type="button"
                                         class="btn btn-info btn-sm"
                                         data-toggle="modal"
@@ -363,6 +340,7 @@
 
 
                                 {{-- MODIFIER --}}
+
                                 <button type="button"
                                         class="btn btn-warning btn-sm"
                                         data-toggle="modal"
@@ -375,9 +353,11 @@
 
 
                                 {{-- SUPPRIMER --}}
+
                                 <form action="{{ route('chauffeurs.destroy', $chauffeur) }}"
                                       method="POST"
-                                      class="d-inline delete-chauffeur-form">
+                                      class="d-inline delete-form"
+                                      data-delete-message="Ce chauffeur sera définitivement supprimé.">
 
                                     @csrf
 
@@ -397,816 +377,24 @@
 
                         </tr>
 
-
-                        {{-- =================================================
-                             MODAL VOIR
-                        ================================================== --}}
-
-                        <div class="modal fade"
-                             id="modalShowChauffeur{{ $chauffeur->id }}"
-                             data-backdrop="static"
-                             data-keyboard="false"
-                             tabindex="-1"
-                             role="dialog"
-                             aria-hidden="true">
-
-                            <div class="modal-dialog modal-md"
-                                 role="document">
-
-                                <div class="modal-content">
-
-
-                                    <div class="modal-header bg-info">
-
-                                        <h5 class="modal-title text-white">
-
-                                            <i class="fas fa-user-tie mr-2"></i>
-
-                                            Détails du chauffeur
-
-                                        </h5>
-
-
-                                        <button type="button"
-                                                class="close text-white"
-                                                data-dismiss="modal">
-
-                                            <span>&times;</span>
-
-                                        </button>
-
-                                    </div>
-
-
-                                    <div class="modal-body">
-
-
-                                        <div class="row mb-3">
-
-                                            <div class="col-md-5 font-weight-bold">
-                                                Matricule :
-                                            </div>
-
-                                            <div class="col-md-7">
-                                                {{ $chauffeur->matricule }}
-                                            </div>
-
-                                        </div>
-
-
-                                        <div class="row mb-3">
-
-                                            <div class="col-md-5 font-weight-bold">
-                                                Nom :
-                                            </div>
-
-                                            <div class="col-md-7">
-                                                {{ $chauffeur->nom }}
-                                            </div>
-
-                                        </div>
-
-
-                                        <div class="row mb-3">
-
-                                            <div class="col-md-5 font-weight-bold">
-                                                Prénom :
-                                            </div>
-
-                                            <div class="col-md-7">
-                                                {{ $chauffeur->prenom }}
-                                            </div>
-
-                                        </div>
-
-
-                                        <div class="row mb-3">
-
-                                            <div class="col-md-5 font-weight-bold">
-                                                Téléphone :
-                                            </div>
-
-                                            <div class="col-md-7">
-                                                {{ $chauffeur->telephone ?? 'Non renseigné' }}
-                                            </div>
-
-                                        </div>
-
-
-                                        <div class="row mb-3">
-
-                                            <div class="col-md-5 font-weight-bold">
-                                                N° permis :
-                                            </div>
-
-                                            <div class="col-md-7">
-                                                {{ $chauffeur->numero_permis }}
-                                            </div>
-
-                                        </div>
-
-
-                                        <div class="row mb-3">
-
-                                            <div class="col-md-5 font-weight-bold">
-                                                Expiration permis :
-                                            </div>
-
-                                            <div class="col-md-7">
-
-                                                @if($chauffeur->date_expiration_permis)
-
-                                                    {{ $chauffeur->date_expiration_permis->format('d/m/Y') }}
-
-                                                @else
-
-                                                    Non renseignée
-
-                                                @endif
-
-                                            </div>
-
-                                        </div>
-
-
-                                        <div class="row mb-3">
-
-                                            <div class="col-md-5 font-weight-bold">
-                                                Disponibilité :
-                                            </div>
-
-                                            <div class="col-md-7">
-
-                                                @if($chauffeur->disponible)
-
-                                                    <span class="badge badge-success">
-                                                        Disponible
-                                                    </span>
-
-                                                @else
-
-                                                    <span class="badge badge-danger">
-                                                        Indisponible
-                                                    </span>
-
-                                                @endif
-
-                                            </div>
-
-                                        </div>
-
-
-                                        <div class="row mb-3">
-
-                                            <div class="col-md-5 font-weight-bold">
-                                                Statut :
-                                            </div>
-
-                                            <div class="col-md-7">
-
-                                                @switch($chauffeur->statut)
-
-                                                    @case('actif')
-                                                        <span class="badge badge-success">
-                                                            Actif
-                                                        </span>
-                                                        @break
-
-                                                    @case('en_voyage')
-                                                        <span class="badge badge-primary">
-                                                            En voyage
-                                                        </span>
-                                                        @break
-
-                                                    @case('indisponible')
-                                                        <span class="badge badge-warning">
-                                                            Indisponible
-                                                        </span>
-                                                        @break
-
-                                                    @case('suspendu')
-                                                        <span class="badge badge-danger">
-                                                            Suspendu
-                                                        </span>
-                                                        @break
-
-                                                    @case('inactif')
-                                                        <span class="badge badge-secondary">
-                                                            Inactif
-                                                        </span>
-                                                        @break
-
-                                                @endswitch
-
-                                            </div>
-
-                                        </div>
-
-
-                                        <div class="row">
-
-                                            <div class="col-md-5 font-weight-bold">
-                                                Observation :
-                                            </div>
-
-                                            <div class="col-md-7">
-
-                                                {{ $chauffeur->observation ?? 'Aucune observation' }}
-
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-
-
-                                    <div class="modal-footer">
-
-                                        <button type="button"
-                                                class="btn btn-secondary"
-                                                data-dismiss="modal">
-
-                                            Fermer
-
-                                        </button>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-
-                        {{-- =================================================
-                             MODAL MODIFIER
-                        ================================================== --}}
-<div class="modal fade"
-     id="modalEditChauffeur{{ $chauffeur->id }}"
-     data-backdrop="static"
-     data-keyboard="false"
-     tabindex="-1"
-     role="dialog"
-     aria-hidden="true">
-
-    <div class="modal-dialog modal-lg modal-dialog-centered"
-         role="document">
-
-        <div class="modal-content shadow-lg border-0">
-
-            <form action="{{ route('chauffeurs.update', $chauffeur) }}"
-                  method="POST"
-                  autocomplete="off">
-
-                @csrf
-
-                @method('PUT')
-
-
-                {{-- =====================================================
-                     HEADER
-                ====================================================== --}}
-
-                <div class="modal-header bg-warning">
-
-                    <div>
-
-                        <h5 class="modal-title">
-
-                            <i class="fas fa-user-edit mr-2"></i>
-
-                            Modifier le chauffeur
-
-                        </h5>
-
-                        <small class="text-dark">
-
-                            Modifier les informations du chauffeur
-
-                        </small>
-
-                    </div>
-
-
-                    <button type="button"
-                            class="close"
-                            data-dismiss="modal"
-                            aria-label="Fermer">
-
-                        <span aria-hidden="true">
-                            &times;
-                        </span>
-
-                    </button>
-
-                </div>
-
-
-                {{-- =====================================================
-                     BODY
-                ====================================================== --}}
-
-                <div class="modal-body p-4">
-
-
-                    {{-- =================================================
-                         IDENTITÉ
-                    ================================================== --}}
-
-                    <div class="mb-4">
-
-                        <h6 class="text-warning font-weight-bold border-bottom pb-2">
-
-                            <i class="fas fa-user mr-2"></i>
-
-                            Informations personnelles
-
-                        </h6>
-
-
-                        <div class="row mt-3">
-
-
-                            {{-- MATRICULE --}}
-                            <div class="col-md-6">
-
-                                <div class="form-group">
-
-                                    <label for="matricule{{ $chauffeur->id }}">
-
-                                        Matricule
-
-                                    </label>
-
-                                    <div class="input-group">
-
-                                        <div class="input-group-prepend">
-
-                                            <span class="input-group-text">
-
-                                                <i class="fas fa-id-badge"></i>
-
-                                            </span>
-
-                                        </div>
-
-                                        <input type="text"
-                                               id="matricule{{ $chauffeur->id }}"
-                                               value="{{ $chauffeur->matricule }}"
-                                               class="form-control bg-light"
-                                               readonly>
-
-                                    </div>
-
-                                    <small class="text-muted">
-
-                                        Le matricule est généré automatiquement et ne peut pas être modifié.
-
-                                    </small>
-
-                                </div>
-
-                            </div>
-
-
-                            {{-- TELEPHONE --}}
-                            <div class="col-md-6">
-
-                                <div class="form-group">
-
-                                    <label for="telephone{{ $chauffeur->id }}">
-
-                                        Téléphone
-
-                                    </label>
-
-                                    <div class="input-group">
-
-                                        <div class="input-group-prepend">
-
-                                            <span class="input-group-text">
-
-                                                <i class="fas fa-phone"></i>
-
-                                            </span>
-
-                                        </div>
-
-                                        <input type="text"
-                                               id="telephone{{ $chauffeur->id }}"
-                                               name="telephone"
-                                               value="{{ $chauffeur->telephone }}"
-                                               class="form-control"
-                                               placeholder="Ex : 06 XXX XX XX"
-                                               autocomplete="off">
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="row">
-
-
-                            {{-- NOM --}}
-                            <div class="col-md-6">
-
-                                <div class="form-group">
-
-                                    <label for="nom{{ $chauffeur->id }}">
-
-                                        Nom
-                                        <span class="text-danger">*</span>
-
-                                    </label>
-
-                                    <div class="input-group">
-
-                                        <div class="input-group-prepend">
-
-                                            <span class="input-group-text">
-
-                                                <i class="fas fa-user"></i>
-
-                                            </span>
-
-                                        </div>
-
-                                        <input type="text"
-                                               id="nom{{ $chauffeur->id }}"
-                                               name="nom"
-                                               value="{{ $chauffeur->nom }}"
-                                               class="form-control"
-                                               placeholder="Nom du chauffeur"
-                                               autocomplete="off"
-                                               required>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-
-                            {{-- PRENOM --}}
-                            <div class="col-md-6">
-
-                                <div class="form-group">
-
-                                    <label for="prenom{{ $chauffeur->id }}">
-
-                                        Prénom
-                                        <span class="text-danger">*</span>
-
-                                    </label>
-
-                                    <div class="input-group">
-
-                                        <div class="input-group-prepend">
-
-                                            <span class="input-group-text">
-
-                                                <i class="fas fa-user"></i>
-
-                                            </span>
-
-                                        </div>
-
-                                        <input type="text"
-                                               id="prenom{{ $chauffeur->id }}"
-                                               name="prenom"
-                                               value="{{ $chauffeur->prenom }}"
-                                               class="form-control"
-                                               placeholder="Prénom du chauffeur"
-                                               autocomplete="off"
-                                               required>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-
-                    {{-- =================================================
-                         PERMIS
-                    ================================================== --}}
-
-                    <div class="mb-4">
-
-                        <h6 class="text-warning font-weight-bold border-bottom pb-2">
-
-                            <i class="fas fa-id-card mr-2"></i>
-
-                            Informations du permis
-
-                        </h6>
-
-
-                        <div class="row mt-3">
-
-
-                            {{-- NUMERO PERMIS --}}
-                            <div class="col-md-6">
-
-                                <div class="form-group">
-
-                                    <label for="numero_permis{{ $chauffeur->id }}">
-
-                                        Numéro de permis
-                                        <span class="text-danger">*</span>
-
-                                    </label>
-
-                                    <div class="input-group">
-
-                                        <div class="input-group-prepend">
-
-                                            <span class="input-group-text">
-
-                                                <i class="fas fa-id-card"></i>
-
-                                            </span>
-
-                                        </div>
-
-                                        <input type="text"
-                                               id="numero_permis{{ $chauffeur->id }}"
-                                               name="numero_permis"
-                                               value="{{ $chauffeur->numero_permis }}"
-                                               class="form-control"
-                                               placeholder="Numéro du permis"
-                                               autocomplete="off"
-                                               required>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-
-                            {{-- EXPIRATION --}}
-                            <div class="col-md-6">
-
-                                <div class="form-group">
-
-                                    <label for="date_expiration_permis{{ $chauffeur->id }}">
-
-                                        Date d'expiration
-
-                                    </label>
-
-                                    <div class="input-group">
-
-                                        <div class="input-group-prepend">
-
-                                            <span class="input-group-text">
-
-                                                <i class="fas fa-calendar-alt"></i>
-
-                                            </span>
-
-                                        </div>
-
-                                        <input type="date"
-                                               id="date_expiration_permis{{ $chauffeur->id }}"
-                                               name="date_expiration_permis"
-                                               value="{{ $chauffeur->date_expiration_permis?->format('Y-m-d') }}"
-                                               class="form-control">
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-
-                    {{-- =================================================
-                         SITUATION
-                    ================================================== --}}
-
-                    <div class="mb-4">
-
-                        <h6 class="text-warning font-weight-bold border-bottom pb-2">
-
-                            <i class="fas fa-cogs mr-2"></i>
-
-                            Situation du chauffeur
-
-                        </h6>
-
-
-                        <div class="row mt-3">
-
-
-                            {{-- STATUT --}}
-                            <div class="col-md-6">
-
-                                <div class="form-group">
-
-                                    <label for="statut{{ $chauffeur->id }}">
-
-                                        Statut
-                                        <span class="text-danger">*</span>
-
-                                    </label>
-
-                                    <select name="statut"
-                                            id="statut{{ $chauffeur->id }}"
-                                            class="form-control"
-                                            required>
-
-                                        <option value="actif"
-                                            {{ $chauffeur->statut === 'actif' ? 'selected' : '' }}>
-
-                                            Actif
-
-                                        </option>
-
-                                        <option value="en_voyage"
-                                            {{ $chauffeur->statut === 'en_voyage' ? 'selected' : '' }}>
-
-                                            En voyage
-
-                                        </option>
-
-                                        <option value="indisponible"
-                                            {{ $chauffeur->statut === 'indisponible' ? 'selected' : '' }}>
-
-                                            Indisponible
-
-                                        </option>
-
-                                        <option value="suspendu"
-                                            {{ $chauffeur->statut === 'suspendu' ? 'selected' : '' }}>
-
-                                            Suspendu
-
-                                        </option>
-
-                                        <option value="inactif"
-                                            {{ $chauffeur->statut === 'inactif' ? 'selected' : '' }}>
-
-                                            Inactif
-
-                                        </option>
-
-                                    </select>
-
-                                </div>
-
-                            </div>
-
-
-                            {{-- DISPONIBILITE --}}
-                            <div class="col-md-6">
-
-                                <div class="form-group">
-
-                                    <label for="disponible{{ $chauffeur->id }}">
-
-                                        Disponibilité
-                                        <span class="text-danger">*</span>
-
-                                    </label>
-
-                                    <select name="disponible"
-                                            id="disponible{{ $chauffeur->id }}"
-                                            class="form-control"
-                                            required>
-
-                                        <option value="1"
-                                            {{ $chauffeur->disponible ? 'selected' : '' }}>
-
-                                            Disponible
-
-                                        </option>
-
-                                        <option value="0"
-                                            {{ !$chauffeur->disponible ? 'selected' : '' }}>
-
-                                            Indisponible
-
-                                        </option>
-
-                                    </select>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-
-                    {{-- =================================================
-                         OBSERVATION
-                    ================================================== --}}
-
-                    <div class="form-group">
-
-                        <label for="observation{{ $chauffeur->id }}">
-
-                            <i class="fas fa-comment-alt mr-1"></i>
-
-                            Observation
-
-                        </label>
-
-                        <textarea name="observation"
-                                  id="observation{{ $chauffeur->id }}"
-                                  class="form-control"
-                                  rows="3"
-                                  placeholder="Informations supplémentaires concernant le chauffeur...">{{ $chauffeur->observation }}</textarea>
-
-                    </div>
-
-
-                    <div class="mt-3">
-
-                        <small class="text-muted">
-
-                            <span class="text-danger">*</span>
-
-                            Champs obligatoires
-
-                        </small>
-
-                    </div>
-
-                </div>
-
-
-                {{-- =====================================================
-                     FOOTER
-                ====================================================== --}}
-
-                <div class="modal-footer bg-light">
-
-                    <button type="button"
-                            class="btn btn-secondary"
-                            data-dismiss="modal">
-
-                        <i class="fas fa-times mr-1"></i>
-
-                        Annuler
-
-                    </button>
-
-
-                    <button type="submit"
-                            class="btn btn-warning px-4">
-
-                        <i class="fas fa-save mr-1"></i>
-
-                        Enregistrer les modifications
-
-                    </button>
-
-                </div>
-
-            </form>
-
-        </div>
-
-    </div>
-
-</div>
-
-
                     @empty
 
                         <tr>
 
                             <td colspan="8"
-                                class="text-center py-4">
+                                class="text-center py-5">
 
-                                <i class="fas fa-user-tie fa-2x text-muted"></i>
+                                <i class="fas fa-user-tie fa-3x text-muted mb-3"></i>
 
-                                <p class="mt-2 mb-0">
+                                <p class="text-muted mb-0">
 
                                     @if(!empty($search))
 
                                         Aucun chauffeur trouvé pour
-                                        <strong>{{ $search }}</strong>.
+
+                                        <strong>
+                                            {{ $search }}
+                                        </strong>.
 
                                     @else
 
@@ -1231,10 +419,13 @@
     </div>
 
 
-    {{-- PAGINATION --}}
+    {{-- =====================================================
+         PAGINATION
+    ====================================================== --}}
+
     @if($chauffeurs->hasPages())
 
-        <div class="card-footer">
+        <div class="card-footer bg-white">
 
             {{ $chauffeurs->links() }}
 
@@ -1245,617 +436,14 @@
 </div>
 
 
-
 {{-- =========================================================
-     MODAL NOUVEAU CHAUFFEUR
+     MODALS
 ========================================================= --}}
 
-<div class="modal fade"
-     id="modalCreateChauffeur"
-     data-backdrop="static"
-     data-keyboard="false"
-     tabindex="-1"
-     role="dialog"
-     aria-hidden="true">
+@include('chauffeurs.modal.create')
 
-    <div class="modal-dialog modal-lg modal-dialog-centered"
-         role="document">
+@include('chauffeurs.modal.edit')
 
-        <div class="modal-content shadow-lg border-0">
-
-            <form action="{{ route('chauffeurs.store') }}"
-                  method="POST"
-                  autocomplete="off">
-
-                @csrf
-
-
-                {{-- =====================================================
-                     HEADER
-                ====================================================== --}}
-
-                <div class="modal-header bg-primary">
-
-                    <div>
-
-                        <h5 class="modal-title text-white mb-1">
-
-                            <i class="fas fa-user-plus mr-2"></i>
-
-                            Nouveau chauffeur
-
-                        </h5>
-
-                        <small class="text-white-50">
-
-                            Enregistrer un nouveau chauffeur dans le parc
-
-                        </small>
-
-                    </div>
-
-
-                    <button type="button"
-                            class="close text-white"
-                            data-dismiss="modal"
-                            aria-label="Fermer">
-
-                        <span aria-hidden="true">
-                            &times;
-                        </span>
-
-                    </button>
-
-                </div>
-
-
-                {{-- =====================================================
-                     BODY
-                ====================================================== --}}
-
-                <div class="modal-body p-4">
-
-
-                    {{-- =================================================
-                         INFORMATIONS PERSONNELLES
-                    ================================================== --}}
-
-                    <div class="mb-4">
-
-                        <h6 class="text-primary font-weight-bold border-bottom pb-2">
-
-                            <i class="fas fa-user mr-2"></i>
-
-                            Informations personnelles
-
-                        </h6>
-
-
-                        <div class="row mt-3">
-
-
-                            {{-- NOM --}}
-                            <div class="col-md-6">
-
-                                <div class="form-group">
-
-                                    <label for="nom">
-
-                                        Nom
-                                        <span class="text-danger">*</span>
-
-                                    </label>
-
-                                    <div class="input-group">
-
-                                        <div class="input-group-prepend">
-
-                                            <span class="input-group-text">
-
-                                                <i class="fas fa-user"></i>
-
-                                            </span>
-
-                                        </div>
-
-                                        <input type="text"
-                                               id="nom"
-                                               name="nom"
-                                               value="{{ old('nom') }}"
-                                               class="form-control"
-                                               placeholder="Ex : MBOUKOU"
-                                               autocomplete="off"
-                                               required>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-
-                            {{-- PRENOM --}}
-                            <div class="col-md-6">
-
-                                <div class="form-group">
-
-                                    <label for="prenom">
-
-                                        Prénom
-                                        <span class="text-danger">*</span>
-
-                                    </label>
-
-                                    <div class="input-group">
-
-                                        <div class="input-group-prepend">
-
-                                            <span class="input-group-text">
-
-                                                <i class="fas fa-user"></i>
-
-                                            </span>
-
-                                        </div>
-
-                                        <input type="text"
-                                               id="prenom"
-                                               name="prenom"
-                                               value="{{ old('prenom') }}"
-                                               class="form-control"
-                                               placeholder="Ex : Jean"
-                                               autocomplete="off"
-                                               required>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="row">
-
-
-                            {{-- TELEPHONE --}}
-                            <div class="col-md-6">
-
-                                <div class="form-group">
-
-                                    <label for="telephone">
-
-                                        Téléphone
-
-                                    </label>
-
-                                    <div class="input-group">
-
-                                        <div class="input-group-prepend">
-
-                                            <span class="input-group-text">
-
-                                                <i class="fas fa-phone"></i>
-
-                                            </span>
-
-                                        </div>
-
-                                        <input type="text"
-                                               id="telephone"
-                                               name="telephone"
-                                               value="{{ old('telephone') }}"
-                                               class="form-control"
-                                               placeholder="Ex : 06 XXX XX XX"
-                                               autocomplete="off">
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-
-                            {{-- MATRICULE AUTOMATIQUE --}}
-                            <div class="col-md-6">
-
-                                <div class="form-group">
-
-                                    <label>
-
-                                        Matricule
-
-                                    </label>
-
-                                    <div class="input-group">
-
-                                        <div class="input-group-prepend">
-
-                                            <span class="input-group-text">
-
-                                                <i class="fas fa-id-badge"></i>
-
-                                            </span>
-
-                                        </div>
-
-                                        <input type="text"
-                                               class="form-control bg-light"
-                                               value="Généré automatiquement"
-                                               readonly>
-
-                                    </div>
-
-                                    <small class="text-muted">
-
-                                        Le matricule sera généré automatiquement par le système.
-
-                                    </small>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-
-                    {{-- =================================================
-                         INFORMATIONS PERMIS
-                    ================================================== --}}
-
-                    <div class="mb-4">
-
-                        <h6 class="text-primary font-weight-bold border-bottom pb-2">
-
-                            <i class="fas fa-id-card mr-2"></i>
-
-                            Informations du permis
-
-                        </h6>
-
-
-                        <div class="row mt-3">
-
-
-                            {{-- NUMERO PERMIS --}}
-                            <div class="col-md-6">
-
-                                <div class="form-group">
-
-                                    <label for="numero_permis">
-
-                                        Numéro de permis
-                                        <span class="text-danger">*</span>
-
-                                    </label>
-
-                                    <div class="input-group">
-
-                                        <div class="input-group-prepend">
-
-                                            <span class="input-group-text">
-
-                                                <i class="fas fa-id-card"></i>
-
-                                            </span>
-
-                                        </div>
-
-                                        <input type="text"
-                                               id="numero_permis"
-                                               name="numero_permis"
-                                               value="{{ old('numero_permis') }}"
-                                               class="form-control"
-                                               placeholder="Numéro du permis"
-                                               autocomplete="off"
-                                               required>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-
-                            {{-- EXPIRATION --}}
-                            <div class="col-md-6">
-
-                                <div class="form-group">
-
-                                    <label for="date_expiration_permis">
-
-                                        Date d'expiration
-
-                                    </label>
-
-                                    <div class="input-group">
-
-                                        <div class="input-group-prepend">
-
-                                            <span class="input-group-text">
-
-                                                <i class="fas fa-calendar-alt"></i>
-
-                                            </span>
-
-                                        </div>
-
-                                        <input type="date"
-                                               id="date_expiration_permis"
-                                               name="date_expiration_permis"
-                                               value="{{ old('date_expiration_permis') }}"
-                                               class="form-control">
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-
-                    {{-- =================================================
-                         SITUATION DU CHAUFFEUR
-                    ================================================== --}}
-
-                    <div class="mb-4">
-
-                        <h6 class="text-primary font-weight-bold border-bottom pb-2">
-
-                            <i class="fas fa-cogs mr-2"></i>
-
-                            Situation du chauffeur
-
-                        </h6>
-
-
-                        <div class="row mt-3">
-
-
-                            {{-- STATUT --}}
-                            <div class="col-md-6">
-
-                                <div class="form-group">
-
-                                    <label for="statut">
-
-                                        Statut
-                                        <span class="text-danger">*</span>
-
-                                    </label>
-
-                                    <select name="statut"
-                                            id="statut"
-                                            class="form-control"
-                                            required>
-
-                                        <option value="actif"
-                                            {{ old('statut', 'actif') === 'actif' ? 'selected' : '' }}>
-
-                                            Actif
-
-                                        </option>
-
-                                        <option value="en_voyage"
-                                            {{ old('statut') === 'en_voyage' ? 'selected' : '' }}>
-
-                                            En voyage
-
-                                        </option>
-
-                                        <option value="indisponible"
-                                            {{ old('statut') === 'indisponible' ? 'selected' : '' }}>
-
-                                            Indisponible
-
-                                        </option>
-
-                                        <option value="suspendu"
-                                            {{ old('statut') === 'suspendu' ? 'selected' : '' }}>
-
-                                            Suspendu
-
-                                        </option>
-
-                                        <option value="inactif"
-                                            {{ old('statut') === 'inactif' ? 'selected' : '' }}>
-
-                                            Inactif
-
-                                        </option>
-
-                                    </select>
-
-                                </div>
-
-                            </div>
-
-
-                            {{-- DISPONIBILITE --}}
-                            <div class="col-md-6">
-
-                                <div class="form-group">
-
-                                    <label for="disponible">
-
-                                        Disponibilité
-                                        <span class="text-danger">*</span>
-
-                                    </label>
-
-                                    <select name="disponible"
-                                            id="disponible"
-                                            class="form-control"
-                                            required>
-
-                                        <option value="1"
-                                            {{ old('disponible', '1') == '1' ? 'selected' : '' }}>
-
-                                            Disponible
-
-                                        </option>
-
-                                        <option value="0"
-                                            {{ old('disponible') === '0' ? 'selected' : '' }}>
-
-                                            Indisponible
-
-                                        </option>
-
-                                    </select>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-
-                    {{-- =================================================
-                         OBSERVATION
-                    ================================================== --}}
-
-                    <div class="form-group">
-
-                        <label for="observation">
-
-                            <i class="fas fa-comment-alt mr-1"></i>
-
-                            Observation
-
-                        </label>
-
-                        <textarea name="observation"
-                                  id="observation"
-                                  class="form-control"
-                                  rows="3"
-                                  placeholder="Informations supplémentaires concernant le chauffeur...">{{ old('observation') }}</textarea>
-
-                    </div>
-
-
-                    {{-- LÉGENDE --}}
-                    <div class="mt-3">
-
-                        <small class="text-muted">
-
-                            <span class="text-danger">*</span>
-
-                            Champs obligatoires
-
-                        </small>
-
-                    </div>
-
-                </div>
-
-
-                {{-- =====================================================
-                     FOOTER
-                ====================================================== --}}
-
-                <div class="modal-footer bg-light">
-
-                    <button type="button"
-                            class="btn btn-secondary"
-                            data-dismiss="modal">
-
-                        <i class="fas fa-times mr-1"></i>
-
-                        Annuler
-
-                    </button>
-
-
-                    <button type="submit"
-                            class="btn btn-primary px-4">
-
-                        <i class="fas fa-save mr-1"></i>
-
-                        Enregistrer le chauffeur
-
-                    </button>
-
-                </div>
-
-            </form>
-
-        </div>
-
-    </div>
-
-</div>
-
-{{-- =========================================================
-     SWEETALERT SUPPRESSION
-========================================================= --}}
-
-@push('scripts')
-
-<script>
-
-document.addEventListener('DOMContentLoaded', function () {
-
-    const deleteForms =
-        document.querySelectorAll('.delete-chauffeur-form');
-
-
-    deleteForms.forEach(function (form) {
-
-        form.addEventListener('submit', function (event) {
-
-            event.preventDefault();
-
-
-            Swal.fire({
-
-                title: 'Êtes-vous sûr ?',
-
-                text: 'Ce chauffeur sera définitivement supprimé.',
-
-                icon: 'warning',
-
-                showCancelButton: true,
-
-                confirmButtonColor: '#d33',
-
-                cancelButtonColor: '#6c757d',
-
-                confirmButtonText: 'Oui, supprimer',
-
-                cancelButtonText: 'Annuler',
-
-                reverseButtons: true
-
-            }).then(function (result) {
-
-                if (result.isConfirmed) {
-
-                    form.submit();
-
-                }
-
-            });
-
-        });
-
-    });
-
-});
-
-</script>
-
-@endpush
+@include('chauffeurs.modal.show')
 
 @endsection

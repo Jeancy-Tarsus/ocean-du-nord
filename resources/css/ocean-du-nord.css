@@ -1,0 +1,147 @@
+/* =========================================================
+   OCÉAN DU NORD - IDENTITÉ VISUELLE
+========================================================= */
+
+:root {
+    --ocn-green: #198754;
+    --ocn-green-dark: #157347;
+    --ocn-green-light: #e8f5ee;
+
+    --ocn-white: #ffffff;
+    --ocn-gray: #f8f9fa;
+    --ocn-border: #dee2e6;
+
+    --ocn-danger: #dc3545;
+    --ocn-warning: #ffc107;
+    --ocn-info: #0dcaf0;
+}
+
+
+/* =========================================================
+   BOUTONS
+========================================================= */
+
+.ocn-btn {
+    background-color: var(--ocn-green);
+    border-color: var(--ocn-green);
+    color: var(--ocn-white);
+}
+
+.ocn-btn:hover,
+.ocn-btn:focus {
+    background-color: var(--ocn-green-dark);
+    border-color: var(--ocn-green-dark);
+    color: var(--ocn-white);
+}
+
+
+/* =========================================================
+   COULEURS
+========================================================= */
+
+.ocn-green {
+    color: var(--ocn-green) !important;
+}
+
+.ocn-bg {
+    background-color: var(--ocn-green) !important;
+    color: var(--ocn-white);
+}
+
+.ocn-light {
+    background-color: var(--ocn-green-light) !important;
+}
+
+.ocn-border {
+    border-color: var(--ocn-green) !important;
+}
+
+
+/* =========================================================
+   MODALS
+========================================================= */
+
+.ocn-modal-header {
+    background-color: var(--ocn-green);
+    color: var(--ocn-white);
+}
+
+.ocn-modal-header .modal-title {
+    color: var(--ocn-white);
+}
+
+.ocn-modal-footer {
+    background-color: var(--ocn-green-light);
+}
+
+
+/* =========================================================
+   CARTES
+========================================================= */
+
+.ocn-card {
+    border: none;
+    border-radius: 8px;
+}
+
+.ocn-card-header {
+    background-color: var(--ocn-green);
+    color: var(--ocn-white);
+}
+
+
+/* =========================================================
+   TABLEAUX
+========================================================= */
+
+.ocn-table-header {
+    background-color: var(--ocn-green-light);
+}
+
+.ocn-table-header th {
+    color: var(--ocn-green-dark);
+}
+
+
+/* =========================================================
+   BADGES
+========================================================= */
+
+.ocn-badge {
+    background-color: var(--ocn-green);
+    color: var(--ocn-white);
+}
+
+
+/* =========================================================
+   FORMULAIRES
+========================================================= */
+
+.form-control:focus,
+.custom-select:focus {
+    border-color: var(--ocn-green);
+    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.15);
+}
+
+
+/* =========================================================
+   LIENS
+========================================================= */
+
+.ocn-link {
+    color: var(--ocn-green);
+}
+
+.ocn-link:hover {
+    color: var(--ocn-green-dark);
+}
+
+
+/* =========================================================
+   TEXTE
+========================================================= */
+
+.ocn-title {
+    color: var(--ocn-green-dark);
+    font-weight: 600;
+}

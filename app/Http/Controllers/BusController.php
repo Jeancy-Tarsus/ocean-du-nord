@@ -11,11 +11,36 @@ class BusController extends Controller
     /**
      * Afficher la liste des bus.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $bus = Bus::latest()->paginate(10);
+        $search = $request->input('search');
 
-        return view('bus.index', compact('bus'));
+        $bus = Bus::query()
+
+            ->when($search, function ($query) use ($search) {
+
+                $query->where(function ($q) use ($search) {
+
+                    $q->where('numero', 'like', '%' . $search . '%')
+                        ->orWhere('immatriculation', 'like', '%' . $search . '%')
+                        ->orWhere('marque', 'like', '%' . $search . '%')
+                        ->orWhere('modele', 'like', '%' . $search . '%')
+                        ->orWhere('etat', 'like', '%' . $search . '%')
+                        ->orWhere('statut', 'like', '%' . $search . '%');
+                });
+            })
+
+            ->latest()
+
+            ->paginate(10)
+
+            ->withQueryString();
+
+
+        return view('bus.index', compact(
+            'bus',
+            'search'
+        ));
     }
 
     /**

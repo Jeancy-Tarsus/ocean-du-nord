@@ -3,6 +3,7 @@
 use App\Http\Controllers\AgenceController;
 use App\Http\Controllers\BusController;
 use App\Http\Controllers\ChauffeurController;
+use App\Http\Controllers\EquipeController;
 use App\Http\Controllers\LigneController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
@@ -56,6 +57,13 @@ Route::middleware(['auth', 'role:admin,chef_parc'])->group(function () {
 Route::middleware(['auth', 'role:admin,directeur_exploitation'])->group(function () {
 
     Route::resource('lignes', LigneController::class)
+        ->except(['create', 'edit', 'show']);
+
+});
+
+Route::middleware(['auth'])->group(function () {
+
+    Route::resource('equipes', EquipeController::class)
         ->except(['create', 'edit', 'show']);
 
 });
