@@ -2,21 +2,98 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Agence;
+use App\Models\Bus;
+use App\Models\Chauffeur;
+use App\Models\Equipe;
+use App\Models\Ligne;
 use App\Models\Voyage;
 use App\Models\VoyageAgence;
-use App\Models\Ligne;
-use App\Models\Bus;
-use App\Models\Equipe;
-use App\Models\Agence;
-use App\Models\Chauffeur;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class VoyageController extends Controller
 {
+    private function estAdminOuDirecteur(): bool
+    {
+        return auth()->check() &&
+            in_array(auth()->user()->role, [
+                'admin',
+                'directeur_exploitation',
+            ]);
+    }
+
+    private function estChefAgence(): bool
+    {
+        return auth()->check() &&
+            auth()->user()->role === 'chef_agence' &&
+            !is_null(auth()->user()->agence_id);
+    }
+
+    private function chefPeutVoirVoyage(Voyage $voyage): bool
+    {
+        if (!$this->estChefAgence()) {
+            return false;
+        }
+
+        return $voyage->voyageAgences()
+            ->where(
+                'agence_id',
+                auth()->user()->agence_id
+            )
+            ->exists();
+    }
+
+    private function autoriserVoyage(Voyage $voyage): bool
+    {
+        if ($this->estAdminOuDirecteur()) {
+            return true;
+        }
+
+        return $this->chefPeutVoirVoyage($voyage);
+    }
+
+    private function autoriserAgence(VoyageAgence $voyageAgence): bool
+    {
+        if ($this->estAdminOuDirecteur()) {
+            return true;
+        }
+
+        if ($this->estChefAgence()) {
+            return (int) $voyageAgence->agence_id ===
+                (int) auth()->user()->agence_id;
+        }
+
+        return false;
+    }
+
     public function index(Request $request)
     {
+        if (!auth()->check()) {
+            return redirect()
+                ->route('login')
+                ->with(
+                    'error',
+                    'Vous devez être connecté pour accéder aux voyages.'
+                );
+        }
+
+        if (
+            !in_array(auth()->user()->role, [
+                'admin',
+                'directeur_exploitation',
+                'chef_agence',
+            ])
+        ) {
+            return redirect()
+                ->route('dashboard')
+                ->with(
+                    'error',
+                    'Vous n\'êtes pas autorisé à consulter les voyages.'
+                );
+        }
+
         $search = $request->input('search');
 
         $voyages = Voyage::with([
@@ -25,15 +102,50 @@ class VoyageController extends Controller
             'equipe',
             'voyageAgences.agence',
         ])
-            ->when($search, function ($query) use ($search) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('code', 'like', '%' . $search . '%')
-                        ->orWhereHas('ligne', function ($ligne) use ($search) {
-                            $ligne->where('nom', 'like', '%' . $search . '%')
-                                ->orWhere('code', 'like', '%' . $search . '%');
-                        });
-                });
-            })
+            ->when(
+                auth()->user()->role === 'chef_agence',
+                function ($query) {
+                    $query->whereHas(
+                        'voyageAgences',
+                        function ($q) {
+                            $q->where(
+                                'agence_id',
+                                auth()->user()->agence_id
+                            );
+                        }
+                    );
+                }
+            )
+            ->when(
+                $search,
+                function ($query) use ($search) {
+
+                    $query->where(function ($q) use ($search) {
+
+                        $q->where(
+                            'code',
+                            'like',
+                            '%' . $search . '%'
+                        )
+                            ->orWhereHas(
+                                'ligne',
+                                function ($ligne) use ($search) {
+
+                                    $ligne->where(
+                                        'nom',
+                                        'like',
+                                        '%' . $search . '%'
+                                    )
+                                        ->orWhere(
+                                            'code',
+                                            'like',
+                                            '%' . $search . '%'
+                                        );
+                                }
+                            );
+                    });
+                }
+            )
             ->latest()
             ->paginate(10)
             ->withQueryString();
@@ -50,22 +162,48 @@ class VoyageController extends Controller
             ->orderBy('nom')
             ->get();
 
-        $agences = Agence::where('active', true)
-            ->orderBy('nom')
-            ->get();
+        if (auth()->user()->role === 'chef_agence') {
 
-        return view('voyages.index', compact(
-            'voyages',
-            'lignes',
-            'buses',
-            'equipes',
-            'agences',
-            'search'
-        ));
+            $agences = Agence::where(
+                'id',
+                auth()->user()->agence_id
+            )
+                ->where('active', true)
+                ->orderBy('nom')
+                ->get();
+
+        } else {
+
+            $agences = Agence::where('active', true)
+                ->orderBy('nom')
+                ->get();
+
+        }
+
+        return view(
+            'voyages.index',
+            compact(
+                'voyages',
+                'lignes',
+                'buses',
+                'equipes',
+                'agences',
+                'search'
+            )
+        );
     }
 
     public function store(Request $request)
     {
+        if (!$this->estAdminOuDirecteur()) {
+            return redirect()
+                ->back()
+                ->with(
+                    'error',
+                    'Vous n\'êtes pas autorisé à créer un voyage.'
+                );
+        }
+
         $validated = $request->validate([
             'ligne_id' => [
                 'required',
@@ -136,6 +274,7 @@ class VoyageController extends Controller
         ]);
 
         try {
+
             $bus = Bus::findOrFail(
                 $validated['bus_id']
             );
@@ -153,6 +292,7 @@ class VoyageController extends Controller
             );
 
             if ($bus->statut !== 'disponible') {
+
                 return redirect()
                     ->back()
                     ->withInput()
@@ -163,6 +303,7 @@ class VoyageController extends Controller
             }
 
             if ($equipe->statut !== 'disponible') {
+
                 return redirect()
                     ->back()
                     ->withInput()
@@ -176,6 +317,7 @@ class VoyageController extends Controller
                 !$chauffeurTitulaire->disponible ||
                 !$chauffeurSecondaire->disponible
             ) {
+
                 return redirect()
                     ->back()
                     ->withInput()
@@ -189,12 +331,13 @@ class VoyageController extends Controller
                 (int) $validated['agence_depart'] ===
                 (int) $validated['agence_arrivee']
             ) {
+
                 return redirect()
                     ->back()
                     ->withInput()
                     ->with(
                         'error',
-                        "L'agence de départ et l'agence d'arrivée doivent être différentes."
+                        'L\'agence de départ et l\'agence d\'arrivée doivent être différentes.'
                     );
             }
 
@@ -203,11 +346,11 @@ class VoyageController extends Controller
 
             $toutesLesAgences = array_merge(
                 [
-                    $validated['agence_depart']
+                    $validated['agence_depart'],
                 ],
                 $agencesPassage,
                 [
-                    $validated['agence_arrivee']
+                    $validated['agence_arrivee'],
                 ]
             );
 
@@ -215,18 +358,20 @@ class VoyageController extends Controller
                 count($toutesLesAgences) !==
                 count(array_unique($toutesLesAgences))
             ) {
+
                 return redirect()
                     ->back()
                     ->withInput()
                     ->with(
                         'error',
-                        "Une même agence ne peut pas apparaître plusieurs fois dans le même parcours."
+                        'Une même agence ne peut pas apparaître plusieurs fois dans le même voyage.'
                     );
             }
 
             $dernierVoyage = Voyage::latest('id')->first();
 
             if ($dernierVoyage) {
+
                 $dernierNumero = (int) preg_replace(
                     '/[^0-9]/',
                     '',
@@ -234,8 +379,11 @@ class VoyageController extends Controller
                 );
 
                 $numero = $dernierNumero + 1;
+
             } else {
+
                 $numero = 1;
+
             }
 
             $code = 'VOY-' . str_pad(
@@ -250,6 +398,7 @@ class VoyageController extends Controller
                 $code,
                 $agencesPassage
             ) {
+
                 $voyage = Voyage::create([
                     'code' =>
                     $code,
@@ -314,6 +463,7 @@ class VoyageController extends Controller
                 $ordre = 2;
 
                 foreach ($agencesPassage as $agenceId) {
+
                     VoyageAgence::create([
                         'voyage_id' =>
                         $voyage->id,
@@ -380,20 +530,33 @@ class VoyageController extends Controller
                     'success',
                     "Le voyage {$code} a été planifié avec succès."
                 );
-        } catch (\Exception $e) {
+
+        } catch (\Throwable $e) {
+
             return redirect()
                 ->back()
                 ->withInput()
                 ->with(
                     'error',
-                    $e->getMessage()
+                    'Une erreur est survenue lors de la création du voyage.'
                 );
         }
     }
 
     public function start(Voyage $voyage)
     {
+        if (!$this->estAdminOuDirecteur()) {
+
+            return redirect()
+                ->back()
+                ->with(
+                    'error',
+                    'Vous n\'êtes pas autorisé à démarrer ce voyage.'
+                );
+        }
+
         if ($voyage->statut !== 'planifie') {
+
             return redirect()
                 ->back()
                 ->with(
@@ -403,7 +566,9 @@ class VoyageController extends Controller
         }
 
         try {
+
             DB::transaction(function () use ($voyage) {
+
                 $bus = Bus::findOrFail(
                     $voyage->bus_id
                 );
@@ -421,12 +586,14 @@ class VoyageController extends Controller
                 );
 
                 if ($bus->statut !== 'disponible') {
+
                     throw new \Exception(
                         "Le bus {$bus->numero} n'est pas disponible."
                     );
                 }
 
                 if ($equipe->statut !== 'disponible') {
+
                     throw new \Exception(
                         "L'équipe {$equipe->nom} n'est pas disponible."
                     );
@@ -436,45 +603,62 @@ class VoyageController extends Controller
                     !$chauffeurTitulaire->disponible ||
                     !$chauffeurSecondaire->disponible
                 ) {
+
                     throw new \Exception(
                         "Les chauffeurs de l'équipe {$equipe->nom} ne sont pas tous disponibles."
                     );
                 }
 
                 $voyage->update([
-                    'statut' => 'en_cours',
+                    'statut' =>
+                    'en_cours',
                 ]);
 
                 $bus->update([
-                    'statut' => 'en_voyage',
+                    'statut' =>
+                    'en_voyage',
                 ]);
 
                 $equipe->update([
-                    'statut' => 'en_voyage',
+                    'statut' =>
+                    'en_voyage',
                 ]);
 
                 $chauffeurTitulaire->update([
-                    'disponible' => false,
-                    'statut' => 'en_voyage',
+                    'disponible' =>
+                    false,
+
+                    'statut' =>
+                    'en_voyage',
                 ]);
 
                 $chauffeurSecondaire->update([
-                    'disponible' => false,
-                    'statut' => 'en_voyage',
+                    'disponible' =>
+                    false,
+
+                    'statut' =>
+                    'en_voyage',
                 ]);
 
                 $depart = VoyageAgence::where(
                     'voyage_id',
                     $voyage->id
                 )
-                    ->where('type', 'depart')
+                    ->where(
+                        'type',
+                        'depart'
+                    )
                     ->orderBy('ordre')
                     ->first();
 
                 if ($depart) {
+
                     $depart->update([
-                        'statut' => 'reparti',
-                        'heure_depart_reelle' => now()->format('H:i:s'),
+                        'statut' =>
+                        'reparti',
+
+                        'heure_depart_reelle' =>
+                        now()->format('H:i:s'),
                     ]);
                 }
             });
@@ -485,7 +669,9 @@ class VoyageController extends Controller
                     'success',
                     "Le voyage {$voyage->code} a démarré avec succès."
                 );
-        } catch (\Exception $e) {
+
+        } catch (\Throwable $e) {
+
             return redirect()
                 ->back()
                 ->with(
@@ -499,7 +685,18 @@ class VoyageController extends Controller
         Request $request,
         Voyage $voyage
     ) {
+        if (!$this->estAdminOuDirecteur()) {
+
+            return redirect()
+                ->back()
+                ->with(
+                    'error',
+                    'Vous n\'êtes pas autorisé à modifier un voyage.'
+                );
+        }
+
         if ($voyage->statut !== 'planifie') {
+
             return redirect()
                 ->back()
                 ->with(
@@ -571,10 +768,12 @@ class VoyageController extends Controller
         ]);
 
         try {
+
             DB::transaction(function () use (
                 $validated,
                 $voyage
             ) {
+
                 $ancienBus = Bus::find(
                     $voyage->bus_id
                 );
@@ -595,7 +794,9 @@ class VoyageController extends Controller
                     $nouveauBus->id !==
                     optional($ancienBus)->id
                 ) {
+
                     if ($nouveauBus->statut !== 'disponible') {
+
                         throw new \Exception(
                             "Le bus {$nouveauBus->numero} n'est pas disponible."
                         );
@@ -606,7 +807,9 @@ class VoyageController extends Controller
                     $nouvelleEquipe->id !==
                     optional($ancienneEquipe)->id
                 ) {
+
                     if ($nouvelleEquipe->statut !== 'disponible') {
+
                         throw new \Exception(
                             "L'équipe {$nouvelleEquipe->nom} n'est pas disponible."
                         );
@@ -625,10 +828,12 @@ class VoyageController extends Controller
                     $nouvelleEquipe->id !==
                     optional($ancienneEquipe)->id
                 ) {
+
                     if (
                         !$nouveauTitulaire->disponible ||
                         !$nouveauSecondaire->disponible
                     ) {
+
                         throw new \Exception(
                             "Les chauffeurs de l'équipe {$nouvelleEquipe->nom} ne sont pas tous disponibles."
                         );
@@ -639,8 +844,10 @@ class VoyageController extends Controller
                     $ancienBus &&
                     $ancienBus->id !== $nouveauBus->id
                 ) {
+
                     $ancienBus->update([
-                        'statut' => 'disponible',
+                        'statut' =>
+                        'disponible',
                     ]);
                 }
 
@@ -648,51 +855,67 @@ class VoyageController extends Controller
                     $ancienneEquipe &&
                     $ancienneEquipe->id !== $nouvelleEquipe->id
                 ) {
-                    $ancienTitulaire =
-                        Chauffeur::find(
-                            $ancienneEquipe->chauffeur_titulaire_id
-                        );
 
-                    $ancienSecondaire =
-                        Chauffeur::find(
-                            $ancienneEquipe->chauffeur_secondaire_id
-                        );
+                    $ancienTitulaire = Chauffeur::find(
+                        $ancienneEquipe->chauffeur_titulaire_id
+                    );
+
+                    $ancienSecondaire = Chauffeur::find(
+                        $ancienneEquipe->chauffeur_secondaire_id
+                    );
 
                     $ancienneEquipe->update([
-                        'statut' => 'disponible',
+                        'statut' =>
+                        'disponible',
                     ]);
 
                     if ($ancienTitulaire) {
+
                         $ancienTitulaire->update([
-                            'disponible' => true,
-                            'statut' => 'actif',
+                            'disponible' =>
+                            true,
+
+                            'statut' =>
+                            'actif',
                         ]);
                     }
 
                     if ($ancienSecondaire) {
+
                         $ancienSecondaire->update([
-                            'disponible' => true,
-                            'statut' => 'actif',
+                            'disponible' =>
+                            true,
+
+                            'statut' =>
+                            'actif',
                         ]);
                     }
                 }
 
                 $nouveauBus->update([
-                    'statut' => 'disponible',
+                    'statut' =>
+                    'disponible',
                 ]);
 
                 $nouvelleEquipe->update([
-                    'statut' => 'disponible',
+                    'statut' =>
+                    'disponible',
                 ]);
 
                 $nouveauTitulaire->update([
-                    'disponible' => true,
-                    'statut' => 'actif',
+                    'disponible' =>
+                    true,
+
+                    'statut' =>
+                    'actif',
                 ]);
 
                 $nouveauSecondaire->update([
-                    'disponible' => true,
-                    'statut' => 'actif',
+                    'disponible' =>
+                    true,
+
+                    'statut' =>
+                    'actif',
                 ]);
 
                 $voyage->update([
@@ -731,18 +954,19 @@ class VoyageController extends Controller
                     (int) $validated['agence_depart'] ===
                     (int) $validated['agence_arrivee']
                 ) {
+
                     throw new \Exception(
-                        "L'agence de départ et l'agence d'arrivée doivent être différentes."
+                        'L\'agence de départ et l\'agence d\'arrivée doivent être différentes.'
                     );
                 }
 
                 $toutesLesAgences = array_merge(
                     [
-                        $validated['agence_depart']
+                        $validated['agence_depart'],
                     ],
                     $agencesPassage,
                     [
-                        $validated['agence_arrivee']
+                        $validated['agence_arrivee'],
                     ]
                 );
 
@@ -750,8 +974,9 @@ class VoyageController extends Controller
                     count($toutesLesAgences) !==
                     count(array_unique($toutesLesAgences))
                 ) {
+
                     throw new \Exception(
-                        "Une même agence ne peut pas apparaître plusieurs fois dans le même parcours."
+                        'Une même agence ne peut pas apparaître plusieurs fois dans le même voyage.'
                     );
                 }
 
@@ -792,6 +1017,7 @@ class VoyageController extends Controller
                 $ordre = 2;
 
                 foreach ($agencesPassage as $agenceId) {
+
                     VoyageAgence::create([
                         'voyage_id' =>
                         $voyage->id,
@@ -858,24 +1084,23 @@ class VoyageController extends Controller
                     'success',
                     "Le voyage {$voyage->code} a été modifié avec succès."
                 );
-        } catch (\Exception $e) {
+
+        } catch (\Throwable $e) {
+
             return redirect()
                 ->back()
                 ->withInput()
                 ->with(
                     'error',
-                    $e->getMessage()
+                    'Une erreur est survenue lors de la modification du voyage.'
                 );
         }
     }
 
     public function finish(Voyage $voyage)
     {
-        if (!in_array(auth()->user()->role, [
-            'admin',
-            'directeur_exploitation',
-            'chef_agence',
-        ])) {
+        if (!$this->autoriserVoyage($voyage)) {
+
             return redirect()
                 ->back()
                 ->with(
@@ -885,6 +1110,7 @@ class VoyageController extends Controller
         }
 
         if ($voyage->statut !== 'en_cours') {
+
             return redirect()
                 ->back()
                 ->with(
@@ -894,7 +1120,9 @@ class VoyageController extends Controller
         }
 
         try {
+
             DB::transaction(function () use ($voyage) {
+
                 $bus = Bus::find(
                     $voyage->bus_id
                 );
@@ -907,6 +1135,7 @@ class VoyageController extends Controller
                 $secondaire = null;
 
                 if ($equipe) {
+
                     $titulaire = Chauffeur::find(
                         $equipe->chauffeur_titulaire_id
                     );
@@ -917,32 +1146,45 @@ class VoyageController extends Controller
                 }
 
                 $voyage->update([
-                    'statut' => 'termine',
+                    'statut' =>
+                    'termine',
                 ]);
 
                 if ($bus) {
+
                     $bus->update([
-                        'statut' => 'disponible',
+                        'statut' =>
+                        'disponible',
                     ]);
                 }
 
                 if ($equipe) {
+
                     $equipe->update([
-                        'statut' => 'disponible',
+                        'statut' =>
+                        'disponible',
                     ]);
                 }
 
                 if ($titulaire) {
+
                     $titulaire->update([
-                        'disponible' => true,
-                        'statut' => 'actif',
+                        'disponible' =>
+                        true,
+
+                        'statut' =>
+                        'actif',
                     ]);
                 }
 
                 if ($secondaire) {
+
                     $secondaire->update([
-                        'disponible' => true,
-                        'statut' => 'actif',
+                        'disponible' =>
+                        true,
+
+                        'statut' =>
+                        'actif',
                     ]);
                 }
             });
@@ -953,26 +1195,56 @@ class VoyageController extends Controller
                     'success',
                     "Le voyage {$voyage->code} est terminé. Le bus, l'équipe et les chauffeurs sont de nouveau disponibles."
                 );
-        } catch (\Exception $e) {
+
+        } catch (\Throwable $e) {
+
             return redirect()
                 ->back()
                 ->with(
                     'error',
-                    $e->getMessage()
+                    'Une erreur est survenue lors de la clôture du voyage.'
                 );
         }
     }
 
     public function arrive(VoyageAgence $voyageAgence)
     {
+        if (!$this->autoriserAgence($voyageAgence)) {
+
+            if (request()->expectsJson()) {
+
+                return response()->json([
+                    'success' =>
+                    false,
+
+                    'message' =>
+                    'Vous n\'êtes pas autorisé à gérer cette agence.',
+                ], 403);
+            }
+
+            return redirect()
+                ->back()
+                ->with(
+                    'error',
+                    'Vous n\'êtes pas autorisé à gérer cette agence.'
+                );
+        }
+
         $voyage = $voyageAgence->voyage;
 
         if ($voyage->statut !== 'en_cours') {
 
+            $message =
+                "Le voyage {$voyage->code} n'est pas en cours.";
+
             if (request()->expectsJson()) {
+
                 return response()->json([
-                    'success' => false,
-                    'message' => "Le voyage {$voyage->code} n'est pas en cours."
+                    'success' =>
+                    false,
+
+                    'message' =>
+                    $message,
                 ], 422);
             }
 
@@ -980,16 +1252,23 @@ class VoyageController extends Controller
                 ->back()
                 ->with(
                     'error',
-                    "Le voyage {$voyage->code} n'est pas en cours."
+                    $message
                 );
         }
 
         if ($voyageAgence->statut !== 'prevu') {
 
+            $message =
+                'Cette étape a déjà été traitée.';
+
             if (request()->expectsJson()) {
+
                 return response()->json([
-                    'success' => false,
-                    'message' => "Cette étape a déjà été traitée."
+                    'success' =>
+                    false,
+
+                    'message' =>
+                    $message,
                 ], 422);
             }
 
@@ -997,7 +1276,7 @@ class VoyageController extends Controller
                 ->back()
                 ->with(
                     'error',
-                    "Cette étape a déjà été traitée."
+                    $message
                 );
         }
 
@@ -1018,10 +1297,17 @@ class VoyageController extends Controller
             $etapePrecedente->statut !== 'reparti'
         ) {
 
+            $message =
+                'Le bus doit d\'abord terminer l\'étape précédente.';
+
             if (request()->expectsJson()) {
+
                 return response()->json([
-                    'success' => false,
-                    'message' => "Le bus doit d'abord terminer l'étape précédente."
+                    'success' =>
+                    false,
+
+                    'message' =>
+                    $message,
                 ], 422);
             }
 
@@ -1029,11 +1315,12 @@ class VoyageController extends Controller
                 ->back()
                 ->with(
                     'error',
-                    "Le bus doit d'abord terminer l'étape précédente."
+                    $message
                 );
         }
 
-        $heureArrivee = now()->format('H:i:s');
+        $heureArrivee =
+            now()->format('H:i:s');
 
         $voyageAgence->update([
             'statut' =>
@@ -1049,6 +1336,7 @@ class VoyageController extends Controller
                 $voyage,
                 $heureArrivee
             ) {
+
                 $voyage->update([
                     'statut' =>
                     'termine',
@@ -1061,6 +1349,7 @@ class VoyageController extends Controller
                 ]);
 
                 if ($voyage->bus) {
+
                     $voyage->bus->update([
                         'statut' =>
                         'disponible',
@@ -1098,7 +1387,11 @@ class VoyageController extends Controller
                 }
             });
 
+            $message =
+                "Le voyage {$voyage->code} est arrivé à destination et est maintenant terminé.";
+
             if (request()->expectsJson()) {
+
                 return response()->json([
                     'success' =>
                     true,
@@ -1107,13 +1400,17 @@ class VoyageController extends Controller
                     true,
 
                     'message' =>
-                    "Le voyage {$voyage->code} est arrivé à destination et est maintenant terminé.",
+                    $message,
 
                     'statut' =>
                     'termine',
 
                     'heure_arrivee' =>
-                    substr($heureArrivee, 0, 5),
+                    substr(
+                        $heureArrivee,
+                        0,
+                        5
+                    ),
                 ]);
             }
 
@@ -1121,11 +1418,15 @@ class VoyageController extends Controller
                 ->back()
                 ->with(
                     'success',
-                    "Le voyage {$voyage->code} est arrivé à destination et est maintenant terminé."
+                    $message
                 );
         }
 
+        $message =
+            "L'arrivée à {$voyageAgence->agence->nom} a été enregistrée.";
+
         if (request()->expectsJson()) {
+
             return response()->json([
                 'success' =>
                 true,
@@ -1134,13 +1435,17 @@ class VoyageController extends Controller
                 false,
 
                 'message' =>
-                "L'arrivée à {$voyageAgence->agence->nom} a été enregistrée.",
+                $message,
 
                 'statut' =>
                 'arrive',
 
                 'heure_arrivee' =>
-                substr($heureArrivee, 0, 5),
+                substr(
+                    $heureArrivee,
+                    0,
+                    5
+                ),
             ]);
         }
 
@@ -1148,23 +1453,48 @@ class VoyageController extends Controller
             ->back()
             ->with(
                 'success',
-                "L'arrivée à {$voyageAgence->agence->nom} a été enregistrée."
+                $message
             );
     }
 
     public function depart(VoyageAgence $voyageAgence)
     {
-        $voyage = $voyageAgence->voyage;
-
-        if ($voyage->statut !== 'en_cours') {
+        if (!$this->autoriserAgence($voyageAgence)) {
 
             if (request()->expectsJson()) {
+
                 return response()->json([
                     'success' =>
                     false,
 
                     'message' =>
-                    "Le voyage {$voyage->code} n'est pas en cours."
+                    'Vous n\'êtes pas autorisé à gérer cette agence.',
+                ], 403);
+            }
+
+            return redirect()
+                ->back()
+                ->with(
+                    'error',
+                    'Vous n\'êtes pas autorisé à gérer cette agence.'
+                );
+        }
+
+        $voyage = $voyageAgence->voyage;
+
+        if ($voyage->statut !== 'en_cours') {
+
+            $message =
+                "Le voyage {$voyage->code} n'est pas en cours.";
+
+            if (request()->expectsJson()) {
+
+                return response()->json([
+                    'success' =>
+                    false,
+
+                    'message' =>
+                    $message,
                 ], 422);
             }
 
@@ -1172,19 +1502,23 @@ class VoyageController extends Controller
                 ->back()
                 ->with(
                     'error',
-                    "Le voyage {$voyage->code} n'est pas en cours."
+                    $message
                 );
         }
 
         if ($voyageAgence->type === 'arrivee') {
 
+            $message =
+                'Cette agence est la destination finale.';
+
             if (request()->expectsJson()) {
+
                 return response()->json([
                     'success' =>
                     false,
 
                     'message' =>
-                    "Cette agence est la destination finale."
+                    $message,
                 ], 422);
             }
 
@@ -1192,19 +1526,23 @@ class VoyageController extends Controller
                 ->back()
                 ->with(
                     'error',
-                    "Cette agence est la destination finale."
+                    $message
                 );
         }
 
         if ($voyageAgence->statut !== 'arrive') {
 
+            $message =
+                'Vous devez d\'abord confirmer l\'arrivée du bus.';
+
             if (request()->expectsJson()) {
+
                 return response()->json([
                     'success' =>
                     false,
 
                     'message' =>
-                    "Vous devez d'abord confirmer l'arrivée du bus."
+                    $message,
                 ], 422);
             }
 
@@ -1212,11 +1550,12 @@ class VoyageController extends Controller
                 ->back()
                 ->with(
                     'error',
-                    "Vous devez d'abord confirmer l'arrivée du bus."
+                    $message
                 );
         }
 
-        $heureDepart = now()->format('H:i:s');
+        $heureDepart =
+            now()->format('H:i:s');
 
         $voyageAgence->update([
             'statut' =>
@@ -1226,19 +1565,27 @@ class VoyageController extends Controller
             $heureDepart,
         ]);
 
+        $message =
+            "Le départ de {$voyageAgence->agence->nom} a été enregistré.";
+
         if (request()->expectsJson()) {
+
             return response()->json([
                 'success' =>
                 true,
 
                 'message' =>
-                "Le départ de {$voyageAgence->agence->nom} a été enregistré.",
+                $message,
 
                 'statut' =>
                 'reparti',
 
                 'heure_depart' =>
-                substr($heureDepart, 0, 5),
+                substr(
+                    $heureDepart,
+                    0,
+                    5
+                ),
             ]);
         }
 
@@ -1246,13 +1593,24 @@ class VoyageController extends Controller
             ->back()
             ->with(
                 'success',
-                "Le départ de {$voyageAgence->agence->nom} a été enregistré."
+                $message
             );
     }
 
     public function destroy(Voyage $voyage)
     {
+        if (!$this->estAdminOuDirecteur()) {
+
+            return redirect()
+                ->back()
+                ->with(
+                    'error',
+                    'Vous n\'êtes pas autorisé à supprimer un voyage.'
+                );
+        }
+
         if ($voyage->statut !== 'termine') {
+
             return redirect()
                 ->back()
                 ->with(
@@ -1264,7 +1622,9 @@ class VoyageController extends Controller
         $code = $voyage->code;
 
         try {
+
             DB::transaction(function () use ($voyage) {
+
                 $bus = Bus::find(
                     $voyage->bus_id
                 );
@@ -1277,6 +1637,7 @@ class VoyageController extends Controller
                 $secondaire = null;
 
                 if ($equipe) {
+
                     $titulaire = Chauffeur::find(
                         $equipe->chauffeur_titulaire_id
                     );
@@ -1289,6 +1650,7 @@ class VoyageController extends Controller
                 $voyage->delete();
 
                 if ($bus) {
+
                     $bus->update([
                         'statut' =>
                         'disponible',
@@ -1296,6 +1658,7 @@ class VoyageController extends Controller
                 }
 
                 if ($equipe) {
+
                     $equipe->update([
                         'statut' =>
                         'disponible',
@@ -1303,6 +1666,7 @@ class VoyageController extends Controller
                 }
 
                 if ($titulaire) {
+
                     $titulaire->update([
                         'disponible' =>
                         true,
@@ -1313,6 +1677,7 @@ class VoyageController extends Controller
                 }
 
                 if ($secondaire) {
+
                     $secondaire->update([
                         'disponible' =>
                         true,
@@ -1329,7 +1694,9 @@ class VoyageController extends Controller
                     'success',
                     "Le voyage {$code} a été supprimé avec succès."
                 );
+
         } catch (\Throwable $e) {
+
             return redirect()
                 ->back()
                 ->with(

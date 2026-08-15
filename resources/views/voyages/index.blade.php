@@ -105,16 +105,27 @@
 
             <div class="col-md-3 text-right">
 
-                <button type="button"
-                        class="btn ocn-btn"
-                        data-toggle="modal"
-                        data-target="#modalCreateVoyage">
+                @auth
 
-                    <i class="fas fa-plus mr-1"></i>
+                    @if(
+                        auth()->user()->role === 'admin' ||
+                        auth()->user()->role === 'directeur_exploitation'
+                    )
 
-                    Nouveau voyage
+                        <button type="button"
+                                class="btn ocn-btn"
+                                data-toggle="modal"
+                                data-target="#modalCreateVoyage">
 
-                </button>
+                            <i class="fas fa-plus mr-1"></i>
+
+                            Nouveau voyage
+
+                        </button>
+
+                    @endif
+
+                @endauth
 
             </div>
 
@@ -379,51 +390,54 @@
 
                                 {{-- DEMARRER --}}
 
-                                @if(
+                                @auth
 
-                                    auth()->user()->role === 'admin' ||
+                                    @if(
 
-                                    auth()->user()->role === 'directeur_exploitation' ||
+                                        auth()->user()->role === 'admin' ||
 
-                                    (
+                                        auth()->user()->role === 'directeur_exploitation' ||
 
-                                        auth()->user()->role === 'chef_agence' &&
+                                        (
 
-                                        $voyage->voyageAgences->contains(
-                                            'agence_id',
-                                            auth()->user()->agence_id
+                                            auth()->user()->role === 'chef_agence' &&
+
+                                            auth()->user()->agence_id &&
+
+                                            $voyage->voyageAgences->contains(
+                                                'agence_id',
+                                                auth()->user()->agence_id
+                                            )
+
                                         )
 
                                     )
 
-                                )
+                                        @if($voyage->statut === 'planifie')
 
-                                    @if($voyage->statut === 'planifie')
+                                            <form action="{{ route('voyages.start', $voyage) }}"
+                                                  method="POST"
+                                                  class="d-inline start-voyage-form">
 
-                                        <form action="{{ route('voyages.start', $voyage) }}"
-                                              method="POST"
-                                              class="d-inline start-voyage-form">
+                                                @csrf
 
-                                            @csrf
+                                                @method('PATCH')
 
-                                            @method('PATCH')
+                                                <button type="submit"
+                                                        class="btn btn-success btn-sm"
+                                                        title="Démarrer le voyage">
 
-                                            <button type="submit"
-                                                    class="btn btn-success btn-sm"
-                                                    title="Démarrer le voyage">
+                                                    <i class="fas fa-play"></i>
 
-                                                <i class="fas fa-play"></i>
+                                                </button>
 
-                                            </button>
+                                            </form>
 
-                                        </form>
+                                        @endif
 
                                     @endif
 
-                                @endif
-
-
-                               
+                                @endauth
 
 
                                 {{-- SUPPRIMER --}}
@@ -519,22 +533,14 @@
 
 {{-- =============================================================
      MODALS DES VOYAGES
-
-     IMPORTANT :
-     Ils sont volontairement EN DEHORS du tableau.
 ============================================================= --}}
 
 @foreach($voyages as $voyage)
-
-    {{-- MODIFIER --}}
 
     @include(
         'voyages.modal.edit',
         ['voyage' => $voyage]
     )
-
-
-    {{-- VOIR --}}
 
     @include(
         'voyages.modal.show',
@@ -548,7 +554,11 @@
      MODAL CREATION
 ============================================================= --}}
 
-@include('voyages.modal.create')
+@auth
+
+    @include('voyages.modal.create')
+
+@endauth
 
 
 @push('scripts')

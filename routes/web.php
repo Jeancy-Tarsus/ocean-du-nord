@@ -10,7 +10,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\VoyageController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
-
+use App\Http\Controllers\PlanningController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -95,3 +95,7 @@ Route::patch(
     '/voyage-agences/{voyageAgence}/depart',
     [VoyageController::class, 'depart']
 )->name('voyage-agences.depart');
+
+
+Route::get('/planning', [PlanningController::class, 'index'])
+    ->name('planning.index');

@@ -9,8 +9,6 @@
 
         <div class="modal-content shadow-lg border-0">
 
-            {{-- HEADER --}}
-
             <div class="modal-header ocn-modal-header">
 
                 <div>
@@ -41,8 +39,6 @@
 
             </div>
 
-
-            {{-- BODY --}}
 
             <div class="modal-body p-4">
 
@@ -273,7 +269,9 @@
                                     <th>Statut</th>
 
                                     <th class="text-center">
+
                                         Action
+
                                     </th>
 
                                 </tr>
@@ -287,6 +285,37 @@
                                     $voyage->voyageAgences->sortBy('ordre')
                                     as $voyageAgence
                                 )
+
+                                    @php
+
+                                        $peutAgir = false;
+
+                                        if (auth()->check()) {
+
+                                            $user = auth()->user();
+
+                                            if (
+                                                $user->role === 'admin' ||
+                                                $user->role === 'directeur_exploitation'
+                                            ) {
+
+                                                $peutAgir = true;
+
+                                            } elseif (
+                                                $user->role === 'chef_agence' &&
+                                                !is_null($user->agence_id) &&
+                                                (int) $user->agence_id ===
+                                                (int) $voyageAgence->agence_id
+                                            ) {
+
+                                                $peutAgir = true;
+
+                                            }
+
+                                        }
+
+                                    @endphp
+
 
                                     <tr>
 
@@ -462,6 +491,7 @@
                                         <td class="text-center action-cell">
 
                                             @if(
+                                                $peutAgir &&
                                                 $voyage->statut === 'en_cours' &&
                                                 $voyageAgence->statut === 'prevu'
                                             )
@@ -495,6 +525,7 @@
                                                 </form>
 
                                             @elseif(
+                                                $peutAgir &&
                                                 $voyage->statut === 'en_cours' &&
                                                 $voyageAgence->statut === 'arrive' &&
                                                 $voyageAgence->type !== 'arrivee'
@@ -733,7 +764,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 event.preventDefault();
 
-
                 const button = form.querySelector('button');
 
                 const token = form.dataset.token;
@@ -826,8 +856,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     });
 
 
-                    activerProchaineArrivee(row);
-
                 } catch (error) {
 
                     button.disabled = false;
@@ -852,52 +880,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-    function activerProchaineArrivee(row) {
-
-        const ordreActuel = parseInt(
-            row.querySelector('td:first-child')
-                .textContent
-                .trim()
-        );
-
-
-        const rows = modal.querySelectorAll('tbody tr');
-
-
-        rows.forEach(function (nextRow) {
-
-            const ordre = parseInt(
-                nextRow.querySelector('td:first-child')
-                    .textContent
-                    .trim()
-            );
-
-
-            if (ordre === ordreActuel + 1) {
-
-                const actionCell =
-                    nextRow.querySelector('.action-cell');
-
-
-                const arrivalForm =
-                    actionCell.querySelector('.arrivee-form');
-
-
-                if (arrivalForm) {
-
-                    arrivalForm
-                        .querySelector('button')
-                        .disabled = false;
-
-                }
-
-            }
-
-        });
-
-    }
-
-
     modal.querySelectorAll('.arrivee-form')
         .forEach(function (form) {
 
@@ -905,11 +887,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 event.preventDefault();
 
-
                 const button = form.querySelector('button');
 
                 const token = form.dataset.token;
-
 
                 button.disabled = true;
 
@@ -974,10 +954,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         data.heure_arrivee;
 
 
-                    /*
-                     * ARRIVÉE FINALE
-                     */
-
                     if (data.final) {
 
                         modal.querySelectorAll(
@@ -1035,10 +1011,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         return;
                     }
 
-
-                    /*
-                     * TRANSFORMATION ARRIVÉE → DÉPART
-                     */
 
                     form.outerHTML = `
 
