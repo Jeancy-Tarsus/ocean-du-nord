@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Agence extends Model
 {
@@ -18,4 +19,9 @@ class Agence extends Model
     protected $casts = [
         'active' => 'boolean',
     ];
+
+    public function incidents(): HasMany
+    {
+        return $this->hasMany(Incident::class);
+    }
 }

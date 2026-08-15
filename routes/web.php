@@ -10,6 +10,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\VoyageController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\PlanningController;
 
 Route::get('/', function () {
@@ -99,3 +100,27 @@ Route::patch(
 
 Route::get('/planning', [PlanningController::class, 'index'])
     ->name('planning.index');
+
+    Route::middleware('auth')->group(function () {
+
+    Route::get('/incidents', [IncidentController::class, 'index'])
+        ->name('incidents.index');
+
+    Route::post('/incidents', [IncidentController::class, 'store'])
+        ->name('incidents.store');
+
+    Route::get('/incidents/{incident}', [IncidentController::class, 'show'])
+        ->name('incidents.show');
+
+    Route::put('/incidents/{incident}', [IncidentController::class, 'update'])
+        ->name('incidents.update');
+
+    Route::delete('/incidents/{incident}', [IncidentController::class, 'destroy'])
+        ->name('incidents.destroy');
+
+});
+
+Route::get(
+    '/incidents/voyages/{voyage}/informations',
+    [IncidentController::class, 'voyageInformations']
+)->name('incidents.voyage.informations');

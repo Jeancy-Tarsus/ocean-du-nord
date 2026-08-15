@@ -740,23 +740,15 @@
 
                         {{-- INCIDENTS --}}
 
-                        <li class="nav-item">
-
-                            <a href="#"
-                               class="nav-link">
+                       <li class="nav-item">
+                            <a href="{{ route('incidents.index') }}"
+                            class="nav-link {{ request()->routeIs('incidents.*') ? 'active' : '' }}">
 
                                 <i class="nav-icon fas fa-exclamation-triangle"></i>
 
                                 <p>
                                     Incidents
                                 </p>
-
-                                <span class="right">
-
-                                    <i class="fas fa-chevron-right"
-                                       style="font-size:10px;"></i>
-
-                                </span>
 
                             </a>
 

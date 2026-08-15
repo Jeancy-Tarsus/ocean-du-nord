@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Voyage extends Model
 {
@@ -61,7 +62,7 @@ class Voyage extends Model
     public function voyageAgences()
     {
         return $this->hasMany(VoyageAgence::class)
-                    ->orderBy('ordre');
+            ->orderBy('ordre');
     }
 
 
@@ -71,8 +72,8 @@ class Voyage extends Model
     public function agencesDepart()
     {
         return $this->hasMany(VoyageAgence::class)
-                    ->where('type', 'depart')
-                    ->orderBy('ordre');
+            ->where('type', 'depart')
+            ->orderBy('ordre');
     }
 
 
@@ -82,7 +83,12 @@ class Voyage extends Model
     public function agencesArrivee()
     {
         return $this->hasMany(VoyageAgence::class)
-                    ->where('type', 'arrivee')
-                    ->orderBy('ordre');
+            ->where('type', 'arrivee')
+            ->orderBy('ordre');
+    }
+
+    public function incidents(): HasMany
+    {
+        return $this->hasMany(Incident::class);
     }
 }
