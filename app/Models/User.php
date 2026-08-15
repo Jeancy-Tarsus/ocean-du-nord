@@ -7,6 +7,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Agence;
 
 class User extends Authenticatable
 {
@@ -23,6 +24,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'agence_id',
     ];
 
     /**
@@ -72,4 +74,10 @@ class User extends Authenticatable
     {
         return $this->role === 'chauffeur';
     }
+
+    public function agence()
+    {
+        return $this->belongsTo(Agence::class);
+    }
+    
 }

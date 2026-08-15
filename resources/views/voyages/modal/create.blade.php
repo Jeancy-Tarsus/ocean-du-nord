@@ -15,7 +15,9 @@
                 @csrf
 
 
-                {{-- HEADER --}}
+                {{-- =====================================================
+                     HEADER
+                ====================================================== --}}
 
                 <div class="modal-header ocn-modal-header">
 
@@ -49,7 +51,9 @@
                 </div>
 
 
-                {{-- BODY --}}
+                {{-- =====================================================
+                     BODY
+                ====================================================== --}}
 
                 <div class="modal-body p-4">
 
@@ -145,8 +149,9 @@
                                             <option value="{{ $bus->id }}"
                                                 {{ old('bus_id') == $bus->id ? 'selected' : '' }}>
 
-                                                {{-- {{ {{ $bus->numero }} — {{ $bus->immatriculation }} ?? 'Bus #' . $bus->id }} --}}
-                                                {{ $bus->numero }} — {{ $bus->immatriculation }}
+                                                {{ $bus->numero }}
+                                                —
+                                                {{ $bus->immatriculation }}
 
                                             </option>
 
@@ -208,7 +213,175 @@
 
 
                     {{-- =================================================
-                         DEPART / ARRIVEE
+                         PARCOURS DU VOYAGE
+                    ================================================== --}}
+
+                    <div class="mb-4">
+
+                        <h6 class="ocn-title font-weight-bold border-bottom pb-2">
+
+                            <i class="fas fa-route mr-2"></i>
+
+                            Parcours du voyage
+
+                        </h6>
+
+
+                        <p class="text-muted small mt-2 mb-3">
+
+                            Définissez l'ordre des agences parcourues
+                            par le bus.
+
+                        </p>
+
+
+                        {{-- =============================================
+                             AGENCE DE DÉPART
+                        ============================================== --}}
+
+                        <div class="form-group">
+
+                            <label>
+
+                                <i class="fas fa-map-marker-alt text-success mr-1"></i>
+
+                                Agence de départ
+
+                                <span class="text-danger">*</span>
+
+                            </label>
+
+
+                            <select name="agence_depart"
+                                    class="form-control"
+                                    required>
+
+                                <option value="">
+
+                                    Sélectionner l'agence de départ
+
+                                </option>
+
+                                @foreach($agences as $agence)
+
+                                    <option value="{{ $agence->id }}"
+                                        {{ old('agence_depart') == $agence->id ? 'selected' : '' }}>
+
+                                        {{ $agence->code }}
+                                        —
+                                        {{ $agence->nom }}
+
+                                    </option>
+
+                                @endforeach
+
+                            </select>
+
+                        </div>
+
+
+                        {{-- =============================================
+                             AGENCES DE PASSAGE
+                        ============================================== --}}
+
+                        <div class="form-group mt-4">
+
+                            <div class="d-flex justify-content-between align-items-center">
+
+                                <label class="mb-0">
+
+                                    <i class="fas fa-map-signs text-warning mr-1"></i>
+
+                                    Agences de passage
+
+                                    <span class="text-muted">
+                                        (facultatif)
+                                    </span>
+
+                                </label>
+
+
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-primary"
+                                        id="btnAddAgencePassage">
+
+                                    <i class="fas fa-plus mr-1"></i>
+
+                                    Ajouter une agence
+
+                                </button>
+
+                            </div>
+
+
+                            <div id="agencesPassageContainer"
+                                 class="mt-3">
+
+                                {{-- Les agences de passage seront ajoutées ici --}}
+
+                            </div>
+
+
+                            <small class="text-muted">
+
+                                Ajoutez les agences dans l'ordre réel
+                                du parcours.
+
+                            </small>
+
+                        </div>
+
+
+                        {{-- =============================================
+                             AGENCE D'ARRIVÉE
+                        ============================================== --}}
+
+                        <div class="form-group mt-4">
+
+                            <label>
+
+                                <i class="fas fa-flag-checkered text-danger mr-1"></i>
+
+                                Agence d'arrivée
+
+                                <span class="text-danger">*</span>
+
+                            </label>
+
+
+                            <select name="agence_arrivee"
+                                    class="form-control"
+                                    required>
+
+                                <option value="">
+
+                                    Sélectionner l'agence d'arrivée
+
+                                </option>
+
+                                @foreach($agences as $agence)
+
+                                    <option value="{{ $agence->id }}"
+                                        {{ old('agence_arrivee') == $agence->id ? 'selected' : '' }}>
+
+                                        {{ $agence->code }}
+                                        —
+                                        {{ $agence->nom }}
+
+                                    </option>
+
+                                @endforeach
+
+                            </select>
+
+                        </div>
+
+
+                    </div>
+
+
+                    {{-- =================================================
+                         HORAIRES
                     ================================================== --}}
 
                     <div class="mb-4">
@@ -324,122 +497,6 @@
 
 
                     {{-- =================================================
-                         AGENCES
-                    ================================================== --}}
-
-                    <div class="mb-4">
-
-                        <h6 class="ocn-title font-weight-bold border-bottom pb-2">
-
-                            <i class="fas fa-building mr-2"></i>
-
-                            Agences du parcours
-
-                        </h6>
-
-
-                        <p class="text-muted small mt-2">
-
-                            Les agences seront enregistrées dans l'ordre
-                            de passage du voyage.
-
-                        </p>
-
-
-                        <div class="row mt-3">
-
-
-                            {{-- AGENCES DE DEPART --}}
-
-                            <div class="col-md-6">
-
-                                <div class="form-group">
-
-                                    <label>
-
-                                        Agences de départ
-
-                                    </label>
-
-                                    <select name="agences_depart[]"
-                                            class="form-control"
-                                            multiple
-                                            size="5">
-
-                                        @foreach($agences as $agence)
-
-                                            <option value="{{ $agence->id }}">
-
-                                                {{ $agence->code }}
-                                                —
-                                                {{ $agence->nom }}
-
-                                            </option>
-
-                                        @endforeach
-
-                                    </select>
-
-                                    <small class="text-muted">
-
-                                        Maintenez Ctrl pour sélectionner
-                                        plusieurs agences.
-
-                                    </small>
-
-                                </div>
-
-                            </div>
-
-
-                            {{-- AGENCES D'ARRIVEE --}}
-
-                            <div class="col-md-6">
-
-                                <div class="form-group">
-
-                                    <label>
-
-                                        Agences d'arrivée
-
-                                    </label>
-
-                                    <select name="agences_arrivee[]"
-                                            class="form-control"
-                                            multiple
-                                            size="5">
-
-                                        @foreach($agences as $agence)
-
-                                            <option value="{{ $agence->id }}">
-
-                                                {{ $agence->code }}
-                                                —
-                                                {{ $agence->nom }}
-
-                                            </option>
-
-                                        @endforeach
-
-                                    </select>
-
-                                    <small class="text-muted">
-
-                                        Maintenez Ctrl pour sélectionner
-                                        plusieurs agences.
-
-                                    </small>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    {{-- =================================================
                          STATUT
                     ================================================== --}}
 
@@ -449,48 +506,27 @@
 
                             Statut
 
-                            <span class="text-danger">*</span>
-
                         </label>
 
-                        <select name="statut"
-                                class="form-control"
-                                required>
 
-                            <option value="planifie"
-                                {{ old('statut', 'planifie') === 'planifie' ? 'selected' : '' }}>
+                        <input type="text"
+                               class="form-control"
+                               value="Planifié"
+                               readonly>
 
-                                Planifié
 
-                            </option>
+                        {{-- La valeur réellement envoyée à Laravel --}}
 
-                            <option value="en_cours"
-                                {{ old('statut') === 'en_cours' ? 'selected' : '' }}>
-
-                                En cours
-
-                            </option>
-
-                            <option value="termine"
-                                {{ old('statut') === 'termine' ? 'selected' : '' }}>
-
-                                Terminé
-
-                            </option>
-
-                            <option value="annule"
-                                {{ old('statut') === 'annule' ? 'selected' : '' }}>
-
-                                Annulé
-
-                            </option>
-
-                        </select>
+                        <input type="hidden"
+                               name="statut"
+                               value="planifie">
 
                     </div>
 
 
-                    {{-- OBSERVATION --}}
+                    {{-- =================================================
+                         OBSERVATION
+                    ================================================== --}}
 
                     <div class="form-group">
 
@@ -510,7 +546,9 @@
                 </div>
 
 
-                {{-- FOOTER --}}
+                {{-- =====================================================
+                     FOOTER
+                ====================================================== --}}
 
                 <div class="modal-footer ocn-modal-footer">
 
@@ -530,7 +568,7 @@
 
                         <i class="fas fa-save mr-1"></i>
 
-                        Enregistrer
+                        Planifier le voyage
 
                     </button>
 
@@ -543,3 +581,215 @@
     </div>
 
 </div>
+
+
+{{-- =========================================================
+     JAVASCRIPT : AGENCES DE PASSAGE
+========================================================= --}}
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const container = document.getElementById('agencesPassageContainer');
+    const btnAdd = document.getElementById('btnAddAgencePassage');
+
+    if (!container || !btnAdd) {
+        return;
+    }
+
+    const agences = @json($agences->values());
+
+    function ajouterAgencePassage(selectedId = '') {
+
+        const wrapper = document.createElement('div');
+
+        wrapper.className =
+            'row align-items-center mb-2 agence-passage-row';
+
+
+        // Numéro de passage
+
+        const numeroCol = document.createElement('div');
+
+        numeroCol.className =
+            'col-md-1 text-center';
+
+
+        const numero = document.createElement('span');
+
+        numero.className =
+            'badge badge-warning passage-numero';
+
+
+        numeroCol.appendChild(numero);
+
+
+        // Sélection agence
+
+        const selectCol = document.createElement('div');
+
+        selectCol.className =
+            'col-md-10';
+
+
+        const select = document.createElement('select');
+
+        select.name =
+            'agences_passage[]';
+
+        select.className =
+            'form-control';
+
+        select.required =
+            true;
+
+
+        let options =
+            '<option value="">Sélectionner une agence</option>';
+
+
+        agences.forEach(function (agence) {
+
+            const selected =
+                String(selectedId) === String(agence.id)
+                    ? 'selected'
+                    : '';
+
+
+            options +=
+                '<option value="' + agence.id + '" ' +
+                selected +
+                '>' +
+                agence.code +
+                ' — ' +
+                agence.nom +
+                '</option>';
+
+        });
+
+
+        select.innerHTML = options;
+
+        selectCol.appendChild(select);
+
+
+        // Bouton supprimer
+
+        const deleteCol =
+            document.createElement('div');
+
+        deleteCol.className =
+            'col-md-1';
+
+
+        const deleteButton =
+            document.createElement('button');
+
+        deleteButton.type =
+            'button';
+
+        deleteButton.className =
+            'btn btn-outline-danger btn-sm';
+
+        deleteButton.title =
+            'Supprimer cette agence';
+
+
+        deleteButton.innerHTML =
+            '<i class="fas fa-trash"></i>';
+
+
+        deleteButton.addEventListener(
+            'click',
+            function () {
+
+                wrapper.remove();
+
+                mettreAJourNumeros();
+
+            }
+        );
+
+
+        deleteCol.appendChild(deleteButton);
+
+
+        // Assemblage
+
+        wrapper.appendChild(numeroCol);
+
+        wrapper.appendChild(selectCol);
+
+        wrapper.appendChild(deleteCol);
+
+        container.appendChild(wrapper);
+
+
+        mettreAJourNumeros();
+
+    }
+
+
+    // Mettre à jour les numéros
+
+    function mettreAJourNumeros() {
+
+        const rows =
+            container.querySelectorAll(
+                '.agence-passage-row'
+            );
+
+
+        rows.forEach(function (row, index) {
+
+            const numero =
+                row.querySelector(
+                    '.passage-numero'
+                );
+
+
+            if (numero) {
+
+                numero.textContent =
+                    index + 2;
+
+            }
+
+        });
+
+    }
+
+
+    // Ajouter une agence
+
+    btnAdd.addEventListener(
+        'click',
+        function () {
+
+            ajouterAgencePassage();
+
+        }
+    );
+
+
+    // Restaurer les anciennes valeurs
+    // après une erreur de validation
+
+    const anciennesAgences =
+        @json(old('agences_passage', []));
+
+
+    anciennesAgences.forEach(
+        function (agenceId) {
+
+            ajouterAgencePassage(
+                agenceId
+            );
+
+        }
+    );
+
+});
+
+</script>

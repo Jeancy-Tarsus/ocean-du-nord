@@ -73,3 +73,25 @@ Route::middleware(['auth'])->group(function () {
 
 Route::resource('voyages', VoyageController::class)
     ->except(['create', 'show', 'edit']);
+
+Route::patch(
+    '/voyages/{voyage}/demarrer',
+    [VoyageController::class, 'start']
+)->name('voyages.start');
+
+
+Route::patch(
+    '/voyages/{voyage}/terminer',
+    [VoyageController::class, 'finish']
+)->name('voyages.finish');
+
+Route::patch(
+    '/voyage-agences/{voyageAgence}/arrivee',
+    [VoyageController::class, 'arrive']
+)->name('voyage-agences.arrivee');
+
+
+Route::patch(
+    '/voyage-agences/{voyageAgence}/depart',
+    [VoyageController::class, 'depart']
+)->name('voyage-agences.depart');

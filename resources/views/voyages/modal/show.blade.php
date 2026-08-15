@@ -1,5 +1,3 @@
-@foreach($voyages as $voyage)
-
 <div class="modal fade"
      id="modalShowVoyage{{ $voyage->id }}"
      data-backdrop="static"
@@ -10,7 +8,6 @@
     <div class="modal-dialog modal-xl modal-dialog-centered">
 
         <div class="modal-content shadow-lg border-0">
-
 
             {{-- HEADER --}}
 
@@ -34,7 +31,6 @@
 
                 </div>
 
-
                 <button type="button"
                         class="close text-white"
                         data-dismiss="modal">
@@ -49,7 +45,6 @@
             {{-- BODY --}}
 
             <div class="modal-body p-4">
-
 
                 {{-- IDENTIFICATION --}}
 
@@ -83,7 +78,6 @@
                 {{-- INFORMATIONS PRINCIPALES --}}
 
                 <div class="row">
-
 
                     <div class="col-md-4 mb-3">
 
@@ -119,7 +113,9 @@
                             @if($voyage->bus)
 
                                 {{ $voyage->bus->numero }}
+
                                 —
+
                                 {{ $voyage->bus->immatriculation }}
 
                             @else
@@ -127,6 +123,7 @@
                                 -
 
                             @endif
+
                         </div>
 
                     </div>
@@ -169,10 +166,11 @@
 
                 <div class="row">
 
-
                     <div class="col-md-6 mb-3">
 
                         <strong>
+
+                            <i class="fas fa-calendar-alt mr-2 ocn-green"></i>
 
                             Départ
 
@@ -180,11 +178,21 @@
 
                         <div class="mt-1">
 
-                            {{ $voyage->date_depart?->format('d/m/Y') }}
+                            @if($voyage->date_depart)
 
-                            à
+                                {{ $voyage->date_depart->format('d/m/Y') }}
 
-                            {{ $voyage->heure_depart }}
+                            @else
+
+                                -
+
+                            @endif
+
+                            @if($voyage->heure_depart)
+
+                                à {{ substr($voyage->heure_depart, 0, 5) }}
+
+                            @endif
 
                         </div>
 
@@ -194,6 +202,8 @@
                     <div class="col-md-6 mb-3">
 
                         <strong>
+
+                            <i class="fas fa-flag-checkered mr-2 ocn-green"></i>
 
                             Arrivée prévue
 
@@ -207,7 +217,7 @@
 
                                 @if($voyage->heure_arrivee_prevue)
 
-                                    à {{ $voyage->heure_arrivee_prevue }}
+                                    à {{ substr($voyage->heure_arrivee_prevue, 0, 5) }}
 
                                 @endif
 
@@ -227,13 +237,13 @@
                 <hr>
 
 
-                {{-- AGENCES --}}
+                {{-- PARCOURS --}}
 
                 <h6 class="ocn-title font-weight-bold mb-3">
 
-                    <i class="fas fa-building mr-2"></i>
+                    <i class="fas fa-route mr-2"></i>
 
-                    Agences du parcours
+                    Parcours du voyage
 
                 </h6>
 
@@ -248,24 +258,22 @@
 
                                 <tr>
 
-                                    <th>
-                                        Ordre
-                                    </th>
+                                    <th>Ordre</th>
 
-                                    <th>
-                                        Agence
-                                    </th>
+                                    <th>Agence</th>
 
-                                    <th>
-                                        Type
-                                    </th>
+                                    <th>Type</th>
 
-                                    <th>
-                                        Heure prévue
-                                    </th>
+                                    <th>Heure prévue</th>
 
-                                    <th>
-                                        Statut
+                                    <th>Arrivée réelle</th>
+
+                                    <th>Départ réel</th>
+
+                                    <th>Statut</th>
+
+                                    <th class="text-center">
+                                        Action
                                     </th>
 
                                 </tr>
@@ -275,9 +283,14 @@
 
                             <tbody>
 
-                                @foreach($voyage->voyageAgences as $voyageAgence)
+                                @foreach(
+                                    $voyage->voyageAgences->sortBy('ordre')
+                                    as $voyageAgence
+                                )
 
                                     <tr>
+
+                                        {{-- ORDRE --}}
 
                                         <td>
 
@@ -285,11 +298,21 @@
 
                                         </td>
 
+
+                                        {{-- AGENCE --}}
+
                                         <td>
 
-                                            {{ $voyageAgence->agence->nom ?? '-' }}
+                                            <strong>
+
+                                                {{ $voyageAgence->agence->nom ?? '-' }}
+
+                                            </strong>
 
                                         </td>
+
+
+                                        {{-- TYPE --}}
 
                                         <td>
 
@@ -301,7 +324,15 @@
 
                                                 </span>
 
-                                            @else
+                                            @elseif($voyageAgence->type === 'passage')
+
+                                                <span class="badge badge-warning">
+
+                                                    Passage
+
+                                                </span>
+
+                                            @elseif($voyageAgence->type === 'arrivee')
 
                                                 <span class="badge badge-success">
 
@@ -309,55 +340,199 @@
 
                                                 </span>
 
+                                            @else
+
+                                                <span class="badge badge-secondary">
+
+                                                    {{ $voyageAgence->type }}
+
+                                                </span>
+
                                             @endif
 
                                         </td>
 
+
+                                        {{-- HEURE PREVUE --}}
+
                                         <td>
 
-                                            {{ $voyageAgence->heure_prevue ?? '-' }}
+                                            @if($voyageAgence->heure_prevue)
+
+                                                {{ substr(
+                                                    $voyageAgence->heure_prevue,
+                                                    0,
+                                                    5
+                                                ) }}
+
+                                            @else
+
+                                                -
+
+                                            @endif
 
                                         </td>
 
-                                        <td>
 
-                                            @switch($voyageAgence->statut)
+                                        {{-- ARRIVEE REELLE --}}
 
-                                                @case('prevu')
+                                        <td class="arrivee-cell">
 
-                                                    <span class="badge badge-secondary">
+                                            @if($voyageAgence->heure_arrivee_reelle)
 
-                                                        Prévu
+                                                {{ substr(
+                                                    $voyageAgence->heure_arrivee_reelle,
+                                                    0,
+                                                    5
+                                                ) }}
 
-                                                    </span>
+                                            @else
 
-                                                    @break
+                                                -
 
-                                                @case('arrive')
+                                            @endif
 
-                                                    <span class="badge badge-success">
+                                        </td>
 
-                                                        Arrivé
 
-                                                    </span>
+                                        {{-- DEPART REEL --}}
 
-                                                    @break
+                                        <td class="depart-cell">
 
-                                                @case('reparti')
+                                            @if($voyageAgence->heure_depart_reelle)
 
-                                                    <span class="badge badge-primary">
+                                                {{ substr(
+                                                    $voyageAgence->heure_depart_reelle,
+                                                    0,
+                                                    5
+                                                ) }}
 
-                                                        Reparti
+                                            @else
 
-                                                    </span>
+                                                -
 
-                                                    @break
+                                            @endif
 
-                                                @default
+                                        </td>
+
+
+                                        {{-- STATUT --}}
+
+                                        <td class="statut-cell">
+
+                                            @if($voyageAgence->statut === 'prevu')
+
+                                                <span class="badge badge-secondary">
+
+                                                    Prévu
+
+                                                </span>
+
+                                            @elseif($voyageAgence->statut === 'arrive')
+
+                                                <span class="badge badge-success">
+
+                                                    Arrivé
+
+                                                </span>
+
+                                            @elseif($voyageAgence->statut === 'reparti')
+
+                                                <span class="badge badge-primary">
+
+                                                    Reparti
+
+                                                </span>
+
+                                            @else
+
+                                                <span class="badge badge-secondary">
 
                                                     {{ $voyageAgence->statut }}
 
-                                            @endswitch
+                                                </span>
+
+                                            @endif
+
+                                        </td>
+
+
+                                        {{-- ACTION --}}
+
+                                        <td class="text-center action-cell">
+
+                                            @if(
+                                                $voyage->statut === 'en_cours' &&
+                                                $voyageAgence->statut === 'prevu'
+                                            )
+
+                                                <form action="{{ route(
+                                                    'voyage-agences.arrivee',
+                                                    $voyageAgence
+                                                ) }}"
+                                                      method="POST"
+                                                      class="d-inline arrivee-form"
+                                                      data-depart-url="{{ route(
+                                                          'voyage-agences.depart',
+                                                          $voyageAgence
+                                                      ) }}"
+                                                      data-token="{{ csrf_token() }}">
+
+                                                    @csrf
+
+                                                    @method('PATCH')
+
+                                                    <button type="submit"
+                                                            class="btn btn-success btn-sm"
+                                                            title="Confirmer l'arrivée">
+
+                                                        <i class="fas fa-map-marker-alt"></i>
+
+                                                        Arrivée
+
+                                                    </button>
+
+                                                </form>
+
+                                            @elseif(
+                                                $voyage->statut === 'en_cours' &&
+                                                $voyageAgence->statut === 'arrive' &&
+                                                $voyageAgence->type !== 'arrivee'
+                                            )
+
+                                                <form action="{{ route(
+                                                    'voyage-agences.depart',
+                                                    $voyageAgence
+                                                ) }}"
+                                                      method="POST"
+                                                      class="d-inline depart-form"
+                                                      data-token="{{ csrf_token() }}">
+
+                                                    @csrf
+
+                                                    @method('PATCH')
+
+                                                    <button type="submit"
+                                                            class="btn btn-primary btn-sm"
+                                                            title="Confirmer le départ">
+
+                                                        <i class="fas fa-play"></i>
+
+                                                        Départ
+
+                                                    </button>
+
+                                                </form>
+
+                                            @else
+
+                                                <span class="text-muted">
+
+                                                    -
+
+                                                </span>
+
+                                            @endif
 
                                         </td>
 
@@ -373,16 +548,18 @@
 
                 @else
 
-                    <p class="text-muted">
+                    <div class="alert alert-info">
+
+                        <i class="fas fa-info-circle mr-2"></i>
 
                         Aucune agence associée à ce voyage.
 
-                    </p>
+                    </div>
 
                 @endif
 
 
-                {{-- STATUT --}}
+                {{-- STATUT DU VOYAGE --}}
 
                 <div class="mt-4">
 
@@ -394,14 +571,15 @@
 
                     </strong>
 
-
-                    <div class="mt-2">
+                    <div class="mt-2 voyage-status">
 
                         @switch($voyage->statut)
 
                             @case('planifie')
 
                                 <span class="badge badge-info">
+
+                                    <i class="fas fa-calendar-check mr-1"></i>
 
                                     Planifié
 
@@ -413,6 +591,8 @@
 
                                 <span class="badge badge-primary">
 
+                                    <i class="fas fa-play mr-1"></i>
+
                                     En cours
 
                                 </span>
@@ -423,6 +603,8 @@
 
                                 <span class="badge badge-success">
 
+                                    <i class="fas fa-check mr-1"></i>
+
                                     Terminé
 
                                 </span>
@@ -432,6 +614,8 @@
                             @case('annule')
 
                                 <span class="badge badge-danger">
+
+                                    <i class="fas fa-times mr-1"></i>
 
                                     Annulé
 
@@ -468,11 +652,11 @@
 
                         </strong>
 
-                        <p class="mt-2 mb-0">
+                        <div class="mt-2 p-3 bg-light rounded">
 
                             {{ $voyage->observation }}
 
-                        </p>
+                        </div>
 
                     </div>
 
@@ -503,4 +687,432 @@
 
 </div>
 
-@endforeach
+
+@push('scripts')
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const modal = document.getElementById(
+        'modalShowVoyage{{ $voyage->id }}'
+    );
+
+    if (!modal) {
+        return;
+    }
+
+
+    function afficherErreur(message) {
+
+        Swal.fire({
+
+            icon: 'error',
+
+            title: 'Erreur',
+
+            text: message
+
+        });
+
+    }
+
+
+    function initialiserDepart() {
+
+        modal.querySelectorAll('.depart-form').forEach(function (form) {
+
+            if (form.dataset.initialized === '1') {
+                return;
+            }
+
+            form.dataset.initialized = '1';
+
+
+            form.addEventListener('submit', async function (event) {
+
+                event.preventDefault();
+
+
+                const button = form.querySelector('button');
+
+                const token = form.dataset.token;
+
+                button.disabled = true;
+
+                button.innerHTML =
+                    '<i class="fas fa-spinner fa-spin"></i>';
+
+
+                try {
+
+                    const response = await fetch(form.action, {
+
+                        method: 'POST',
+
+                        headers: {
+
+                            'X-CSRF-TOKEN': token,
+
+                            'Accept': 'application/json',
+
+                            'X-Requested-With':
+                                'XMLHttpRequest'
+
+                        },
+
+                        body: new FormData(form)
+
+                    });
+
+
+                    const data = await response.json();
+
+
+                    if (!response.ok || !data.success) {
+
+                        throw new Error(
+                            data.message ||
+                            'Une erreur est survenue.'
+                        );
+
+                    }
+
+
+                    const row = form.closest('tr');
+
+
+                    row.querySelector(
+                        '.statut-cell'
+                    ).innerHTML = `
+
+                        <span class="badge badge-primary">
+
+                            Reparti
+
+                        </span>
+
+                    `;
+
+
+                    row.querySelector(
+                        '.depart-cell'
+                    ).innerHTML = data.heure_depart;
+
+
+                    form.outerHTML = `
+
+                        <span class="text-muted">
+
+                            -
+
+                        </span>
+
+                    `;
+
+
+                    Swal.fire({
+
+                        icon: 'success',
+
+                        title: 'Départ enregistré',
+
+                        text: data.message,
+
+                        timer: 900,
+
+                        showConfirmButton: false
+
+                    });
+
+
+                    activerProchaineArrivee(row);
+
+                } catch (error) {
+
+                    button.disabled = false;
+
+                    button.innerHTML = `
+
+                        <i class="fas fa-play"></i>
+
+                        Départ
+
+                    `;
+
+
+                    afficherErreur(error.message);
+
+                }
+
+            });
+
+        });
+
+    }
+
+
+    function activerProchaineArrivee(row) {
+
+        const ordreActuel = parseInt(
+            row.querySelector('td:first-child')
+                .textContent
+                .trim()
+        );
+
+
+        const rows = modal.querySelectorAll('tbody tr');
+
+
+        rows.forEach(function (nextRow) {
+
+            const ordre = parseInt(
+                nextRow.querySelector('td:first-child')
+                    .textContent
+                    .trim()
+            );
+
+
+            if (ordre === ordreActuel + 1) {
+
+                const actionCell =
+                    nextRow.querySelector('.action-cell');
+
+
+                const arrivalForm =
+                    actionCell.querySelector('.arrivee-form');
+
+
+                if (arrivalForm) {
+
+                    arrivalForm
+                        .querySelector('button')
+                        .disabled = false;
+
+                }
+
+            }
+
+        });
+
+    }
+
+
+    modal.querySelectorAll('.arrivee-form')
+        .forEach(function (form) {
+
+            form.addEventListener('submit', async function (event) {
+
+                event.preventDefault();
+
+
+                const button = form.querySelector('button');
+
+                const token = form.dataset.token;
+
+
+                button.disabled = true;
+
+                button.innerHTML =
+                    '<i class="fas fa-spinner fa-spin"></i>';
+
+
+                try {
+
+                    const response = await fetch(form.action, {
+
+                        method: 'POST',
+
+                        headers: {
+
+                            'X-CSRF-TOKEN': token,
+
+                            'Accept': 'application/json',
+
+                            'X-Requested-With':
+                                'XMLHttpRequest'
+
+                        },
+
+                        body: new FormData(form)
+
+                    });
+
+
+                    const data = await response.json();
+
+
+                    if (!response.ok || !data.success) {
+
+                        throw new Error(
+                            data.message ||
+                            'Une erreur est survenue.'
+                        );
+
+                    }
+
+
+                    const row = form.closest('tr');
+
+
+                    row.querySelector(
+                        '.statut-cell'
+                    ).innerHTML = `
+
+                        <span class="badge badge-success">
+
+                            Arrivé
+
+                        </span>
+
+                    `;
+
+
+                    row.querySelector(
+                        '.arrivee-cell'
+                    ).innerHTML =
+                        data.heure_arrivee;
+
+
+                    /*
+                     * ARRIVÉE FINALE
+                     */
+
+                    if (data.final) {
+
+                        modal.querySelectorAll(
+                            '.action-cell'
+                        ).forEach(function (cell) {
+
+                            cell.innerHTML = `
+
+                                <span class="text-muted">
+
+                                    -
+
+                                </span>
+
+                            `;
+
+                        });
+
+
+                        const voyageStatus =
+                            modal.querySelector(
+                                '.voyage-status'
+                            );
+
+
+                        if (voyageStatus) {
+
+                            voyageStatus.innerHTML = `
+
+                                <span class="badge badge-success">
+
+                                    <i class="fas fa-check mr-1"></i>
+
+                                    Terminé
+
+                                </span>
+
+                            `;
+
+                        }
+
+
+                        Swal.fire({
+
+                            icon: 'success',
+
+                            title: 'Voyage terminé',
+
+                            text: data.message,
+
+                            confirmButtonText: 'OK'
+
+                        });
+
+                        return;
+                    }
+
+
+                    /*
+                     * TRANSFORMATION ARRIVÉE → DÉPART
+                     */
+
+                    form.outerHTML = `
+
+                        <form action="${form.dataset.departUrl}"
+                              method="POST"
+                              class="d-inline depart-form"
+                              data-token="${form.dataset.token}">
+
+                            <input type="hidden"
+                                   name="_token"
+                                   value="${form.dataset.token}">
+
+                            <input type="hidden"
+                                   name="_method"
+                                   value="PATCH">
+
+                            <button type="submit"
+                                    class="btn btn-primary btn-sm"
+                                    title="Confirmer le départ">
+
+                                <i class="fas fa-play"></i>
+
+                                Départ
+
+                            </button>
+
+                        </form>
+
+                    `;
+
+
+                    Swal.fire({
+
+                        icon: 'success',
+
+                        title: 'Arrivée enregistrée',
+
+                        text: data.message,
+
+                        timer: 900,
+
+                        showConfirmButton: false
+
+                    });
+
+
+                    initialiserDepart();
+
+                } catch (error) {
+
+                    button.disabled = false;
+
+                    button.innerHTML = `
+
+                        <i class="fas fa-map-marker-alt"></i>
+
+                        Arrivée
+
+                    `;
+
+
+                    afficherErreur(error.message);
+
+                }
+
+            });
+
+        });
+
+
+    initialiserDepart();
+
+});
+
+</script>
+
+@endpush

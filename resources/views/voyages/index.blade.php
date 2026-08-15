@@ -6,11 +6,6 @@
 
 @section('content')
 
-
-{{-- =========================================================
-     MESSAGES POUR SWEETALERT
-========================================================= --}}
-
 @if(session('success'))
 
     <div id="ocn-success-message"
@@ -38,21 +33,15 @@
 @endif
 
 
-{{-- =========================================================
-     CARD PRINCIPALE
-========================================================= --}}
-
 <div class="card ocn-card shadow-sm">
 
-
-    {{-- HEADER --}}
+    {{-- =========================================================
+         HEADER
+    ========================================================== --}}
 
     <div class="card-header bg-white">
 
         <div class="row align-items-center">
-
-
-            {{-- TITRE --}}
 
             <div class="col-md-4">
 
@@ -66,8 +55,6 @@
 
             </div>
 
-
-            {{-- RECHERCHE --}}
 
             <div class="col-md-5">
 
@@ -89,8 +76,7 @@
                             @if(!empty($search))
 
                                 <a href="{{ route('voyages.index') }}"
-                                   class="btn btn-secondary"
-                                   title="Réinitialiser la recherche">
+                                   class="btn btn-secondary">
 
                                     <i class="fas fa-times"></i>
 
@@ -117,8 +103,6 @@
             </div>
 
 
-            {{-- NOUVEAU VOYAGE --}}
-
             <div class="col-md-3 text-right">
 
                 <button type="button"
@@ -139,9 +123,9 @@
     </div>
 
 
-    {{-- =====================================================
+    {{-- =========================================================
          TABLEAU
-    ====================================================== --}}
+    ========================================================== --}}
 
     <div class="card-body p-0">
 
@@ -184,7 +168,6 @@
 
                         <tr>
 
-
                             {{-- ID --}}
 
                             <td>
@@ -211,17 +194,7 @@
 
                             <td>
 
-                                @if($voyage->ligne)
-
-                                    {{ $voyage->ligne->nom }}
-
-                                @else
-
-                                    <span class="text-muted">
-                                        -
-                                    </span>
-
-                                @endif
+                                {{ $voyage->ligne->nom ?? '-' }}
 
                             </td>
 
@@ -229,15 +202,18 @@
                             {{-- BUS --}}
 
                             <td>
+
                                 @if($voyage->bus)
 
                                     {{ $voyage->bus->numero }}
+
                                     —
+
                                     {{ $voyage->bus->immatriculation }}
 
                                 @else
 
-                                    <span class="text-muted">-</span>
+                                    -
 
                                 @endif
 
@@ -248,17 +224,7 @@
 
                             <td>
 
-                                @if($voyage->equipe)
-
-                                    {{ $voyage->equipe->nom }}
-
-                                @else
-
-                                    <span class="text-muted">
-                                        -
-                                    </span>
-
-                                @endif
+                                {{ $voyage->equipe->nom ?? '-' }}
 
                             </td>
 
@@ -267,9 +233,13 @@
 
                             <td>
 
-                                {{ $voyage->date_depart?->format('d/m/Y') }}
+                                @if($voyage->date_depart)
 
-                                <br>
+                                    {{ $voyage->date_depart->format('d/m/Y') }}
+
+                                    <br>
+
+                                @endif
 
                                 <small class="text-muted">
 
@@ -302,9 +272,7 @@
 
                                 @else
 
-                                    <span class="text-muted">
-                                        -
-                                    </span>
+                                    -
 
                                 @endif
 
@@ -394,43 +362,98 @@
 
                                 {{-- MODIFIER --}}
 
-                                <button type="button"
-                                        class="btn btn-warning btn-sm"
-                                        data-toggle="modal"
-                                        data-target="#modalEditVoyage{{ $voyage->id }}"
-                                        title="Modifier">
+                                @if($voyage->statut === 'planifie')
 
-                                    <i class="fas fa-edit"></i>
+                                    <button type="button"
+                                            class="btn btn-warning btn-sm"
+                                            data-toggle="modal"
+                                            data-target="#modalEditVoyage{{ $voyage->id }}"
+                                            title="Modifier">
 
-                                </button>
+                                        <i class="fas fa-edit"></i>
+
+                                    </button>
+
+                                @endif
+
+
+                                {{-- DEMARRER --}}
+
+                                @if(
+
+                                    auth()->user()->role === 'admin' ||
+
+                                    auth()->user()->role === 'directeur_exploitation' ||
+
+                                    (
+
+                                        auth()->user()->role === 'chef_agence' &&
+
+                                        $voyage->voyageAgences->contains(
+                                            'agence_id',
+                                            auth()->user()->agence_id
+                                        )
+
+                                    )
+
+                                )
+
+                                    @if($voyage->statut === 'planifie')
+
+                                        <form action="{{ route('voyages.start', $voyage) }}"
+                                              method="POST"
+                                              class="d-inline start-voyage-form">
+
+                                            @csrf
+
+                                            @method('PATCH')
+
+                                            <button type="submit"
+                                                    class="btn btn-success btn-sm"
+                                                    title="Démarrer le voyage">
+
+                                                <i class="fas fa-play"></i>
+
+                                            </button>
+
+                                        </form>
+
+                                    @endif
+
+                                @endif
+
+
+                               
 
 
                                 {{-- SUPPRIMER --}}
 
-                                <form action="{{ route('voyages.destroy', $voyage) }}"
-                                      method="POST"
-                                      class="d-inline delete-form"
-                                      data-delete-message="Ce voyage sera définitivement supprimé.">
+                                @if($voyage->statut === 'termine')
 
-                                    @csrf
+                                    <form action="{{ route('voyages.destroy', $voyage) }}"
+                                          method="POST"
+                                          class="d-inline delete-form"
+                                          data-delete-message="Ce voyage sera définitivement supprimé.">
 
-                                    @method('DELETE')
+                                        @csrf
 
-                                    <button type="submit"
-                                            class="btn btn-danger btn-sm"
-                                            title="Supprimer">
+                                        @method('DELETE')
 
-                                        <i class="fas fa-trash"></i>
+                                        <button type="submit"
+                                                class="btn btn-danger btn-sm"
+                                                title="Supprimer">
 
-                                    </button>
+                                            <i class="fas fa-trash"></i>
 
-                                </form>
+                                        </button>
 
+                                    </form>
+
+                                @endif
 
                             </td>
 
                         </tr>
-
 
                     @empty
 
@@ -448,7 +471,9 @@
                                         Aucun voyage trouvé pour :
 
                                         <strong>
+
                                             {{ $search }}
+
                                         </strong>
 
                                     @else
@@ -474,7 +499,9 @@
     </div>
 
 
-    {{-- PAGINATION --}}
+    {{-- =========================================================
+         PAGINATION
+    ========================================================== --}}
 
     @if($voyages->hasPages())
 
@@ -486,18 +513,142 @@
 
     @endif
 
+
 </div>
 
 
-{{-- =========================================================
-     MODALS
-========================================================= --}}
+{{-- =============================================================
+     MODALS DES VOYAGES
+
+     IMPORTANT :
+     Ils sont volontairement EN DEHORS du tableau.
+============================================================= --}}
+
+@foreach($voyages as $voyage)
+
+    {{-- MODIFIER --}}
+
+    @include(
+        'voyages.modal.edit',
+        ['voyage' => $voyage]
+    )
+
+
+    {{-- VOIR --}}
+
+    @include(
+        'voyages.modal.show',
+        ['voyage' => $voyage]
+    )
+
+@endforeach
+
+
+{{-- =============================================================
+     MODAL CREATION
+============================================================= --}}
 
 @include('voyages.modal.create')
 
-@include('voyages.modal.edit')
 
-@include('voyages.modal.show')
+@push('scripts')
 
+<script>
+
+document.addEventListener('DOMContentLoaded', function () {
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DEMARRER
+    |--------------------------------------------------------------------------
+    */
+
+    document.querySelectorAll('.start-voyage-form')
+        .forEach(function (form) {
+
+            form.addEventListener('submit', function (event) {
+
+                event.preventDefault();
+
+                Swal.fire({
+
+                    title: 'Démarrer le voyage ?',
+
+                    text: 'Le bus, l’équipe et les chauffeurs seront marqués comme en voyage.',
+
+                    icon: 'question',
+
+                    showCancelButton: true,
+
+                    confirmButtonText: 'Oui, démarrer',
+
+                    cancelButtonText: 'Annuler',
+
+                    reverseButtons: true
+
+                }).then(function (result) {
+
+                    if (result.isConfirmed) {
+
+                        form.submit();
+
+                    }
+
+                });
+
+            });
+
+        });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TERMINER
+    |--------------------------------------------------------------------------
+    */
+
+    document.querySelectorAll('.finish-voyage-form')
+        .forEach(function (form) {
+
+            form.addEventListener('submit', function (event) {
+
+                event.preventDefault();
+
+                Swal.fire({
+
+                    title: 'Terminer le voyage ?',
+
+                    text: 'Le voyage sera marqué comme terminé et les ressources seront libérées.',
+
+                    icon: 'question',
+
+                    showCancelButton: true,
+
+                    confirmButtonText: 'Oui, terminer',
+
+                    cancelButtonText: 'Annuler',
+
+                    reverseButtons: true
+
+                }).then(function (result) {
+
+                    if (result.isConfirmed) {
+
+                        form.submit();
+
+                    }
+
+                });
+
+            });
+
+        });
+
+});
+
+</script>
+
+@endpush
 
 @endsection

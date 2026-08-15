@@ -1,26 +1,3 @@
-@foreach($voyages as $voyage)
-
-@php
-
-    /*
-    |--------------------------------------------------------------------------
-    | Pour la modification :
-    | on affiche les bus disponibles ET le bus actuel du voyage.
-    |--------------------------------------------------------------------------
-    */
-
-    $busesEdit = \App\Models\Bus::where(function ($query) use ($voyage) {
-
-        $query->where('statut', 'disponible')
-              ->orWhere('id', $voyage->bus_id);
-
-    })
-    ->orderBy('numero')
-    ->get();
-
-@endphp
-
-
 <div class="modal fade"
      id="modalEditVoyage{{ $voyage->id }}"
      data-backdrop="static"
@@ -83,172 +60,427 @@
                 <div class="modal-body p-4">
 
 
-                    {{-- CODE AUTOMATIQUE --}}
+                    {{-- =================================================
+                         INFORMATIONS DU VOYAGE
+                    ================================================== --}}
 
-                    <div class="form-group">
+                    <div class="mb-4">
 
-                        <label>
+                        <h6 class="ocn-title font-weight-bold border-bottom pb-2">
 
-                            Code du voyage
+                            <i class="fas fa-info-circle mr-2"></i>
 
-                        </label>
+                            Informations du voyage
 
-                        <input type="text"
-                               value="{{ $voyage->code }}"
-                               class="form-control bg-light"
-                               readonly>
+                        </h6>
 
-                        <small class="text-muted">
 
-                            Le code est généré automatiquement
-                            et ne peut pas être modifié.
+                        <div class="row mt-3">
 
-                        </small>
+
+                            {{-- LIGNE --}}
+
+                            <div class="col-md-4">
+
+                                <div class="form-group">
+
+                                    <label>
+
+                                        Ligne
+
+                                        <span class="text-danger">*</span>
+
+                                    </label>
+
+                                    <select name="ligne_id"
+                                            class="form-control"
+                                            required>
+
+                                        <option value="">
+
+                                            Sélectionner une ligne
+
+                                        </option>
+
+                                        @foreach($lignes as $ligne)
+
+                                            <option value="{{ $ligne->id }}"
+                                                {{ old(
+                                                    'ligne_id',
+                                                    $voyage->ligne_id
+                                                ) == $ligne->id ? 'selected' : '' }}>
+
+                                                {{ $ligne->code }}
+                                                —
+                                                {{ $ligne->nom }}
+
+                                            </option>
+
+                                        @endforeach
+
+                                    </select>
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- BUS --}}
+
+                            <div class="col-md-4">
+
+                                <div class="form-group">
+
+                                    <label>
+
+                                        Bus
+
+                                        <span class="text-danger">*</span>
+
+                                    </label>
+
+                                    <select name="bus_id"
+                                            class="form-control"
+                                            required>
+
+                                        <option value="">
+
+                                            Sélectionner un bus
+
+                                        </option>
+
+                                        @foreach($buses as $bus)
+
+                                            <option value="{{ $bus->id }}"
+                                                {{ old(
+                                                    'bus_id',
+                                                    $voyage->bus_id
+                                                ) == $bus->id ? 'selected' : '' }}>
+
+                                                {{ $bus->numero }}
+                                                —
+                                                {{ $bus->immatriculation }}
+
+                                            </option>
+
+                                        @endforeach
+
+                                    </select>
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- EQUIPE --}}
+
+                            <div class="col-md-4">
+
+                                <div class="form-group">
+
+                                    <label>
+
+                                        Équipe
+
+                                        <span class="text-danger">*</span>
+
+                                    </label>
+
+                                    <select name="equipe_id"
+                                            class="form-control"
+                                            required>
+
+                                        <option value="">
+
+                                            Sélectionner une équipe
+
+                                        </option>
+
+                                        @foreach($equipes as $equipe)
+
+                                            <option value="{{ $equipe->id }}"
+                                                {{ old(
+                                                    'equipe_id',
+                                                    $voyage->equipe_id
+                                                ) == $equipe->id ? 'selected' : '' }}>
+
+                                                {{ $equipe->code }}
+                                                —
+                                                {{ $equipe->nom }}
+
+                                            </option>
+
+                                        @endforeach
+
+                                    </select>
+
+                                </div>
+
+                            </div>
+
+                        </div>
 
                     </div>
 
 
                     {{-- =================================================
-                         LIGNE / BUS / EQUIPE
+                         PARCOURS
                     ================================================== --}}
 
-                    <div class="row">
+                    <div class="mb-4">
+
+                        <h6 class="ocn-title font-weight-bold border-bottom pb-2">
+
+                            <i class="fas fa-route mr-2"></i>
+
+                            Parcours du voyage
+
+                        </h6>
 
 
-                        {{-- LIGNE --}}
+                        <p class="text-muted small mt-2 mb-3">
 
-                        <div class="col-md-4">
+                            Modifiez l'ordre des agences parcourues
+                            par le bus.
 
-                            <div class="form-group">
+                        </p>
 
-                                <label>
 
-                                    Ligne
+                        {{-- =================================================
+                             AGENCE DE DÉPART
+                        ================================================== --}}
 
-                                    <span class="text-danger">*</span>
+                        <div class="form-group">
 
-                                </label>
+                            <label>
 
-                                <select name="ligne_id"
-                                        class="form-control"
-                                        required>
+                                <i class="fas fa-map-marker-alt text-success mr-1"></i>
 
-                                    <option value="">
+                                Agence de départ
 
-                                        Sélectionner une ligne
+                                <span class="text-danger">*</span>
+
+                            </label>
+
+
+                            <select name="agence_depart"
+                                    class="form-control"
+                                    required>
+
+                                <option value="">
+
+                                    Sélectionner l'agence de départ
+
+                                </option>
+
+
+                                @php
+
+                                    $agenceDepart = $voyage->voyageAgences
+                                        ->where('type', 'depart')
+                                        ->sortBy('ordre')
+                                        ->first();
+
+                                @endphp
+
+
+                                @foreach($agences as $agence)
+
+                                    <option value="{{ $agence->id }}"
+                                        {{ old(
+                                            'agence_depart',
+                                            $agenceDepart?->agence_id
+                                        ) == $agence->id ? 'selected' : '' }}>
+
+                                        {{ $agence->code }}
+                                        —
+                                        {{ $agence->nom }}
 
                                     </option>
 
-                                    @foreach($lignes as $ligne)
+                                @endforeach
 
-                                        <option value="{{ $ligne->id }}"
-                                            {{ $voyage->ligne_id == $ligne->id ? 'selected' : '' }}>
-
-                                            {{ $ligne->code }}
-                                            —
-                                            {{ $ligne->nom }}
-
-                                        </option>
-
-                                    @endforeach
-
-                                </select>
-
-                            </div>
+                            </select>
 
                         </div>
 
 
-                        {{-- BUS --}}
+                        {{-- =================================================
+                             AGENCES DE PASSAGE
+                        ================================================== --}}
 
-                        <div class="col-md-4">
+                        <div class="form-group mt-4">
 
-                            <div class="form-group">
+                            <div class="d-flex justify-content-between align-items-center">
 
-                                <label>
+                                <label class="mb-0">
 
-                                    Bus
+                                    <i class="fas fa-map-signs text-warning mr-1"></i>
 
-                                    <span class="text-danger">*</span>
+                                    Agences de passage
+
+                                    <span class="text-muted">
+                                        (facultatif)
+                                    </span>
 
                                 </label>
 
-                                <select name="bus_id"
-                                        class="form-control"
-                                        required>
 
-                                    <option value="">
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-primary"
+                                        id="btnAddAgencePassage{{ $voyage->id }}">
 
-                                        Sélectionner un bus
+                                    <i class="fas fa-plus mr-1"></i>
 
-                                    </option>
+                                    Ajouter une agence
 
-                                    @foreach($busesEdit as $bus)
-
-                                        <option value="{{ $bus->id }}"
-                                            {{ $voyage->bus_id == $bus->id ? 'selected' : '' }}>
-
-                                            {{ $bus->numero }}
-                                            —
-                                            {{ $bus->immatriculation }}
-
-                                            @if($bus->id == $voyage->bus_id)
-
-                                                — Bus actuel
-
-                                            @endif
-
-                                        </option>
-
-                                    @endforeach
-
-                                </select>
+                                </button>
 
                             </div>
+
+
+                            <div id="agencesPassageContainer{{ $voyage->id }}"
+                                 class="mt-3">
+
+                                @php
+
+                                    $agencesPassageExistantes =
+                                        $voyage->voyageAgences
+                                            ->where('type', 'passage')
+                                            ->sortBy('ordre');
+
+                                @endphp
+
+
+                                @foreach($agencesPassageExistantes as $passage)
+
+                                    <div class="row align-items-center mb-2 agence-passage-row">
+
+                                        <div class="col-md-1 text-center">
+
+                                            <span class="badge badge-warning passage-numero">
+
+                                                {{ $passage->ordre }}
+
+                                            </span>
+
+                                        </div>
+
+
+                                        <div class="col-md-10">
+
+                                            <select name="agences_passage[]"
+                                                    class="form-control"
+                                                    required>
+
+                                                <option value="">
+
+                                                    Sélectionner une agence
+
+                                                </option>
+
+
+                                                @foreach($agences as $agence)
+
+                                                    <option value="{{ $agence->id }}"
+                                                        {{ $passage->agence_id == $agence->id ? 'selected' : '' }}>
+
+                                                        {{ $agence->code }}
+                                                        —
+                                                        {{ $agence->nom }}
+
+                                                    </option>
+
+                                                @endforeach
+
+                                            </select>
+
+                                        </div>
+
+
+                                        <div class="col-md-1">
+
+                                            <button type="button"
+                                                    class="btn btn-outline-danger btn-sm btn-remove-passage">
+
+                                                <i class="fas fa-trash"></i>
+
+                                            </button>
+
+                                        </div>
+
+                                    </div>
+
+                                @endforeach
+
+                            </div>
+
+
+                            <small class="text-muted">
+
+                                Ajoutez les agences dans l'ordre réel
+                                du parcours.
+
+                            </small>
 
                         </div>
 
 
-                        {{-- EQUIPE --}}
+                        {{-- =================================================
+                             AGENCE D'ARRIVÉE
+                        ================================================== --}}
 
-                        <div class="col-md-4">
+                        <div class="form-group mt-4">
 
-                            <div class="form-group">
+                            <label>
 
-                                <label>
+                                <i class="fas fa-flag-checkered text-danger mr-1"></i>
 
-                                    Équipe
+                                Agence d'arrivée
 
-                                    <span class="text-danger">*</span>
+                                <span class="text-danger">*</span>
 
-                                </label>
+                            </label>
 
-                                <select name="equipe_id"
-                                        class="form-control"
-                                        required>
 
-                                    <option value="">
+                            @php
 
-                                        Sélectionner une équipe
+                                $agenceArrivee = $voyage->voyageAgences
+                                    ->where('type', 'arrivee')
+                                    ->sortBy('ordre')
+                                    ->first();
+
+                            @endphp
+
+
+                            <select name="agence_arrivee"
+                                    class="form-control"
+                                    required>
+
+                                <option value="">
+
+                                    Sélectionner l'agence d'arrivée
+
+                                </option>
+
+
+                                @foreach($agences as $agence)
+
+                                    <option value="{{ $agence->id }}"
+                                        {{ old(
+                                            'agence_arrivee',
+                                            $agenceArrivee?->agence_id
+                                        ) == $agence->id ? 'selected' : '' }}>
+
+                                        {{ $agence->code }}
+                                        —
+                                        {{ $agence->nom }}
 
                                     </option>
 
-                                    @foreach($equipes as $equipe)
+                                @endforeach
 
-                                        <option value="{{ $equipe->id }}"
-                                            {{ $voyage->equipe_id == $equipe->id ? 'selected' : '' }}>
-
-                                            {{ $equipe->code }}
-                                            —
-                                            {{ $equipe->nom }}
-
-                                        </option>
-
-                                    @endforeach
-
-                                </select>
-
-                            </div>
+                            </select>
 
                         </div>
 
@@ -259,97 +491,124 @@
                          HORAIRES
                     ================================================== --}}
 
-                    <div class="row">
+                    <div class="mb-4">
+
+                        <h6 class="ocn-title font-weight-bold border-bottom pb-2">
+
+                            <i class="fas fa-clock mr-2"></i>
+
+                            Horaires
+
+                        </h6>
 
 
-                        {{-- DATE DEPART --}}
-
-                        <div class="col-md-3">
-
-                            <div class="form-group">
-
-                                <label>
-
-                                    Date de départ
-
-                                    <span class="text-danger">*</span>
-
-                                </label>
-
-                                <input type="date"
-                                       name="date_depart"
-                                       value="{{ $voyage->date_depart?->format('Y-m-d') }}"
-                                       class="form-control"
-                                       required>
-
-                            </div>
-
-                        </div>
+                        <div class="row mt-3">
 
 
-                        {{-- HEURE DEPART --}}
+                            {{-- DATE DÉPART --}}
 
-                        <div class="col-md-3">
+                            <div class="col-md-3">
 
-                            <div class="form-group">
+                                <div class="form-group">
 
-                                <label>
+                                    <label>
 
-                                    Heure de départ
+                                        Date de départ
 
-                                    <span class="text-danger">*</span>
+                                        <span class="text-danger">*</span>
 
-                                </label>
+                                    </label>
 
-                                <input type="time"
-                                       name="heure_depart"
-                                       value="{{ $voyage->heure_depart ? \Carbon\Carbon::parse($voyage->heure_depart)->format('H:i') : '' }}""
-                                       class="form-control"
-                                       required>
+                                    <input type="date"
+                                           name="date_depart"
+                                           value="{{ old(
+                                               'date_depart',
+                                               optional($voyage->date_depart)->format('Y-m-d')
+                                           ) }}"
+                                           class="form-control"
+                                           required>
+
+                                </div>
 
                             </div>
 
-                        </div>
 
+                            {{-- HEURE DÉPART --}}
 
-                        {{-- DATE ARRIVEE --}}
+                            <div class="col-md-3">
 
-                        <div class="col-md-3">
+                                <div class="form-group">
 
-                            <div class="form-group">
+                                    <label>
 
-                                <label>
+                                        Heure de départ
 
-                                    Date d'arrivée prévue
+                                        <span class="text-danger">*</span>
 
-                                </label>
+                                    </label>
 
-                                <input type="date"
-                                       name="date_arrivee_prevue"
-                                       value="{{ $voyage->date_arrivee_prevue?->format('Y-m-d') }}"
-                                       class="form-control">
+                                    <input type="time"
+                                           name="heure_depart"
+                                           value="{{ old(
+                                               'heure_depart',
+                                               substr($voyage->heure_depart, 0, 5)
+                                           ) }}"
+                                           class="form-control"
+                                           required>
+
+                                </div>
 
                             </div>
 
-                        </div>
+
+                            {{-- DATE ARRIVÉE --}}
+
+                            <div class="col-md-3">
+
+                                <div class="form-group">
+
+                                    <label>
+
+                                        Date d'arrivée prévue
+
+                                    </label>
+
+                                    <input type="date"
+                                           name="date_arrivee_prevue"
+                                           value="{{ old(
+                                               'date_arrivee_prevue',
+                                               $voyage->date_arrivee_prevue
+                                           ) }}"
+                                           class="form-control">
+
+                                </div>
+
+                            </div>
 
 
-                        {{-- HEURE ARRIVEE --}}
+                            {{-- HEURE ARRIVÉE --}}
 
-                        <div class="col-md-3">
+                            <div class="col-md-3">
 
-                            <div class="form-group">
+                                <div class="form-group">
 
-                                <label>
+                                    <label>
 
-                                    Heure d'arrivée prévue
+                                        Heure d'arrivée prévue
 
-                                </label>
+                                    </label>
 
-                                <input type="time"
-                                       name="heure_arrivee_prevue"
-                                       value="value="{{ $voyage->heure_arrivee_prevue ? \Carbon\Carbon::parse($voyage->heure_arrivee_prevue)->format('H:i') : '' }}""
-                                       class="form-control">
+                                    <input type="time"
+                                           name="heure_arrivee_prevue"
+                                           value="{{ old(
+                                               'heure_arrivee_prevue',
+                                               $voyage->heure_arrivee_prevue
+                                                   ? substr($voyage->heure_arrivee_prevue, 0, 5)
+                                                   : ''
+                                           ) }}"
+                                           class="form-control">
+
+                                </div>
 
                             </div>
 
@@ -368,43 +627,18 @@
 
                             Statut
 
-                            <span class="text-danger">*</span>
-
                         </label>
 
-                        <select name="statut"
-                                class="form-control"
-                                required>
 
-                            <option value="planifie"
-                                {{ $voyage->statut === 'planifie' ? 'selected' : '' }}>
+                        <input type="text"
+                               class="form-control"
+                               value="Planifié"
+                               readonly>
 
-                                Planifié
 
-                            </option>
-
-                            <option value="en_cours"
-                                {{ $voyage->statut === 'en_cours' ? 'selected' : '' }}>
-
-                                En cours
-
-                            </option>
-
-                            <option value="termine"
-                                {{ $voyage->statut === 'termine' ? 'selected' : '' }}>
-
-                                Terminé
-
-                            </option>
-
-                            <option value="annule"
-                                {{ $voyage->statut === 'annule' ? 'selected' : '' }}>
-
-                                Annulé
-
-                            </option>
-
-                        </select>
+                        <input type="hidden"
+                               name="statut"
+                               value="planifie">
 
                     </div>
 
@@ -424,7 +658,10 @@
                         <textarea name="observation"
                                   class="form-control"
                                   rows="3"
-                                  placeholder="Informations supplémentaires...">{{ $voyage->observation }}</textarea>
+                                  placeholder="Informations supplémentaires...">{{ old(
+                                      'observation',
+                                      $voyage->observation
+                                  ) }}</textarea>
 
                     </div>
 
@@ -467,4 +704,329 @@
 
 </div>
 
-@endforeach
+
+{{-- =========================================================
+     JAVASCRIPT : AGENCES DE PASSAGE
+========================================================= --}}
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const container =
+        document.getElementById(
+            'agencesPassageContainer{{ $voyage->id }}'
+        );
+
+    const btnAdd =
+        document.getElementById(
+            'btnAddAgencePassage{{ $voyage->id }}'
+        );
+
+
+    if (!container || !btnAdd) {
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Liste des agences
+    |--------------------------------------------------------------------------
+    */
+
+    const agences = @json($agences->values());
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Ajouter une agence de passage
+    |--------------------------------------------------------------------------
+    */
+
+    function ajouterAgencePassage(selectedId = '') {
+
+        const wrapper =
+            document.createElement('div');
+
+        wrapper.className =
+            'row align-items-center mb-2 agence-passage-row';
+
+
+        /*
+        | Numéro
+        */
+
+        const numeroCol =
+            document.createElement('div');
+
+        numeroCol.className =
+            'col-md-1 text-center';
+
+
+        const numero =
+            document.createElement('span');
+
+        numero.className =
+            'badge badge-warning passage-numero';
+
+
+        numeroCol.appendChild(numero);
+
+
+        /*
+        | Select
+        */
+
+        const selectCol =
+            document.createElement('div');
+
+        selectCol.className =
+            'col-md-10';
+
+
+        const select =
+            document.createElement('select');
+
+        select.name =
+            'agences_passage[]';
+
+        select.className =
+            'form-control';
+
+        select.required =
+            true;
+
+
+        let options =
+            '<option value="">Sélectionner une agence</option>';
+
+
+        agences.forEach(function (agence) {
+
+            const selected =
+                String(selectedId) === String(agence.id)
+                    ? 'selected'
+                    : '';
+
+
+            options +=
+                '<option value="' +
+                agence.id +
+                '" ' +
+                selected +
+                '>' +
+                agence.code +
+                ' — ' +
+                agence.nom +
+                '</option>';
+
+        });
+
+
+        select.innerHTML =
+            options;
+
+
+        selectCol.appendChild(
+            select
+        );
+
+
+        /*
+        | Bouton supprimer
+        */
+
+        const deleteCol =
+            document.createElement('div');
+
+        deleteCol.className =
+            'col-md-1';
+
+
+        const deleteButton =
+            document.createElement('button');
+
+        deleteButton.type =
+            'button';
+
+        deleteButton.className =
+            'btn btn-outline-danger btn-sm';
+
+        deleteButton.title =
+            'Supprimer cette agence';
+
+
+        deleteButton.innerHTML =
+            '<i class="fas fa-trash"></i>';
+
+
+        deleteButton.addEventListener(
+            'click',
+            function () {
+
+                wrapper.remove();
+
+                mettreAJourNumeros();
+
+            }
+        );
+
+
+        deleteCol.appendChild(
+            deleteButton
+        );
+
+
+        /*
+        | Assemblage
+        */
+
+        wrapper.appendChild(
+            numeroCol
+        );
+
+        wrapper.appendChild(
+            selectCol
+        );
+
+        wrapper.appendChild(
+            deleteCol
+        );
+
+
+        container.appendChild(
+            wrapper
+        );
+
+
+        mettreAJourNumeros();
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Mettre à jour les numéros
+    |--------------------------------------------------------------------------
+    */
+
+    function mettreAJourNumeros() {
+
+        const rows =
+            container.querySelectorAll(
+                '.agence-passage-row'
+            );
+
+
+        rows.forEach(
+            function (row, index) {
+
+                const numero =
+                    row.querySelector(
+                        '.passage-numero'
+                    );
+
+
+                if (numero) {
+
+                    /*
+                    | Le départ est 1.
+                    | Les passages commencent donc à 2.
+                    */
+
+                    numero.textContent =
+                        index + 2;
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Ajouter
+    |--------------------------------------------------------------------------
+    */
+
+    btnAdd.addEventListener(
+        'click',
+        function () {
+
+            ajouterAgencePassage();
+
+        }
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Supprimer les passages existants
+    |--------------------------------------------------------------------------
+    */
+
+    container
+        .querySelectorAll('.btn-remove-passage')
+        .forEach(
+            function (button) {
+
+                button.addEventListener(
+                    'click',
+                    function () {
+
+                        button
+                            .closest(
+                                '.agence-passage-row'
+                            )
+                            .remove();
+
+                        mettreAJourNumeros();
+
+                    }
+                );
+
+            }
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Anciennes valeurs après erreur de validation
+    |--------------------------------------------------------------------------
+    */
+
+    const anciennesAgences =
+        @json(old('agences_passage', []));
+
+
+    /*
+    | S'il y a eu une erreur de validation,
+    | on reconstruit les anciennes valeurs.
+    */
+
+    if (anciennesAgences.length > 0) {
+
+        container.innerHTML = '';
+
+
+        anciennesAgences.forEach(
+            function (agenceId) {
+
+                ajouterAgencePassage(
+                    agenceId
+                );
+
+            }
+        );
+
+    }
+
+
+    mettreAJourNumeros();
+
+});
+
+</script>
