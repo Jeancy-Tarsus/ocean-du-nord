@@ -7,6 +7,7 @@ use App\Http\Controllers\EquipeController;
 use App\Http\Controllers\LigneController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\VoyageController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -67,3 +68,6 @@ Route::middleware(['auth'])->group(function () {
         ->except(['create', 'edit', 'show']);
 
 });
+
+Route::resource('voyages', VoyageController::class)
+    ->except(['create', 'show', 'edit']);

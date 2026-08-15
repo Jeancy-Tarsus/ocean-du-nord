@@ -310,7 +310,7 @@
                     {{-- Voyages --}}
                     <li class="nav-item">
 
-                        <a href="#"
+                        <a href="{{ route('voyages.index') }}"
                            class="nav-link">
 
                             <i class="nav-icon fas fa-bus-alt"></i>

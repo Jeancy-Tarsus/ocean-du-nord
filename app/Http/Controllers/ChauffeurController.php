@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Chauffeur;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Database\QueryException;
 
 class ChauffeurController extends Controller
 {
@@ -215,10 +216,26 @@ class ChauffeurController extends Controller
      */
     public function destroy(Chauffeur $chauffeur)
     {
-        $chauffeur->delete();
+        $nom = $chauffeur->nom . ' ' . $chauffeur->prenom;
 
-        return redirect()
-            ->route('chauffeurs.index')
-            ->with('success', 'Chauffeur supprimé avec succès.');
+        try {
+
+            $chauffeur->delete();
+
+            return redirect()
+                ->route('chauffeurs.index')
+                ->with(
+                    'success',
+                    "Le chauffeur {$nom} a été supprimé avec succès."
+                );
+        } catch (QueryException $e) {
+
+            return redirect()
+                ->back()
+                ->with(
+                    'error',
+                    "Impossible de supprimer le chauffeur {$nom} : il est actuellement affecté à une équipe."
+                );
+        }
     }
 }

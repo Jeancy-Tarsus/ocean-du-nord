@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Agence;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Database\QueryException;
 
 class AgenceController extends Controller
 {
@@ -228,10 +229,26 @@ class AgenceController extends Controller
      */
     public function destroy(Agence $agence)
     {
-        $agence->delete();
+        $nom = $agence->nom;
 
-        return redirect()
-            ->route('agences.index')
-            ->with('success', 'Agence supprimée avec succès.');
+        try {
+
+            $agence->delete();
+
+            return redirect()
+                ->route('agences.index')
+                ->with(
+                    'success',
+                    "L'agence {$nom} a été supprimée avec succès."
+                );
+        } catch (QueryException $e) {
+
+            return redirect()
+                ->route('agences.index')
+                ->with(
+                    'error',
+                    "Impossible de supprimer l'agence {$nom} : elle est actuellement utilisée dans un ou plusieurs voyages."
+                );
+        }
     }
 }

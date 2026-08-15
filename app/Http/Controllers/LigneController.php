@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ligne;
+use App\Models\Voyage;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -168,13 +169,56 @@ class LigneController extends Controller
      */
     public function destroy(Ligne $ligne)
     {
-        $ligne->delete();
+        $code = $ligne->code;
+        $nom = $ligne->nom;
 
-        return redirect()
-            ->route('lignes.index')
-            ->with(
-                'success',
-                'Ligne supprimée avec succès.'
-            );
+        /*
+    |--------------------------------------------------------------------------
+    | Vérifier si la ligne est utilisée dans un voyage
+    |--------------------------------------------------------------------------
+    */
+
+        $utiliseeDansVoyage = Voyage::where(
+            'ligne_id',
+            $ligne->id
+        )->exists();
+
+
+        if ($utiliseeDansVoyage) {
+
+            return redirect()
+                ->back()
+                ->with(
+                    'error',
+                    "Impossible de supprimer la ligne {$nom} ({$code}) : elle est actuellement utilisée dans un voyage."
+                );
+        }
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | Suppression
+    |--------------------------------------------------------------------------
+    */
+
+        try {
+
+            $ligne->delete();
+
+            return redirect()
+                ->route('lignes.index')
+                ->with(
+                    'success',
+                    "La ligne {$nom} ({$code}) a été supprimée avec succès."
+                );
+        } catch (\Throwable $e) {
+
+            return redirect()
+                ->back()
+                ->with(
+                    'error',
+                    "Impossible de supprimer la ligne {$nom} ({$code}) : elle est utilisée par d'autres données."
+                );
+        }
     }
 }
