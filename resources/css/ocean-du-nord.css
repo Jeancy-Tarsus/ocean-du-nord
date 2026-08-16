@@ -145,3 +145,1115 @@
     color: var(--ocn-green-dark);
     font-weight: 600;
 }
+
+
+
+
+
+
+
+
+
+/* =========================================================
+   OCÉAN DU NORD
+   PAGE DE CONNEXION
+========================================================= */
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+
+html,
+body {
+
+    width: 100%;
+    height: 100%;
+
+    margin: 0;
+    padding: 0;
+
+}
+
+
+/* =========================================================
+   BODY
+========================================================= */
+
+body {
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+}
+
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.ocn-login {
+
+    position: relative;
+
+    width: 100%;
+    min-height: 100vh;
+
+    overflow: hidden;
+
+    background: #063d28;
+
+}
+
+
+/* =========================================================
+   BUS
+========================================================= */
+
+.ocn-bus-background {
+
+    position: fixed;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+
+    z-index: 0;
+
+    display: block;
+
+    /*
+       Très important :
+       le bus remplit l'écran
+       sans être déformé.
+    */
+
+    object-fit: cover;
+
+    object-position: center center;
+
+}
+
+
+/* =========================================================
+   VOILE SUR LE BUS
+========================================================= */
+
+.ocn-login-overlay {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 1;
+
+    pointer-events: none;
+
+    background:
+
+        linear-gradient(90deg,
+            rgba(0, 0, 0, 0.16),
+            rgba(0, 0, 0, 0.03),
+            rgba(0, 0, 0, 0.15));
+
+}
+
+
+/* =========================================================
+   CONTENEUR
+========================================================= */
+
+.ocn-login-container {
+
+    position: relative;
+
+    z-index: 10;
+
+    width: 100%;
+    min-height: 100vh;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 30px;
+
+}
+
+
+/* =========================================================
+   CARTE
+========================================================= */
+/* =========================================================
+   CARTE DE CONNEXION - VERRE LÉGER
+========================================================= */
+
+.ocn-login-card {
+
+    width: 100%;
+
+    max-width: 390px;
+
+    padding: 30px 34px 20px;
+
+    border-radius: 24px;
+
+    /*
+       Fond semi-transparent :
+       le contenu reste très lisible
+       tout en laissant apparaître le bus.
+    */
+
+    background:
+        rgba(255, 255, 255, 0.62);
+
+    /*
+       Flou modéré du bus derrière.
+    */
+
+    backdrop-filter:
+        blur(10px);
+
+    -webkit-backdrop-filter:
+        blur(10px);
+
+    /*
+       Bordure légère.
+    */
+
+    border:
+        1px solid rgba(255, 255, 255, 0.65);
+
+    /*
+       Ombre douce.
+    */
+
+    box-shadow:
+
+        0 20px 55px rgba(0, 0, 0, 0.22),
+
+        inset 0 1px 0 rgba(255, 255, 255, 0.65);
+
+}
+
+/* =========================================================
+   LOGO
+========================================================= */
+
+.ocn-logo {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    margin-bottom: 5px;
+
+}
+
+
+.ocn-logo img {
+
+    width: 75px;
+
+    height: 75px;
+
+    object-fit: contain;
+
+}
+
+
+/* =========================================================
+   NOM
+========================================================= */
+
+.ocn-brand-name {
+
+    text-align: center;
+
+    font-size: 28px;
+
+    font-weight: 900;
+
+    line-height: 1;
+
+    letter-spacing: -0.5px;
+
+}
+
+
+.ocn-green {
+
+    color: #08783c;
+
+}
+
+
+.ocn-yellow {
+
+    color: #e7b900;
+
+}
+
+
+.ocn-red {
+
+    color: #d9232e;
+
+}
+
+
+/* =========================================================
+   SLOGAN
+========================================================= */
+
+.ocn-slogan {
+
+    margin-top: 7px;
+
+    text-align: center;
+
+    font-size: 7px;
+
+    font-weight: 800;
+
+    letter-spacing: 3px;
+
+    color: #526058;
+
+}
+
+
+/* =========================================================
+   BIENVENUE
+========================================================= */
+
+.ocn-welcome {
+
+    text-align: center;
+
+    margin-top: 24px;
+
+    margin-bottom: 20px;
+
+}
+
+
+.ocn-welcome h1 {
+
+    margin: 0;
+
+    color: #08783c;
+
+    font-size: 29px;
+
+    font-weight: 800;
+
+}
+
+
+.ocn-welcome p {
+
+    margin: 7px 0 0;
+
+    color: #68736d;
+
+    font-size: 11px;
+
+}
+
+
+/* =========================================================
+   ERREURS
+========================================================= */
+
+.ocn-errors {
+
+    margin-bottom: 14px;
+
+    padding: 9px 12px;
+
+    border-radius: 8px;
+
+    background: #fff0f0;
+
+    border: 1px solid #efb6b6;
+
+    color: #a51f1f;
+
+    font-size: 10px;
+
+    line-height: 1.5;
+
+}
+
+
+/* =========================================================
+   SUCCÈS
+========================================================= */
+
+.ocn-success {
+
+    margin-bottom: 14px;
+
+    padding: 9px 12px;
+
+    border-radius: 8px;
+
+    background: #edf9f1;
+
+    border: 1px solid #b5ddc1;
+
+    color: #08783c;
+
+    font-size: 10px;
+
+}
+
+
+/* =========================================================
+   CHAMPS
+========================================================= */
+
+.ocn-form-group {
+
+    margin-bottom: 15px;
+
+}
+
+
+.ocn-form-group label {
+
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: #243029;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+}
+
+
+/* =========================================================
+   INPUT
+========================================================= */
+
+.ocn-input-wrapper {
+
+    position: relative;
+
+}
+
+
+.ocn-input-wrapper input {
+
+    width: 100%;
+
+    height: 45px;
+
+    padding:
+        0 42px;
+
+    border:
+        1px solid #d7ded9;
+
+    border-radius: 9px;
+
+    outline: none;
+
+    background: #f8faf9;
+
+    color: #202a24;
+
+    font-size: 11px;
+
+    transition:
+        border-color 0.2s,
+        box-shadow 0.2s,
+        background 0.2s;
+
+}
+
+
+.ocn-input-wrapper input::placeholder {
+
+    color: #9aa39e;
+
+}
+
+
+.ocn-input-wrapper input:focus {
+
+    background: #ffffff;
+
+    border-color: #08783c;
+
+    box-shadow:
+        0 0 0 3px rgba(8, 120, 60, 0.08);
+
+}
+
+
+/* =========================================================
+   ICÔNE
+========================================================= */
+
+.ocn-icon {
+
+    position: absolute;
+
+    left: 14px;
+
+    top: 50%;
+
+    transform:
+        translateY(-50%);
+
+    color: #7a8580;
+
+    font-size: 14px;
+
+    pointer-events: none;
+
+}
+
+
+/* =========================================================
+   OEIL
+========================================================= */
+
+.ocn-password-toggle {
+
+    position: absolute;
+
+    right: 5px;
+
+    top: 50%;
+
+    transform:
+        translateY(-50%);
+
+    width: 34px;
+
+    height: 34px;
+
+    padding: 0;
+
+    border: none;
+
+    background: transparent;
+
+    cursor: pointer;
+
+    font-size: 13px;
+
+    color: #7a8580;
+
+}
+
+
+.ocn-password-toggle:hover {
+
+    color: #08783c;
+
+}
+
+
+/* =========================================================
+   OPTIONS
+========================================================= */
+
+.ocn-login-options {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin:
+        2px 0 17px;
+
+}
+
+
+.ocn-login-options label {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    color: #69736e;
+
+    font-size: 9px;
+
+    cursor: pointer;
+
+}
+
+
+.ocn-login-options input {
+
+    width: 14px;
+
+    height: 14px;
+
+    margin: 0;
+
+    accent-color: #08783c;
+
+}
+
+
+.ocn-login-options a {
+
+    color: #08783c;
+
+    font-size: 9px;
+
+    font-weight: 700;
+
+    text-decoration: none;
+
+}
+
+
+.ocn-login-options a:hover {
+
+    text-decoration: underline;
+
+}
+
+
+/* =========================================================
+   BOUTON
+========================================================= */
+
+.ocn-login-button {
+
+    width: 100%;
+
+    height: 46px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    border: none;
+
+    border-radius: 9px;
+
+    background:
+        linear-gradient(135deg,
+            #087f42,
+            #066c37);
+
+    color: #ffffff;
+
+    font-size: 12px;
+
+    font-weight: 800;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 8px 20px rgba(8, 120, 60, 0.22);
+
+    transition:
+        transform 0.2s,
+        box-shadow 0.2s;
+
+}
+
+
+.ocn-login-button b {
+
+    font-size: 18px;
+
+    line-height: 1;
+
+}
+
+
+.ocn-login-button:hover {
+
+    transform:
+        translateY(-1px);
+
+    box-shadow:
+        0 11px 24px rgba(8, 120, 60, 0.28);
+
+}
+
+
+.ocn-login-button:active {
+
+    transform:
+        translateY(0);
+
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.ocn-login-footer {
+
+    margin-top: 16px;
+
+    text-align: center;
+
+    color: #9aa39e;
+
+    font-size: 7px;
+
+}
+
+
+.ocn-login-footer span {
+
+    margin: 0 5px;
+
+    color: #08783c;
+
+}
+
+
+/* =========================================================
+   TABLETTE
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .ocn-login-container {
+
+        padding: 20px;
+
+    }
+
+
+    .ocn-login-card {
+
+        max-width: 370px;
+
+        padding:
+            27px 29px 18px;
+
+    }
+
+}
+
+
+/* =========================================================
+   TÉLÉPHONE
+========================================================= */
+
+@media (max-width: 480px) {
+
+    .ocn-login-container {
+
+        min-height: 100svh;
+
+        padding: 15px;
+
+    }
+
+
+    .ocn-login-card {
+
+        max-width: 350px;
+
+        padding:
+            23px 21px 16px;
+
+        border-radius: 20px;
+
+    }
+
+
+    .ocn-logo img {
+
+        width: 62px;
+
+        height: 62px;
+
+    }
+
+
+    .ocn-brand-name {
+
+        font-size: 23px;
+
+    }
+
+
+    .ocn-slogan {
+
+        font-size: 6px;
+
+        letter-spacing: 2px;
+
+    }
+
+
+    .ocn-welcome {
+
+        margin-top: 19px;
+
+        margin-bottom: 17px;
+
+    }
+
+
+    .ocn-welcome h1 {
+
+        font-size: 26px;
+
+    }
+
+
+    .ocn-welcome p {
+
+        font-size: 10px;
+
+    }
+
+
+    .ocn-form-group {
+
+        margin-bottom: 12px;
+
+    }
+
+
+    .ocn-input-wrapper input {
+
+        height: 43px;
+
+    }
+
+
+    .ocn-login-options {
+
+        flex-wrap: wrap;
+
+        gap: 8px;
+
+    }
+
+
+    .ocn-login-button {
+
+        height: 44px;
+
+    }
+
+}
+
+
+/* =========================================================
+   PETIT TÉLÉPHONE
+========================================================= */
+
+@media (max-width: 360px) {
+
+    .ocn-login-container {
+
+        padding: 10px;
+
+    }
+
+
+    .ocn-login-card {
+
+        max-width: 335px;
+
+        padding:
+            20px 17px 14px;
+
+        border-radius: 18px;
+
+    }
+
+
+    .ocn-logo img {
+
+        width: 55px;
+
+        height: 55px;
+
+    }
+
+
+    .ocn-brand-name {
+
+        font-size: 21px;
+
+    }
+
+
+    .ocn-welcome h1 {
+
+        font-size: 24px;
+
+    }
+
+
+    .ocn-welcome p {
+
+        font-size: 9px;
+
+    }
+
+
+    .ocn-form-group label {
+
+        font-size: 10px;
+
+    }
+
+
+    .ocn-input-wrapper input {
+
+        height: 41px;
+
+        font-size: 10px;
+
+    }
+
+}
+
+.ocn-icon svg {
+    width: 17px;
+    height: 17px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.ocn-password-toggle svg {
+    width: 17px;
+    height: 17px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+
+/* =========================================================
+   BOUTON CONNEXION ANIMÉ
+========================================================= */
+
+.ocn-login-button {
+
+    position: relative;
+
+    width: 100%;
+    height: 46px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 10px;
+
+    overflow: hidden;
+
+    border: none;
+
+    border-radius: 9px;
+
+    background:
+        linear-gradient(135deg,
+            #087f42,
+            #066c37,
+            #087f42);
+
+    background-size: 200% 200%;
+
+    color: #ffffff;
+
+    font-size: 12px;
+
+    font-weight: 800;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 8px 20px rgba(8, 120, 60, 0.22);
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        background-position 0.5s ease;
+
+}
+
+
+/* =========================================================
+   EFFET AU SURVOL
+========================================================= */
+
+.ocn-login-button:hover {
+
+    transform:
+        translateY(-2px);
+
+    background-position:
+        100% 50%;
+
+    box-shadow:
+        0 12px 28px rgba(8, 120, 60, 0.35);
+
+}
+
+
+/* =========================================================
+   EFFET LORS DU CLIC
+========================================================= */
+
+.ocn-login-button:active {
+
+    transform:
+        translateY(1px) scale(0.98);
+
+    box-shadow:
+        0 5px 12px rgba(8, 120, 60, 0.22);
+
+}
+
+
+/* =========================================================
+   TEXTE
+========================================================= */
+
+.ocn-login-button span {
+
+    position: relative;
+
+    z-index: 2;
+
+}
+
+
+/* =========================================================
+   ICÔNE
+========================================================= */
+
+.ocn-button-icon {
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 20px;
+    height: 20px;
+
+    transition:
+        transform 0.3s ease;
+
+}
+
+
+.ocn-button-icon svg {
+
+    width: 18px;
+    height: 18px;
+
+    fill: none;
+
+    stroke: currentColor;
+
+    stroke-width: 2;
+
+    stroke-linecap: round;
+
+    stroke-linejoin: round;
+
+}
+
+
+/* =========================================================
+   L'ICÔNE AVANCE AU SURVOL
+========================================================= */
+
+.ocn-login-button:hover .ocn-button-icon {
+
+    transform:
+        translateX(5px);
+
+}
+
+
+/* =========================================================
+   REFLET QUI PASSE SUR LE BOUTON
+========================================================= */
+
+.ocn-login-button::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+
+    left: -100%;
+
+    width: 55%;
+
+    height: 100%;
+
+    background:
+        linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.20),
+            transparent);
+
+    transform:
+        skewX(-20deg);
+
+    transition:
+        left 0.6s ease;
+
+}
+
+
+/* =========================================================
+   ANIMATION DU REFLET
+========================================================= */
+
+.ocn-login-button:hover::before {
+
+    left: 130%;
+
+}
