@@ -1,8 +1,15 @@
 /* =========================================================
-   OCÉAN DU NORD - IDENTITÉ VISUELLE
+   OCÉAN DU NORD
+   FICHIER CSS GLOBAL
+========================================================= */
+
+
+/* =========================================================
+   01 - VARIABLES / IDENTITÉ VISUELLE
 ========================================================= */
 
 :root {
+
     --ocn-green: #198754;
     --ocn-green-dark: #157347;
     --ocn-green-light: #e8f5ee;
@@ -14,189 +21,210 @@
     --ocn-danger: #dc3545;
     --ocn-warning: #ffc107;
     --ocn-info: #0dcaf0;
+
 }
 
 
 /* =========================================================
-   BOUTONS
+   02 - BOUTONS GÉNÉRAUX
+   Utilisés dans les différentes pages de l'application
 ========================================================= */
 
 .ocn-btn {
+
     background-color: var(--ocn-green);
+
     border-color: var(--ocn-green);
+
     color: var(--ocn-white);
+
 }
+
 
 .ocn-btn:hover,
 .ocn-btn:focus {
+
     background-color: var(--ocn-green-dark);
+
     border-color: var(--ocn-green-dark);
+
     color: var(--ocn-white);
+
 }
 
 
 /* =========================================================
-   COULEURS
+   03 - COULEURS GÉNÉRALES
 ========================================================= */
 
 .ocn-green {
+
     color: var(--ocn-green) !important;
+
 }
+
 
 .ocn-bg {
+
     background-color: var(--ocn-green) !important;
+
     color: var(--ocn-white);
+
 }
+
 
 .ocn-light {
+
     background-color: var(--ocn-green-light) !important;
+
 }
 
+
 .ocn-border {
+
     border-color: var(--ocn-green) !important;
+
 }
 
 
 /* =========================================================
-   MODALS
+   04 - MODALS
+   Pages utilisant les fenêtres modales Bootstrap
 ========================================================= */
 
 .ocn-modal-header {
+
     background-color: var(--ocn-green);
+
     color: var(--ocn-white);
+
 }
+
 
 .ocn-modal-header .modal-title {
+
     color: var(--ocn-white);
+
 }
 
+
 .ocn-modal-footer {
+
     background-color: var(--ocn-green-light);
+
 }
 
 
 /* =========================================================
-   CARTES
+   05 - CARTES
 ========================================================= */
 
 .ocn-card {
+
     border: none;
+
     border-radius: 8px;
+
 }
 
+
 .ocn-card-header {
+
     background-color: var(--ocn-green);
+
     color: var(--ocn-white);
+
 }
 
 
 /* =========================================================
-   TABLEAUX
+   06 - TABLEAUX
 ========================================================= */
 
 .ocn-table-header {
+
     background-color: var(--ocn-green-light);
+
 }
 
+
 .ocn-table-header th {
+
     color: var(--ocn-green-dark);
+
 }
 
 
 /* =========================================================
-   BADGES
+   07 - BADGES
 ========================================================= */
 
 .ocn-badge {
+
     background-color: var(--ocn-green);
+
     color: var(--ocn-white);
+
 }
 
 
 /* =========================================================
-   FORMULAIRES
+   08 - FORMULAIRES GÉNÉRAUX
 ========================================================= */
 
 .form-control:focus,
 .custom-select:focus {
+
     border-color: var(--ocn-green);
-    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.15);
+
+    box-shadow:
+        0 0 0 0.2rem
+        rgba(25, 135, 84, 0.15);
+
 }
 
 
 /* =========================================================
-   LIENS
+   09 - LIENS
 ========================================================= */
 
 .ocn-link {
+
     color: var(--ocn-green);
+
 }
 
+
 .ocn-link:hover {
+
     color: var(--ocn-green-dark);
+
 }
 
 
 /* =========================================================
-   TEXTE
+   10 - TITRES
 ========================================================= */
 
 .ocn-title {
+
     color: var(--ocn-green-dark);
+
     font-weight: 600;
+
 }
 
 
-
-
-
-
-
-
-
 /* =========================================================
-   OCÉAN DU NORD
+   =========================================================
+   PAGE 01
    PAGE DE CONNEXION
-========================================================= */
+   =========================================================
+   ========================================================= */
 
 
 /* =========================================================
-   RESET
-========================================================= */
-
-* {
-    box-sizing: border-box;
-}
-
-
-html,
-body {
-
-    width: 100%;
-    height: 100%;
-
-    margin: 0;
-    padding: 0;
-
-}
-
-
-/* =========================================================
-   BODY
-========================================================= */
-
-body {
-
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-
-}
-
-
-/* =========================================================
-   PAGE
+   11 - RESET DE LA PAGE DE CONNEXION
 ========================================================= */
 
 .ocn-login {
@@ -204,9 +232,29 @@ body {
     position: relative;
 
     width: 100%;
+
+    /*
+       La page prend au minimum toute la hauteur
+       de l'écran.
+    */
+
     min-height: 100vh;
 
-    overflow: hidden;
+    min-height: 100svh;
+
+    /*
+       IMPORTANT :
+       on cache uniquement le débordement horizontal.
+
+       Le débordement vertical reste autorisé afin
+       que la page puisse défiler sur téléphone
+       lorsque les erreurs rendent le formulaire
+       plus grand que l'écran.
+    */
+
+    overflow-x: hidden;
+
+    overflow-y: auto;
 
     background: #063d28;
 
@@ -214,7 +262,8 @@ body {
 
 
 /* =========================================================
-   BUS
+   12 - BUS EN ARRIÈRE-PLAN
+   Image principale de la page de connexion
 ========================================================= */
 
 .ocn-bus-background {
@@ -222,9 +271,11 @@ body {
     position: fixed;
 
     top: 0;
+
     left: 0;
 
     width: 100%;
+
     height: 100%;
 
     z-index: 0;
@@ -232,8 +283,7 @@ body {
     display: block;
 
     /*
-       Très important :
-       le bus remplit l'écran
+       Le bus remplit tout l'écran
        sans être déformé.
     */
 
@@ -245,7 +295,8 @@ body {
 
 
 /* =========================================================
-   VOILE SUR LE BUS
+   13 - VOILE SOMBRE SUR LE BUS
+   Permet de mieux voir le formulaire
 ========================================================= */
 
 .ocn-login-overlay {
@@ -259,17 +310,18 @@ body {
     pointer-events: none;
 
     background:
-
-        linear-gradient(90deg,
+        linear-gradient(
+            90deg,
             rgba(0, 0, 0, 0.16),
             rgba(0, 0, 0, 0.03),
-            rgba(0, 0, 0, 0.15));
+            rgba(0, 0, 0, 0.15)
+        );
 
 }
 
 
 /* =========================================================
-   CONTENEUR
+   14 - CONTENEUR DE LA PAGE DE CONNEXION
 ========================================================= */
 
 .ocn-login-container {
@@ -279,7 +331,15 @@ body {
     z-index: 10;
 
     width: 100%;
+
+    /*
+       Minimum de la hauteur de l'écran.
+       La hauteur peut dépasser l'écran si nécessaire.
+    */
+
     min-height: 100vh;
+
+    min-height: 100svh;
 
     display: flex;
 
@@ -293,10 +353,8 @@ body {
 
 
 /* =========================================================
-   CARTE
-========================================================= */
-/* =========================================================
-   CARTE DE CONNEXION - VERRE LÉGER
+   15 - CARTE DE CONNEXION
+   Effet verre / transparence / flou
 ========================================================= */
 
 .ocn-login-card {
@@ -305,21 +363,20 @@ body {
 
     max-width: 390px;
 
-    padding: 30px 34px 20px;
+    padding:
+        30px 34px 20px;
 
     border-radius: 24px;
 
     /*
-       Fond semi-transparent :
-       le contenu reste très lisible
-       tout en laissant apparaître le bus.
+       Fond semi-transparent.
     */
 
     background:
         rgba(255, 255, 255, 0.62);
 
     /*
-       Flou modéré du bus derrière.
+       Flou de l'image du bus située derrière.
     */
 
     backdrop-filter:
@@ -328,27 +385,23 @@ body {
     -webkit-backdrop-filter:
         blur(10px);
 
-    /*
-       Bordure légère.
-    */
-
     border:
-        1px solid rgba(255, 255, 255, 0.65);
-
-    /*
-       Ombre douce.
-    */
+        1px solid
+        rgba(255, 255, 255, 0.65);
 
     box-shadow:
 
-        0 20px 55px rgba(0, 0, 0, 0.22),
+        0 20px 55px
+        rgba(0, 0, 0, 0.22),
 
-        inset 0 1px 0 rgba(255, 255, 255, 0.65);
+        inset 0 1px 0
+        rgba(255, 255, 255, 0.65);
 
 }
 
+
 /* =========================================================
-   LOGO
+   16 - LOGO OCÉAN DU NORD
 ========================================================= */
 
 .ocn-logo {
@@ -376,7 +429,7 @@ body {
 
 
 /* =========================================================
-   NOM
+   17 - NOM OCÉAN DU NORD
 ========================================================= */
 
 .ocn-brand-name {
@@ -416,7 +469,7 @@ body {
 
 
 /* =========================================================
-   SLOGAN
+   18 - SLOGAN
 ========================================================= */
 
 .ocn-slogan {
@@ -437,7 +490,7 @@ body {
 
 
 /* =========================================================
-   BIENVENUE
+   19 - BLOC BIENVENUE
 ========================================================= */
 
 .ocn-welcome {
@@ -476,7 +529,7 @@ body {
 
 
 /* =========================================================
-   ERREURS
+   20 - MESSAGES D'ERREUR
 ========================================================= */
 
 .ocn-errors {
@@ -501,7 +554,7 @@ body {
 
 
 /* =========================================================
-   SUCCÈS
+   21 - MESSAGES DE SUCCÈS
 ========================================================= */
 
 .ocn-success {
@@ -524,7 +577,7 @@ body {
 
 
 /* =========================================================
-   CHAMPS
+   22 - GROUPES DE CHAMPS
 ========================================================= */
 
 .ocn-form-group {
@@ -550,7 +603,7 @@ body {
 
 
 /* =========================================================
-   INPUT
+   23 - CONTENEUR DES INPUTS
 ========================================================= */
 
 .ocn-input-wrapper {
@@ -560,14 +613,17 @@ body {
 }
 
 
+/* =========================================================
+   24 - INPUTS DE CONNEXION
+========================================================= */
+
 .ocn-input-wrapper input {
 
     width: 100%;
 
     height: 45px;
 
-    padding:
-        0 42px;
+    padding: 0 42px;
 
     border:
         1px solid #d7ded9;
@@ -604,13 +660,14 @@ body {
     border-color: #08783c;
 
     box-shadow:
-        0 0 0 3px rgba(8, 120, 60, 0.08);
+        0 0 0 3px
+        rgba(8, 120, 60, 0.08);
 
 }
 
 
 /* =========================================================
-   ICÔNE
+   25 - ICÔNES DES INPUTS
 ========================================================= */
 
 .ocn-icon {
@@ -633,8 +690,27 @@ body {
 }
 
 
+.ocn-icon svg {
+
+    width: 17px;
+
+    height: 17px;
+
+    fill: none;
+
+    stroke: currentColor;
+
+    stroke-width: 2;
+
+    stroke-linecap: round;
+
+    stroke-linejoin: round;
+
+}
+
+
 /* =========================================================
-   OEIL
+   26 - BOUTON AFFICHER / MASQUER MOT DE PASSE
 ========================================================= */
 
 .ocn-password-toggle {
@@ -674,8 +750,27 @@ body {
 }
 
 
+.ocn-password-toggle svg {
+
+    width: 17px;
+
+    height: 17px;
+
+    fill: none;
+
+    stroke: currentColor;
+
+    stroke-width: 2;
+
+    stroke-linecap: round;
+
+    stroke-linejoin: round;
+
+}
+
+
 /* =========================================================
-   OPTIONS
+   27 - OPTIONS DE CONNEXION
 ========================================================= */
 
 .ocn-login-options {
@@ -743,10 +838,12 @@ body {
 
 
 /* =========================================================
-   BOUTON
+   28 - BOUTON DE CONNEXION
 ========================================================= */
 
 .ocn-login-button {
+
+    position: relative;
 
     width: 100%;
 
@@ -760,14 +857,21 @@ body {
 
     gap: 10px;
 
+    overflow: hidden;
+
     border: none;
 
     border-radius: 9px;
 
     background:
-        linear-gradient(135deg,
+        linear-gradient(
+            135deg,
             #087f42,
-            #066c37);
+            #066c37,
+            #087f42
+        );
+
+    background-size: 200% 200%;
 
     color: #ffffff;
 
@@ -778,45 +882,168 @@ body {
     cursor: pointer;
 
     box-shadow:
-        0 8px 20px rgba(8, 120, 60, 0.22);
+        0 8px 20px
+        rgba(8, 120, 60, 0.22);
 
     transition:
-        transform 0.2s,
-        box-shadow 0.2s;
-
-}
-
-
-.ocn-login-button b {
-
-    font-size: 18px;
-
-    line-height: 1;
-
-}
-
-
-.ocn-login-button:hover {
-
-    transform:
-        translateY(-1px);
-
-    box-shadow:
-        0 11px 24px rgba(8, 120, 60, 0.28);
-
-}
-
-
-.ocn-login-button:active {
-
-    transform:
-        translateY(0);
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        background-position 0.5s ease;
 
 }
 
 
 /* =========================================================
-   FOOTER
+   29 - SURVOL DU BOUTON
+========================================================= */
+
+.ocn-login-button:hover {
+
+    transform:
+        translateY(-2px);
+
+    background-position:
+        100% 50%;
+
+    box-shadow:
+        0 12px 28px
+        rgba(8, 120, 60, 0.35);
+
+}
+
+
+/* =========================================================
+   30 - CLIC SUR LE BOUTON
+========================================================= */
+
+.ocn-login-button:active {
+
+    transform:
+        translateY(1px)
+        scale(0.98);
+
+    box-shadow:
+        0 5px 12px
+        rgba(8, 120, 60, 0.22);
+
+}
+
+
+/* =========================================================
+   31 - TEXTE DU BOUTON
+========================================================= */
+
+.ocn-login-button span {
+
+    position: relative;
+
+    z-index: 2;
+
+}
+
+
+/* =========================================================
+   32 - ICÔNE DU BOUTON
+========================================================= */
+
+.ocn-button-icon {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 20px;
+
+    height: 20px;
+
+    transition:
+        transform 0.3s ease;
+
+}
+
+
+.ocn-button-icon svg {
+
+    width: 18px;
+
+    height: 18px;
+
+    fill: none;
+
+    stroke: currentColor;
+
+    stroke-width: 2;
+
+    stroke-linecap: round;
+
+    stroke-linejoin: round;
+
+}
+
+
+/* =========================================================
+   33 - ANIMATION DE LA FLÈCHE
+========================================================= */
+
+.ocn-login-button:hover
+.ocn-button-icon {
+
+    transform:
+        translateX(5px);
+
+}
+
+
+/* =========================================================
+   34 - REFLET DU BOUTON
+========================================================= */
+
+.ocn-login-button::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+
+    left: -100%;
+
+    width: 55%;
+
+    height: 100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.20),
+            transparent
+        );
+
+    transform:
+        skewX(-20deg);
+
+    transition:
+        left 0.6s ease;
+
+}
+
+
+/* =========================================================
+   35 - ANIMATION DU REFLET
+========================================================= */
+
+.ocn-login-button:hover::before {
+
+    left: 130%;
+
+}
+
+
+/* =========================================================
+   36 - FOOTER DE LA CONNEXION
 ========================================================= */
 
 .ocn-login-footer {
@@ -842,10 +1069,199 @@ body {
 
 
 /* =========================================================
-   TABLETTE
+   =========================================================
+   PAGE 02
+   MOT DE PASSE OUBLIÉ
+   =========================================================
+   ========================================================= */
+
+
+/* =========================================================
+   37 - CARTE MOT DE PASSE OUBLIÉ
 ========================================================= */
 
+.ocn-forgot-card {
+
+    max-width: 400px;
+
+}
+
+
+/* =========================================================
+   38 - ICÔNE MOT DE PASSE OUBLIÉ
+========================================================= */
+
+.ocn-forgot-icon {
+
+    width: 54px;
+
+    height: 54px;
+
+    margin:
+        0 auto 13px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background:
+        rgba(8, 127, 66, 0.10);
+
+    color:
+        #08783c;
+
+}
+
+
+.ocn-forgot-icon svg {
+
+    width: 25px;
+
+    height: 25px;
+
+    fill: none;
+
+    stroke: currentColor;
+
+    stroke-width: 1.8;
+
+    stroke-linecap: round;
+
+    stroke-linejoin: round;
+
+}
+
+
+/* =========================================================
+   39 - DESCRIPTION MOT DE PASSE OUBLIÉ
+========================================================= */
+
+.ocn-forgot-card .ocn-welcome {
+
+    margin-top: 20px;
+
+    margin-bottom: 20px;
+
+}
+
+
+.ocn-forgot-card .ocn-welcome p {
+
+    max-width: 280px;
+
+    margin-left: auto;
+
+    margin-right: auto;
+
+    line-height: 1.5;
+
+}
+
+
+/* =========================================================
+   40 - BOUTON RÉINITIALISATION
+========================================================= */
+
+.ocn-reset-button {
+
+    margin-top: 4px;
+
+}
+
+
+/* =========================================================
+   41 - RETOUR À LA CONNEXION
+========================================================= */
+
+.ocn-back-login {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 7px;
+
+    margin-top: 17px;
+
+    color:
+        #08783c;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    text-decoration: none;
+
+    transition:
+        color 0.2s ease,
+        gap 0.2s ease;
+
+}
+
+
+.ocn-back-login:hover {
+
+    color:
+        #066b36;
+
+    gap: 10px;
+
+}
+
+
+/* =========================================================
+   42 - ICÔNE RETOUR
+========================================================= */
+
+.ocn-back-icon {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+}
+
+
+.ocn-back-icon svg {
+
+    width: 15px;
+
+    height: 15px;
+
+    fill: none;
+
+    stroke: currentColor;
+
+    stroke-width: 2;
+
+    stroke-linecap: round;
+
+    stroke-linejoin: round;
+
+}
+
+
+/* =========================================================
+   =========================================================
+   RESPONSIVE
+   TABLETTE
+   =========================================================
+   ========================================================= */
+
 @media (max-width: 700px) {
+
+
+    /* ---------------------------------------------------------
+       CONTENEUR TABLETTE
+    --------------------------------------------------------- */
 
     .ocn-login-container {
 
@@ -853,6 +1269,10 @@ body {
 
     }
 
+
+    /* ---------------------------------------------------------
+       CARTE TABLETTE
+    --------------------------------------------------------- */
 
     .ocn-login-card {
 
@@ -867,23 +1287,77 @@ body {
 
 
 /* =========================================================
+   =========================================================
+   RESPONSIVE
    TÉLÉPHONE
-========================================================= */
+   =========================================================
+   ========================================================= */
 
 @media (max-width: 480px) {
+
+
+    /* ---------------------------------------------------------
+       PAGE MOBILE
+    --------------------------------------------------------- */
+
+    .ocn-login {
+
+        min-height: 100svh;
+
+        /*
+           IMPORTANT :
+           le scroll vertical reste possible.
+        */
+
+        overflow-x: hidden;
+
+        overflow-y: auto;
+
+    }
+
+
+    /* ---------------------------------------------------------
+       CONTENEUR MOBILE
+    --------------------------------------------------------- */
 
     .ocn-login-container {
 
         min-height: 100svh;
 
-        padding: 15px;
+        /*
+           La hauteur peut augmenter avec le contenu.
+        */
+
+        height: auto;
+
+        /*
+           On commence légèrement en haut
+           afin que la carte puisse être scrollée.
+        */
+
+        align-items: flex-start;
+
+        padding:
+            25px 15px 30px;
 
     }
 
 
+    /* ---------------------------------------------------------
+       CARTE MOBILE
+    --------------------------------------------------------- */
+
     .ocn-login-card {
 
+        width: 100%;
+
         max-width: 350px;
+
+        height: auto;
+
+        max-height: none;
+
+        overflow: visible;
 
         padding:
             23px 21px 16px;
@@ -892,6 +1366,10 @@ body {
 
     }
 
+
+    /* ---------------------------------------------------------
+       LOGO MOBILE
+    --------------------------------------------------------- */
 
     .ocn-logo img {
 
@@ -902,12 +1380,20 @@ body {
     }
 
 
+    /* ---------------------------------------------------------
+       NOM MOBILE
+    --------------------------------------------------------- */
+
     .ocn-brand-name {
 
         font-size: 23px;
 
     }
 
+
+    /* ---------------------------------------------------------
+       SLOGAN MOBILE
+    --------------------------------------------------------- */
 
     .ocn-slogan {
 
@@ -917,6 +1403,10 @@ body {
 
     }
 
+
+    /* ---------------------------------------------------------
+       BIENVENUE MOBILE
+    --------------------------------------------------------- */
 
     .ocn-welcome {
 
@@ -941,6 +1431,10 @@ body {
     }
 
 
+    /* ---------------------------------------------------------
+       CHAMPS MOBILE
+    --------------------------------------------------------- */
+
     .ocn-form-group {
 
         margin-bottom: 12px;
@@ -955,6 +1449,10 @@ body {
     }
 
 
+    /* ---------------------------------------------------------
+       OPTIONS MOBILE
+    --------------------------------------------------------- */
+
     .ocn-login-options {
 
         flex-wrap: wrap;
@@ -964,9 +1462,65 @@ body {
     }
 
 
+    /* ---------------------------------------------------------
+       BOUTON MOBILE
+    --------------------------------------------------------- */
+
     .ocn-login-button {
 
         height: 44px;
+
+    }
+
+
+    /* ---------------------------------------------------------
+       PAGE MOT DE PASSE OUBLIÉ MOBILE
+    --------------------------------------------------------- */
+
+    .ocn-forgot-card {
+
+        max-width: 350px;
+
+    }
+
+
+    .ocn-forgot-icon {
+
+        width: 50px;
+
+        height: 50px;
+
+    }
+
+
+    .ocn-forgot-icon svg {
+
+        width: 23px;
+
+        height: 23px;
+
+    }
+
+
+    .ocn-forgot-card .ocn-welcome {
+
+        margin-top: 17px;
+
+        margin-bottom: 17px;
+
+    }
+
+
+    .ocn-forgot-card .ocn-welcome h1 {
+
+        font-size: 24px;
+
+    }
+
+
+    .ocn-forgot-card .ocn-welcome p {
+
+        font-size: 9px;
 
     }
 
@@ -974,21 +1528,42 @@ body {
 
 
 /* =========================================================
+   =========================================================
+   RESPONSIVE
    PETIT TÉLÉPHONE
-========================================================= */
+   =========================================================
+   ========================================================= */
 
 @media (max-width: 360px) {
 
+
+    /* ---------------------------------------------------------
+       CONTENEUR PETIT ÉCRAN
+    --------------------------------------------------------- */
+
     .ocn-login-container {
 
-        padding: 10px;
+        padding:
+            20px 10px 30px;
 
     }
 
 
+    /* ---------------------------------------------------------
+       CARTE PETIT ÉCRAN
+    --------------------------------------------------------- */
+
     .ocn-login-card {
 
+        width: 100%;
+
         max-width: 335px;
+
+        height: auto;
+
+        max-height: none;
+
+        overflow: visible;
 
         padding:
             20px 17px 14px;
@@ -997,6 +1572,10 @@ body {
 
     }
 
+
+    /* ---------------------------------------------------------
+       LOGO PETIT ÉCRAN
+    --------------------------------------------------------- */
 
     .ocn-logo img {
 
@@ -1007,12 +1586,20 @@ body {
     }
 
 
+    /* ---------------------------------------------------------
+       NOM PETIT ÉCRAN
+    --------------------------------------------------------- */
+
     .ocn-brand-name {
 
         font-size: 21px;
 
     }
 
+
+    /* ---------------------------------------------------------
+       TITRE PETIT ÉCRAN
+    --------------------------------------------------------- */
 
     .ocn-welcome h1 {
 
@@ -1021,6 +1608,10 @@ body {
     }
 
 
+    /* ---------------------------------------------------------
+       DESCRIPTION PETIT ÉCRAN
+    --------------------------------------------------------- */
+
     .ocn-welcome p {
 
         font-size: 9px;
@@ -1028,12 +1619,20 @@ body {
     }
 
 
+    /* ---------------------------------------------------------
+       LABELS PETIT ÉCRAN
+    --------------------------------------------------------- */
+
     .ocn-form-group label {
 
         font-size: 10px;
 
     }
 
+
+    /* ---------------------------------------------------------
+       INPUTS PETIT ÉCRAN
+    --------------------------------------------------------- */
 
     .ocn-input-wrapper input {
 
@@ -1045,215 +1644,727 @@ body {
 
 }
 
-.ocn-icon svg {
-    width: 17px;
-    height: 17px;
 
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
 
-.ocn-password-toggle svg {
-    width: 17px;
-    height: 17px;
 
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
+
+
+
+/* =========================================================
+   =========================================================
+   PAGE PROFIL - OCÉAN DU NORD / ADMINLTE
+   =========================================================
+   ========================================================= */
+
+
+/* =========================================================
+   01 - CONTENEUR PRINCIPAL
+========================================================= */
+
+.ocn-profile-page {
+
+    width: 100%;
+
+    padding: 5px 0 30px;
+
 }
 
 
 /* =========================================================
-   BOUTON CONNEXION ANIMÉ
+   02 - CONTENU
 ========================================================= */
 
-.ocn-login-button {
-
-    position: relative;
+.ocn-profile-content {
 
     width: 100%;
-    height: 46px;
+
+    max-width: 1050px;
+
+    margin: 0 auto;
+
+}
+
+
+/* =========================================================
+   03 - TITRE DE LA PAGE
+========================================================= */
+
+.ocn-profile-heading {
 
     display: flex;
 
     align-items: center;
+
+    gap: 14px;
+
+    margin-bottom: 22px;
+
+}
+
+
+.ocn-profile-heading-icon {
+
+    width: 48px;
+
+    height: 48px;
+
+    display: flex;
+
+    align-items: center;
+
     justify-content: center;
 
-    gap: 10px;
+    flex-shrink: 0;
+
+    border-radius: 12px;
+
+    background:
+        rgba(25, 135, 84, 0.10);
+
+    color:
+        var(--ocn-green);
+
+}
+
+
+.ocn-profile-heading-icon i {
+
+    font-size: 20px;
+
+}
+
+
+.ocn-profile-heading h1 {
+
+    margin: 0;
+
+    color:
+        #26322b;
+
+    font-size: 24px;
+
+    font-weight: 700;
+
+}
+
+
+.ocn-profile-heading p {
+
+    margin: 4px 0 0;
+
+    color:
+        #6c757d;
+
+    font-size: 11px;
+
+}
+
+
+/* =========================================================
+   04 - CARTE PROFIL
+========================================================= */
+
+.ocn-profile-card {
+
+    width: 100%;
+
+    margin-bottom: 20px;
+
+    border:
+        1px solid #e2e6e4 !important;
+
+    border-radius: 10px !important;
+
+    background:
+        #ffffff !important;
+
+    box-shadow:
+        0 3px 14px
+        rgba(0, 0, 0, 0.05) !important;
 
     overflow: hidden;
 
-    border: none;
-
-    border-radius: 9px;
-
-    background:
-        linear-gradient(135deg,
-            #087f42,
-            #066c37,
-            #087f42);
-
-    background-size: 200% 200%;
-
-    color: #ffffff;
-
-    font-size: 12px;
-
-    font-weight: 800;
-
-    cursor: pointer;
-
-    box-shadow:
-        0 8px 20px rgba(8, 120, 60, 0.22);
-
-    transition:
-        transform 0.25s ease,
-        box-shadow 0.25s ease,
-        background-position 0.5s ease;
-
 }
 
 
 /* =========================================================
-   EFFET AU SURVOL
+   05 - EN-TÊTE DE LA CARTE
 ========================================================= */
 
-.ocn-login-button:hover {
-
-    transform:
-        translateY(-2px);
-
-    background-position:
-        100% 50%;
-
-    box-shadow:
-        0 12px 28px rgba(8, 120, 60, 0.35);
-
-}
-
-
-/* =========================================================
-   EFFET LORS DU CLIC
-========================================================= */
-
-.ocn-login-button:active {
-
-    transform:
-        translateY(1px) scale(0.98);
-
-    box-shadow:
-        0 5px 12px rgba(8, 120, 60, 0.22);
-
-}
-
-
-/* =========================================================
-   TEXTE
-========================================================= */
-
-.ocn-login-button span {
-
-    position: relative;
-
-    z-index: 2;
-
-}
-
-
-/* =========================================================
-   ICÔNE
-========================================================= */
-
-.ocn-button-icon {
+.ocn-profile-header {
 
     display: flex;
 
     align-items: center;
-    justify-content: center;
 
-    width: 20px;
-    height: 20px;
+    width: 100%;
 
-    transition:
-        transform 0.3s ease;
-
-}
-
-
-.ocn-button-icon svg {
-
-    width: 18px;
-    height: 18px;
-
-    fill: none;
-
-    stroke: currentColor;
-
-    stroke-width: 2;
-
-    stroke-linecap: round;
-
-    stroke-linejoin: round;
-
-}
-
-
-/* =========================================================
-   L'ICÔNE AVANCE AU SURVOL
-========================================================= */
-
-.ocn-login-button:hover .ocn-button-icon {
-
-    transform:
-        translateX(5px);
-
-}
-
-
-/* =========================================================
-   REFLET QUI PASSE SUR LE BOUTON
-========================================================= */
-
-.ocn-login-button::before {
-
-    content: "";
-
-    position: absolute;
-
-    top: 0;
-
-    left: -100%;
-
-    width: 55%;
-
-    height: 100%;
+    padding: 17px 20px !important;
 
     background:
-        linear-gradient(90deg,
-            transparent,
-            rgba(255, 255, 255, 0.20),
-            transparent);
+        #ffffff !important;
 
-    transform:
-        skewX(-20deg);
-
-    transition:
-        left 0.6s ease;
+    border-bottom:
+        1px solid #edf0ee !important;
 
 }
 
 
 /* =========================================================
-   ANIMATION DU REFLET
+   06 - ICÔNE DE SECTION
 ========================================================= */
 
-.ocn-login-button:hover::before {
+.ocn-profile-icon {
 
-    left: 130%;
+    width: 42px;
+
+    height: 42px;
+
+    margin-right: 12px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 10px;
+
+    background:
+        var(--ocn-green-light);
+
+    color:
+        var(--ocn-green);
 
 }
+
+
+.ocn-profile-icon i {
+
+    font-size: 16px;
+
+}
+
+
+/* =========================================================
+   07 - TITRE DE SECTION
+========================================================= */
+
+.ocn-profile-header .card-title {
+
+    margin: 0 !important;
+
+    color:
+        #26322b !important;
+
+    font-size: 15px !important;
+
+    font-weight: 700 !important;
+
+}
+
+
+/* =========================================================
+   08 - DESCRIPTION DE SECTION
+========================================================= */
+
+.ocn-profile-header small {
+
+    display: block;
+
+    margin-top: 3px;
+
+    color:
+        #6c757d !important;
+
+    font-size: 10px !important;
+
+    line-height: 1.5;
+
+}
+
+
+/* =========================================================
+   09 - CONTENU DE LA CARTE
+========================================================= */
+
+.ocn-profile-card .card-body {
+
+    padding: 24px !important;
+
+    background:
+        #ffffff !important;
+
+}
+
+
+/* =========================================================
+   10 - IMPORTANT
+   Les formulaires Breeze contiennent leur propre header.
+
+   On le cache car notre page possède déjà un header
+   français et propre.
+========================================================= */
+
+.ocn-profile-card .card-body section > header {
+
+    display: none !important;
+
+}
+
+
+/* =========================================================
+   11 - FORMULAIRES
+========================================================= */
+
+.ocn-profile-card form {
+
+    width: 100%;
+
+    margin: 0;
+
+}
+
+
+/* =========================================================
+   12 - GROUPES DE CHAMPS
+========================================================= */
+
+.ocn-profile-card form > div {
+
+    margin-bottom: 15px;
+
+}
+
+
+/* =========================================================
+   13 - LABELS
+========================================================= */
+
+.ocn-profile-card label {
+
+    display: block;
+
+    margin-bottom: 5px;
+
+    color:
+        #344139 !important;
+
+    font-size: 11px !important;
+
+    font-weight: 600 !important;
+
+}
+
+
+/* =========================================================
+   14 - INPUTS
+========================================================= */
+
+.ocn-profile-card input[type="text"],
+.ocn-profile-card input[type="email"],
+.ocn-profile-card input[type="password"] {
+
+    width: 100%;
+
+    min-height: 40px;
+
+    padding:
+        7px 11px;
+
+    border:
+        1px solid #dce2df !important;
+
+    border-radius: 7px !important;
+
+    background:
+        #f9faf9 !important;
+
+    color:
+        #26322b !important;
+
+    font-size: 12px;
+
+    outline: none;
+
+    box-shadow:
+        none !important;
+
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease,
+        background .2s ease;
+
+}
+
+
+/* =========================================================
+   15 - FOCUS INPUT
+========================================================= */
+
+.ocn-profile-card input:focus {
+
+    background:
+        #ffffff !important;
+
+    border-color:
+        var(--ocn-green) !important;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(25, 135, 84, 0.10) !important;
+
+}
+
+
+/* =========================================================
+   16 - PLACEHOLDER
+========================================================= */
+
+.ocn-profile-card input::placeholder {
+
+    color:
+        #9aa39e;
+
+}
+
+
+/* =========================================================
+   17 - MESSAGES D'ERREUR
+========================================================= */
+
+.ocn-profile-card .text-red-600,
+.ocn-profile-card .text-red-500 {
+
+    display: block;
+
+    margin-top: 5px;
+
+    color:
+        var(--ocn-danger) !important;
+
+    font-size: 10px !important;
+
+}
+
+
+/* =========================================================
+   18 - MESSAGE DE SUCCÈS
+========================================================= */
+
+.ocn-profile-card .text-green-600 {
+
+    color:
+        var(--ocn-green) !important;
+
+    font-size: 10px !important;
+
+}
+
+
+/* =========================================================
+   19 - ZONE DES BOUTONS
+========================================================= */
+
+.ocn-profile-card form > div:last-child {
+
+    display: flex;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+    margin-top: 18px;
+
+    margin-bottom: 0;
+
+}
+
+
+/* =========================================================
+   20 - BOUTONS
+========================================================= */
+
+.ocn-profile-card button {
+
+    min-height: 38px;
+
+    padding:
+        8px 18px;
+
+    border:
+        none !important;
+
+    border-radius: 7px !important;
+
+    background:
+        var(--ocn-green) !important;
+
+    color:
+        #ffffff !important;
+
+    font-size: 11px !important;
+
+    font-weight: 700 !important;
+
+    box-shadow:
+        none !important;
+
+    transition:
+        background .2s ease,
+        transform .2s ease,
+        box-shadow .2s ease;
+
+}
+
+
+/* =========================================================
+   21 - SURVOL BOUTON
+========================================================= */
+
+.ocn-profile-card button:hover {
+
+    background:
+        var(--ocn-green-dark) !important;
+
+    transform:
+        translateY(-1px);
+
+    box-shadow:
+        0 5px 12px
+        rgba(25, 135, 84, 0.20);
+
+}
+
+
+/* =========================================================
+   22 - BOUTON SUPPRESSION
+========================================================= */
+
+.ocn-profile-danger {
+
+    border-color:
+        rgba(220, 53, 69, 0.20) !important;
+
+}
+
+
+.ocn-profile-danger .card-header {
+
+    background:
+        #fffafa !important;
+
+}
+
+
+.ocn-profile-danger .ocn-profile-icon {
+
+    background:
+        rgba(220, 53, 69, 0.09);
+
+    color:
+        var(--ocn-danger);
+
+}
+
+
+.ocn-profile-danger .card-title {
+
+    color:
+        #c52d3a !important;
+
+}
+
+
+/* =========================================================
+   23 - BOUTON DANGEREUX
+========================================================= */
+
+.ocn-profile-danger button {
+
+    background:
+        var(--ocn-danger) !important;
+
+}
+
+
+.ocn-profile-danger button:hover {
+
+    background:
+        #bb2d3b !important;
+
+}
+
+
+/* =========================================================
+   24 - RESPONSIVE TABLETTE
+========================================================= */
+
+@media (max-width: 768px) {
+
+    .ocn-profile-page {
+
+        padding:
+            5px 0 25px;
+
+    }
+
+
+    .ocn-profile-heading {
+
+        margin-bottom: 18px;
+
+    }
+
+
+    .ocn-profile-heading h1 {
+
+        font-size: 21px;
+
+    }
+
+
+    .ocn-profile-card .card-body {
+
+        padding:
+            20px !important;
+
+    }
+
+
+    .ocn-profile-header {
+
+        padding:
+            15px !important;
+
+    }
+
+}
+
+
+/* =========================================================
+   25 - RESPONSIVE TÉLÉPHONE
+========================================================= */
+
+@media (max-width: 480px) {
+
+    .ocn-profile-heading {
+
+        gap: 10px;
+
+    }
+
+
+    .ocn-profile-heading-icon {
+
+        width: 42px;
+
+        height: 42px;
+
+    }
+
+
+    .ocn-profile-heading-icon i {
+
+        font-size: 17px;
+
+    }
+
+
+    .ocn-profile-heading h1 {
+
+        font-size: 19px;
+
+    }
+
+
+    .ocn-profile-heading p {
+
+        font-size: 9px;
+
+    }
+
+
+    .ocn-profile-card {
+
+        margin-bottom: 15px;
+
+        border-radius: 8px !important;
+
+    }
+
+
+    .ocn-profile-header {
+
+        padding:
+            13px !important;
+
+    }
+
+
+    .ocn-profile-icon {
+
+        width: 37px;
+
+        height: 37px;
+
+        margin-right: 9px;
+
+    }
+
+
+    .ocn-profile-icon i {
+
+        font-size: 14px;
+
+    }
+
+
+    .ocn-profile-header .card-title {
+
+        font-size: 13px !important;
+
+    }
+
+
+    .ocn-profile-header small {
+
+        font-size: 9px !important;
+
+    }
+
+
+    .ocn-profile-card .card-body {
+
+        padding:
+            16px !important;
+
+    }
+
+
+    .ocn-profile-card input[type="text"],
+    .ocn-profile-card input[type="email"],
+    .ocn-profile-card input[type="password"] {
+
+        min-height: 42px;
+
+        font-size: 11px;
+
+    }
+
+
+    .ocn-profile-card button {
+
+        width: 100%;
+
+    }
+
+}
+
+
+
+

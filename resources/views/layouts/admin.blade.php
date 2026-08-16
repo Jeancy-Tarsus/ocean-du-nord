@@ -12,6 +12,12 @@
         @yield('title', 'Océan du Nord')
     </title>
 
+    <link
+        rel="icon"
+        type="image/png"
+        href="{{ asset('images/logo1.png') }}"
+    >
+
 
     <link rel="stylesheet"
           href="{{ asset('vendor/adminlte/dist/css/adminlte.min.css') }}">
@@ -413,92 +419,146 @@
 
             {{-- UTILISATEUR --}}
 
-            <li class="nav-item dropdown">
+            {{-- =========================================================
+     UTILISATEUR
+========================================================= --}}
 
-                <a class="nav-link"
-                   data-toggle="dropdown"
-                   href="#">
+<li class="nav-item dropdown">
 
-                    <span class="ocn-navbar-user">
+    <a
+        class="nav-link"
+        data-toggle="dropdown"
+        href="#"
+    >
 
-                        <span class="ocn-navbar-avatar">
+        <span class="ocn-navbar-user">
 
-                            <i class="fas fa-user"></i>
+            {{-- Avatar --}}
 
-                        </span>
+            <span class="ocn-navbar-avatar">
 
+                <i class="fas fa-user"></i>
 
-                        @auth
-
-                            <span class="d-none d-md-inline">
-
-                                {{ Auth::user()->name }}
-
-                            </span>
-
-                        @endauth
+            </span>
 
 
-                        <i class="fas fa-caret-down ml-2"></i>
+            {{-- Nom utilisateur --}}
 
-                    </span>
+            @auth
 
-                </a>
+                <span class="d-none d-md-inline">
 
+                    {{ Auth::user()->name }}
 
-                <div class="dropdown-menu dropdown-menu-right">
+                </span>
 
-
-                    @auth
-
-                        <div class="dropdown-header">
-
-                            <strong>
-
-                                {{ Auth::user()->name }}
-
-                            </strong>
-
-                            <br>
-
-                            <small class="text-muted">
-
-                                {{ Auth::user()->email }}
-
-                            </small>
-
-                        </div>
-
-                    @endauth
+            @endauth
 
 
-                    <div class="dropdown-divider"></div>
+            {{-- Flèche --}}
+
+            <i class="fas fa-caret-down ml-2"></i>
+
+        </span>
+
+    </a>
 
 
-                    @auth
+    {{-- =====================================================
+         MENU DÉROULANT
+    ====================================================== --}}
 
-                        <form method="POST"
-                              action="{{ route('logout') }}">
+    <div class="dropdown-menu dropdown-menu-right">
 
-                            @csrf
 
-                            <button type="submit"
-                                    class="dropdown-item">
+        {{-- =================================================
+             INFORMATIONS UTILISATEUR
+        ================================================== --}}
 
-                                <i class="fas fa-sign-out-alt mr-2"></i>
+        @auth
 
-                                Déconnexion
+            <div class="dropdown-header">
 
-                            </button>
+                <strong>
 
-                        </form>
+                    {{ Auth::user()->name }}
 
-                    @endauth
+                </strong>
 
-                </div>
+                <br>
 
-            </li>
+                <small class="text-muted">
 
+                    {{ Auth::user()->email }}
+
+                </small>
+
+            </div>
+
+        @endauth
+
+
+        <div class="dropdown-divider"></div>
+
+
+        {{-- =================================================
+             MON PROFIL
+        ================================================== --}}
+
+        @auth
+
+            <a
+                href="{{ route('profile.edit') }}"
+                class="dropdown-item"
+            >
+
+                <i class="fas fa-user mr-2"></i>
+
+                Mon profil
+
+            </a>
+
+        @endauth
+
+
+        {{-- =================================================
+             SÉPARATION
+        ================================================== --}}
+
+        <div class="dropdown-divider"></div>
+
+
+        {{-- =================================================
+             DÉCONNEXION
+        ================================================== --}}
+
+        @auth
+
+            <form
+                method="POST"
+                action="{{ route('logout') }}"
+            >
+
+                @csrf
+
+                <button
+                    type="submit"
+                    class="dropdown-item"
+                >
+
+                    <i class="fas fa-sign-out-alt mr-2"></i>
+
+                    Déconnexion
+
+                </button>
+
+            </form>
+
+        @endauth
+
+    </div>
+
+</li>
         </ul>
 
     </nav>

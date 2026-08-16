@@ -1,29 +1,153 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Profile') }}
-        </h2>
-    </x-slot>
+@extends('layouts.admin')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.update-profile-information-form')
+@section('title', 'Mon profil')
+
+@section('page_title', 'Mon profil')
+
+@section('page_subtitle', 'Gestion de votre compte')
+
+@section('content')
+
+<div class="ocn-profile-page">
+
+    <div class="ocn-profile-content">
+
+
+        {{-- =====================================================
+             INFORMATIONS PERSONNELLES
+        ====================================================== --}}
+
+        <div class="card ocn-profile-card">
+
+            <div class="card-header ocn-profile-header">
+
+                <div class="d-flex align-items-center">
+
+                    <div class="ocn-profile-icon">
+
+                        <i class="fas fa-user"></i>
+
+                    </div>
+
+                    <div>
+
+                        <div class="card-title">
+                            Informations personnelles
+                        </div>
+
+                        <small>
+                            Modifiez votre nom et votre adresse e-mail.
+                        </small>
+
+                    </div>
+
                 </div>
+
             </div>
 
-            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.update-password-form')
-                </div>
+
+            <div class="card-body">
+
+                @include(
+                    'profile.partials.update-profile-information-form'
+                )
+
             </div>
 
-            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
-                <div class="max-w-xl">
-                    @include('profile.partials.delete-user-form')
-                </div>
-            </div>
         </div>
+
+
+        {{-- =====================================================
+             MOT DE PASSE
+        ====================================================== --}}
+
+        <div class="card ocn-profile-card">
+
+            <div class="card-header ocn-profile-header">
+
+                <div class="d-flex align-items-center">
+
+                    <div class="ocn-profile-icon">
+
+                        <i class="fas fa-lock"></i>
+
+                    </div>
+
+                    <div>
+
+                        <div class="card-title">
+                            Modifier le mot de passe
+                        </div>
+
+                        <small>
+                            Changez votre mot de passe pour sécuriser
+                            votre compte.
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="card-body">
+
+                @include(
+                    'profile.partials.update-password-form'
+                )
+
+            </div>
+
+        </div>
+
+
+        {{-- =====================================================
+             SUPPRESSION DU COMPTE
+        ====================================================== --}}
+
+        <div class="card ocn-profile-card ocn-profile-danger">
+
+            <div class="card-header ocn-profile-header">
+
+                <div class="d-flex align-items-center">
+
+                    <div class="ocn-profile-icon">
+
+                        <i class="fas fa-trash"></i>
+
+                    </div>
+
+                    <div>
+
+                        <div class="card-title">
+                            Supprimer le compte
+                        </div>
+
+                        <small>
+                            La suppression du compte est définitive.
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="card-body">
+
+                @include(
+                    'profile.partials.delete-user-form'
+                )
+
+            </div>
+
+        </div>
+
+
     </div>
-</x-app-layout>
+
+</div>
+
+@endsection
