@@ -2,822 +2,827 @@
 
 @section('title', 'Incidents')
 
-@section('page_title', 'Gestion des incidents')
+@section('page_title', 'Gestion des Incidents')
 
 @section('content')
 
-<div class="card ocn-card shadow-sm">
+<div class="container-fluid">
+
 
     {{-- =========================================================
-         EN-TÊTE
+         CARD PRINCIPALE
     ========================================================== --}}
 
-    <div class="card-header bg-white">
+    <div class="card ocn-card shadow-sm">
 
-        <div class="row align-items-center">
 
-            {{-- TITRE --}}
+        {{-- =====================================================
+             HEADER
+        ====================================================== --}}
 
-            <div class="col-md-4">
+        <div class="card-header bg-white">
 
-                <h3 class="card-title ocn-title mb-0">
+            <div class="row align-items-center">
 
-                    <i class="fas fa-exclamation-triangle mr-2"></i>
 
-                    Liste des incidents
+                {{-- TITRE --}}
 
-                </h3>
+                <div class="col-md-6">
+
+                    <h3 class="card-title ocn-title mb-0">
+
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+
+                        Gestion des incidents
+
+                    </h3>
+
+                    <small class="text-muted">
+
+                        Suivi et traitement des incidents d'exploitation
+
+                    </small>
+
+                </div>
+
+
+                {{-- BOUTON NOUVEAU --}}
+
+                <div class="col-md-6 text-right">
+
+                    <button type="button"
+                            class="btn ocn-btn"
+                            data-toggle="modal"
+                            data-target="#modalCreateIncident">
+
+                        <i class="fas fa-plus mr-1"></i>
+
+                        Signaler un incident
+
+                    </button>
+
+                </div>
 
             </div>
 
+        </div>
 
-            {{-- RECHERCHE --}}
 
-            <div class="col-md-5">
 
-                <form action="{{ route('incidents.index') }}"
-                      method="GET">
+        {{-- =====================================================
+             FILTRES
+        ====================================================== --}}
 
-                    <div class="input-group">
+        <div class="card-body border-bottom">
 
-                        <input type="text"
-                               name="search"
-                               value="{{ $search ?? '' }}"
-                               class="form-control"
-                               placeholder="Rechercher un incident..."
-                               autocomplete="off">
+            <form action="{{ route('incidents.index') }}"
+                  method="GET">
 
-                        <div class="input-group-append">
+                <div class="row">
 
-                            @if(!empty($search))
 
-                                <a href="{{ route('incidents.index') }}"
-                                   class="btn btn-secondary">
+                    {{-- RECHERCHE --}}
 
-                                    <i class="fas fa-times"></i>
+                    <div class="col-md-4">
 
-                                </a>
+                        <div class="form-group mb-md-0">
 
-                            @endif
+                            <label>
 
-                            <button type="submit"
-                                    class="btn ocn-btn">
+                                <i class="fas fa-search ocn-green mr-1"></i>
 
-                                <i class="fas fa-search mr-1"></i>
+                                Recherche
 
-                                Rechercher
+                            </label>
 
-                            </button>
+                            <input type="text"
+                                   name="search"
+                                   value="{{ $search ?? '' }}"
+                                   class="form-control"
+                                   placeholder="Référence, titre ou description..."
+                                   autocomplete="off">
 
                         </div>
 
                     </div>
 
-                </form>
-
-            </div>
 
 
-            {{-- NOUVEL INCIDENT --}}
+                    {{-- TYPE --}}
 
-            <div class="col-md-3 text-right">
+                    <div class="col-md-2">
 
-                @auth
+                        <div class="form-group mb-md-0">
 
-                    @if(in_array(auth()->user()->role, [
-                        'admin',
-                        'directeur_exploitation',
-                        'chef_parc',
-                        'chef_agence',
-                        'chauffeur'
-                    ]))
+                            <label>
+                                Type
+                            </label>
 
-                        <button type="button"
-                                class="btn ocn-btn"
-                                data-toggle="modal"
-                                data-target="#modalCreateIncident">
+                            <select name="type"
+                                    class="form-control">
 
-                            <i class="fas fa-plus mr-1"></i>
+                                <option value="">
+                                    Tous
+                                </option>
 
-                            Nouvel incident
+                                <option value="panne"
+                                    {{ ($type ?? '') === 'panne' ? 'selected' : '' }}>
+                                    Panne
+                                </option>
 
-                        </button>
+                                <option value="accident"
+                                    {{ ($type ?? '') === 'accident' ? 'selected' : '' }}>
+                                    Accident
+                                </option>
 
-                    @endif
+                                <option value="retard"
+                                    {{ ($type ?? '') === 'retard' ? 'selected' : '' }}>
+                                    Retard
+                                </option>
 
-                @endauth
+                                <option value="probleme_chauffeur"
+                                    {{ ($type ?? '') === 'probleme_chauffeur' ? 'selected' : '' }}>
+                                    Problème chauffeur
+                                </option>
 
-            </div>
+                                <option value="probleme_technique"
+                                    {{ ($type ?? '') === 'probleme_technique' ? 'selected' : '' }}>
+                                    Problème technique
+                                </option>
+
+                                <option value="autre"
+                                    {{ ($type ?? '') === 'autre' ? 'selected' : '' }}>
+                                    Autre
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+
+                    {{-- GRAVITÉ --}}
+
+                    <div class="col-md-2">
+
+                        <div class="form-group mb-md-0">
+
+                            <label>
+                                Gravité
+                            </label>
+
+                            <select name="gravite"
+                                    class="form-control">
+
+                                <option value="">
+                                    Toutes
+                                </option>
+
+                                <option value="faible"
+                                    {{ ($gravite ?? '') === 'faible' ? 'selected' : '' }}>
+                                    Faible
+                                </option>
+
+                                <option value="moyenne"
+                                    {{ ($gravite ?? '') === 'moyenne' ? 'selected' : '' }}>
+                                    Moyenne
+                                </option>
+
+                                <option value="grave"
+                                    {{ ($gravite ?? '') === 'grave' ? 'selected' : '' }}>
+                                    Grave
+                                </option>
+
+                                <option value="critique"
+                                    {{ ($gravite ?? '') === 'critique' ? 'selected' : '' }}>
+                                    Critique
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+
+                    {{-- STATUT --}}
+
+                    <div class="col-md-2">
+
+                        <div class="form-group mb-md-0">
+
+                            <label>
+                                Statut
+                            </label>
+
+                            <select name="statut"
+                                    class="form-control">
+
+                                <option value="">
+                                    Tous
+                                </option>
+
+                                <option value="ouvert"
+                                    {{ ($statut ?? '') === 'ouvert' ? 'selected' : '' }}>
+                                    Ouvert
+                                </option>
+
+                                <option value="en_cours"
+                                    {{ ($statut ?? '') === 'en_cours' ? 'selected' : '' }}>
+                                    En cours
+                                </option>
+
+                                <option value="resolu"
+                                    {{ ($statut ?? '') === 'resolu' ? 'selected' : '' }}>
+                                    Résolu
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+
+                    {{-- BOUTONS --}}
+
+                    <div class="col-md-2">
+
+                        <div class="form-group mb-md-0">
+
+                            <label class="d-block">
+                                &nbsp;
+                            </label>
+
+                            <div class="d-flex">
+
+                                <button type="submit"
+                                        class="btn ocn-btn mr-2">
+
+                                    <i class="fas fa-search mr-1"></i>
+
+                                    Filtrer
+
+                                </button>
+
+
+                                <a href="{{ route('incidents.index') }}"
+                                   class="btn btn-secondary"
+                                   title="Réinitialiser">
+
+                                    <i class="fas fa-redo"></i>
+
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </form>
 
         </div>
 
-    </div>
 
 
-    {{-- =========================================================
-         FILTRES
-    ========================================================== --}}
+        {{-- =====================================================
+             TABLEAU
+        ====================================================== --}}
 
-    <div class="card-body border-bottom">
+        <div class="card-body p-0">
 
-        <form action="{{ route('incidents.index') }}"
-              method="GET">
 
-            @if(!empty($search))
+            <div class="ocn-table-wrapper">
 
-                <input type="hidden"
-                       name="search"
-                       value="{{ $search }}">
+                <div class="table-responsive">
 
-            @endif
+                    <table class="table ocn-table mb-0">
 
 
-            <div class="row">
+                        {{-- EN-TÊTE --}}
 
-                {{-- TYPE --}}
+                        <thead class="ocn-table-header">
 
-                <div class="col-md-4 mb-2">
+                            <tr>
 
-                    <label class="mb-1">
+                                <th>
+                                    Référence
+                                </th>
 
-                        Type
+                                <th>
+                                    Voyage
+                                </th>
 
-                    </label>
+                                <th>
+                                    Bus
+                                </th>
 
-                    <select name="type"
-                            class="form-control">
+                                <th>
+                                    Type
+                                </th>
 
-                        <option value="">
+                                <th>
+                                    Gravité
+                                </th>
 
-                            Tous les types
+                                <th>
+                                    Statut
+                                </th>
 
-                        </option>
+                                <th>
+                                    Déclaré par
+                                </th>
 
-                        <option value="panne"
-                            {{ ($type ?? '') === 'panne' ? 'selected' : '' }}>
+                                <th class="text-center"
+                                    style="width: 140px;">
 
-                            Panne
+                                    Actions
 
-                        </option>
+                                </th>
 
-                        <option value="accident"
-                            {{ ($type ?? '') === 'accident' ? 'selected' : '' }}>
+                            </tr>
 
-                            Accident
+                        </thead>
 
-                        </option>
 
-                        <option value="retard"
-                            {{ ($type ?? '') === 'retard' ? 'selected' : '' }}>
 
-                            Retard
+                        {{-- CORPS --}}
 
-                        </option>
+                        <tbody>
 
-                        <option value="probleme_chauffeur"
-                            {{ ($type ?? '') === 'probleme_chauffeur' ? 'selected' : '' }}>
+                            @forelse($incidents as $incident)
 
-                            Problème chauffeur
+                                <tr>
 
-                        </option>
 
-                        <option value="probleme_technique"
-                            {{ ($type ?? '') === 'probleme_technique' ? 'selected' : '' }}>
+                                    {{-- RÉFÉRENCE --}}
 
-                            Problème technique
+                                    <td>
 
-                        </option>
+                                        <strong class="ocn-green">
 
-                        <option value="autre"
-                            {{ ($type ?? '') === 'autre' ? 'selected' : '' }}>
+                                            {{ $incident->reference }}
 
-                            Autre
-
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                {{-- GRAVITE --}}
-
-                <div class="col-md-3 mb-2">
-
-                    <label class="mb-1">
-
-                        Gravité
-
-                    </label>
-
-                    <select name="gravite"
-                            class="form-control">
-
-                        <option value="">
-
-                            Toutes
-
-                        </option>
-
-                        <option value="faible"
-                            {{ ($gravite ?? '') === 'faible' ? 'selected' : '' }}>
-
-                            Faible
-
-                        </option>
-
-                        <option value="moyenne"
-                            {{ ($gravite ?? '') === 'moyenne' ? 'selected' : '' }}>
-
-                            Moyenne
-
-                        </option>
-
-                        <option value="grave"
-                            {{ ($gravite ?? '') === 'grave' ? 'selected' : '' }}>
-
-                            Grave
-
-                        </option>
-
-                        <option value="critique"
-                            {{ ($gravite ?? '') === 'critique' ? 'selected' : '' }}>
-
-                            Critique
-
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                {{-- STATUT --}}
-
-                <div class="col-md-3 mb-2">
-
-                    <label class="mb-1">
-
-                        Statut
-
-                    </label>
-
-                    <select name="statut"
-                            class="form-control">
-
-                        <option value="">
-
-                            Tous
-
-                        </option>
-
-                        <option value="ouvert"
-                            {{ ($statut ?? '') === 'ouvert' ? 'selected' : '' }}>
-
-                            Ouvert
-
-                        </option>
-
-                        <option value="en_cours"
-                            {{ ($statut ?? '') === 'en_cours' ? 'selected' : '' }}>
-
-                            En cours
-
-                        </option>
-
-                        <option value="resolu"
-                            {{ ($statut ?? '') === 'resolu' ? 'selected' : '' }}>
-
-                            Résolu
-
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                {{-- BOUTONS --}}
-
-                <div class="col-md-2 mb-2 d-flex align-items-end">
-
-                    <button type="submit"
-                            class="btn ocn-btn mr-1"
-                            title="Filtrer">
-
-                        <i class="fas fa-filter"></i>
-
-                    </button>
-
-
-                    <a href="{{ route('incidents.index') }}"
-                       class="btn btn-secondary"
-                       title="Réinitialiser">
-
-                        <i class="fas fa-times"></i>
-
-                    </a>
-
-                </div>
-
-            </div>
-
-        </form>
-
-    </div>
-
-
-    {{-- =========================================================
-         TABLEAU
-    ========================================================== --}}
-
-    <div class="card-body p-0">
-
-        <div class="table-responsive">
-
-            <table class="table table-hover mb-0">
-
-                <thead class="ocn-table-header">
-
-                    <tr>
-
-                        <th>#</th>
-
-                        <th>Référence</th>
-
-                        <th>Type</th>
-
-                        <th>Titre</th>
-
-                        <th>Voyage</th>
-
-                        <th>Bus</th>
-
-                        <th>Agence</th>
-
-                        <th>Date</th>
-
-                        <th>Gravité</th>
-
-                        <th>Statut</th>
-
-                        <th class="text-center">
-
-                            Actions
-
-                        </th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                    @forelse($incidents as $incident)
-
-                        <tr>
-
-                            {{-- ID --}}
-
-                            <td>
-
-                                {{ $incident->id }}
-
-                            </td>
-
-
-                            {{-- REFERENCE --}}
-
-                            <td>
-
-                                <strong class="ocn-green">
-
-                                    {{ $incident->reference }}
-
-                                </strong>
-
-                            </td>
-
-
-                            {{-- TYPE --}}
-
-                            <td>
-
-                                @switch($incident->type)
-
-                                    @case('panne')
-
-                                        Panne
-
-                                        @break
-
-                                    @case('accident')
-
-                                        Accident
-
-                                        @break
-
-                                    @case('retard')
-
-                                        Retard
-
-                                        @break
-
-                                    @case('probleme_chauffeur')
-
-                                        Problème chauffeur
-
-                                        @break
-
-                                    @case('probleme_technique')
-
-                                        Problème technique
-
-                                        @break
-
-                                    @case('autre')
-
-                                        Autre
-
-                                        @break
-
-                                    @default
-
-                                        {{ $incident->type }}
-
-                                @endswitch
-
-                            </td>
-
-
-                            {{-- TITRE --}}
-
-                            <td>
-
-                                <strong>
-
-                                    {{ $incident->titre }}
-
-                                </strong>
-
-                                <br>
-
-                                <small class="text-muted">
-
-                                    {{ \Illuminate\Support\Str::limit(
-                                        $incident->description,
-                                        60
-                                    ) }}
-
-                                </small>
-
-                            </td>
-
-
-                            {{-- VOYAGE --}}
-
-                            <td>
-
-                                @if($incident->voyage)
-
-                                    <strong>
-
-                                        {{ $incident->voyage->code }}
-
-                                    </strong>
-
-                                    @if($incident->voyage->ligne)
+                                        </strong>
 
                                         <br>
 
                                         <small class="text-muted">
 
-                                            {{ $incident->voyage->ligne->nom }}
+                                            {{ \Carbon\Carbon::parse($incident->date_incident)->format('d/m/Y') }}
+
+                                            à
+
+                                            {{ $incident->heure_incident }}
 
                                         </small>
 
-                                    @endif
+                                    </td>
 
-                                @else
 
-                                    -
 
-                                @endif
+                                    {{-- VOYAGE --}}
 
-                            </td>
+                                    <td>
 
+                                        @if($incident->voyage)
 
-                            {{-- BUS --}}
+                                            <strong>
 
-                            <td>
+                                                {{ $incident->voyage->code }}
 
-                                @if($incident->bus)
+                                            </strong>
 
-                                    {{ $incident->bus->numero }}
+                                            <br>
 
-                                    <br>
+                                            <small class="text-muted">
 
-                                    <small class="text-muted">
+                                                {{ $incident->voyage->ligne->nom ?? 'Ligne inconnue' }}
 
-                                        {{ $incident->bus->immatriculation }}
+                                            </small>
 
-                                    </small>
+                                        @else
 
-                                @else
+                                            <span class="text-muted">
+                                                —
+                                            </span>
 
-                                    -
+                                        @endif
 
-                                @endif
+                                    </td>
 
-                            </td>
 
 
-                            {{-- AGENCE --}}
+                                    {{-- BUS --}}
 
-                            <td>
+                                    <td>
 
-                                {{ $incident->agence->nom ?? '-' }}
+                                        @if($incident->bus)
 
-                            </td>
+                                            <i class="fas fa-bus ocn-green mr-1"></i>
 
+                                            {{ $incident->bus->numero }}
 
-                            {{-- DATE --}}
+                                        @else
 
-                            <td>
+                                            <span class="text-muted">
+                                                —
+                                            </span>
 
-                                {{ $incident->date_incident
-                                    ? $incident->date_incident->format('d/m/Y')
-                                    : '-'
-                                }}
+                                        @endif
 
-                                @if($incident->heure_incident)
+                                    </td>
 
-                                    <br>
 
-                                    <small class="text-muted">
 
-                                        {{ $incident->heure_incident }}
+                                    {{-- TYPE --}}
 
-                                    </small>
+                                    <td>
 
-                                @endif
+                                        @switch($incident->type)
 
-                            </td>
+                                            @case('panne')
 
+                                                <span class="badge badge-warning">
+                                                    Panne
+                                                </span>
 
-                            {{-- GRAVITE --}}
+                                                @break
 
-                            <td>
+                                            @case('accident')
 
-                                @switch($incident->gravite)
+                                                <span class="badge badge-danger">
+                                                    Accident
+                                                </span>
 
-                                    @case('faible')
+                                                @break
 
-                                        <span class="badge badge-success">
+                                            @case('retard')
 
-                                            Faible
+                                                <span class="badge badge-info">
+                                                    Retard
+                                                </span>
 
-                                        </span>
+                                                @break
 
-                                        @break
+                                            @case('probleme_chauffeur')
 
-                                    @case('moyenne')
+                                                <span class="badge badge-secondary">
+                                                    Problème chauffeur
+                                                </span>
 
-                                        <span class="badge badge-info">
+                                                @break
 
-                                            Moyenne
+                                            @case('probleme_technique')
 
-                                        </span>
+                                                <span class="badge badge-primary">
+                                                    Problème technique
+                                                </span>
 
-                                        @break
+                                                @break
 
-                                    @case('grave')
+                                            @default
 
-                                        <span class="badge badge-warning">
+                                                <span class="badge badge-light">
+                                                    Autre
+                                                </span>
 
-                                            Grave
+                                        @endswitch
 
-                                        </span>
+                                    </td>
 
-                                        @break
 
-                                    @case('critique')
 
-                                        <span class="badge badge-danger">
+                                    {{-- GRAVITÉ --}}
 
-                                            Critique
+                                    <td>
 
-                                        </span>
+                                        @switch($incident->gravite)
 
-                                        @break
+                                            @case('faible')
 
-                                    @default
+                                                <span class="badge badge-success">
+                                                    Faible
+                                                </span>
 
-                                        <span class="badge badge-secondary">
+                                                @break
 
-                                            {{ $incident->gravite }}
+                                            @case('moyenne')
 
-                                        </span>
+                                                <span class="badge badge-warning">
+                                                    Moyenne
+                                                </span>
 
-                                @endswitch
+                                                @break
 
-                            </td>
+                                            @case('grave')
 
+                                                <span class="badge badge-orange">
+                                                    Grave
+                                                </span>
 
-                            {{-- STATUT --}}
+                                                @break
 
-                            <td>
+                                            @case('critique')
 
-                                @switch($incident->statut)
+                                                <span class="badge badge-danger">
+                                                    Critique
+                                                </span>
 
-                                    @case('ouvert')
+                                                @break
 
-                                        <span class="badge badge-danger">
+                                        @endswitch
 
-                                            Ouvert
+                                    </td>
 
-                                        </span>
 
-                                        @break
 
-                                    @case('en_cours')
+                                    {{-- STATUT --}}
 
-                                        <span class="badge badge-warning">
+                                    <td>
 
-                                            En cours
+                                        @switch($incident->statut)
 
-                                        </span>
+                                            @case('ouvert')
 
-                                        @break
+                                                <span class="badge badge-danger">
+                                                    Ouvert
+                                                </span>
 
-                                    @case('resolu')
+                                                @break
 
-                                        <span class="badge badge-success">
+                                            @case('en_cours')
 
-                                            Résolu
+                                                <span class="badge badge-warning">
+                                                    En cours
+                                                </span>
 
-                                        </span>
+                                                @break
 
-                                        @break
+                                            @case('resolu')
 
-                                    @default
+                                                <span class="badge badge-success">
+                                                    Résolu
+                                                </span>
 
-                                        <span class="badge badge-secondary">
+                                                @break
 
-                                            {{ $incident->statut }}
+                                        @endswitch
 
-                                        </span>
+                                    </td>
 
-                                @endswitch
 
-                            </td>
 
+                                    {{-- DÉCLARÉ PAR --}}
 
-                            {{-- ACTIONS --}}
+                                    <td>
 
-                            <td class="text-center">
+                                        @if($incident->user)
 
-                                {{-- VOIR --}}
+                                            {{ $incident->user->name }}
 
-                                <button type="button"
-                                        class="btn btn-info btn-sm"
-                                        data-toggle="modal"
-                                        data-target="#modalShowIncident{{ $incident->id }}"
-                                        title="Voir">
+                                        @else
 
-                                    <i class="fas fa-eye"></i>
+                                            <span class="text-muted">
+                                                —
+                                            </span>
 
-                                </button>
+                                        @endif
 
+                                    </td>
 
-                                @auth
 
-                                    {{-- MODIFIER --}}
 
-                                    @if(in_array(auth()->user()->role, [
-                                        'admin',
-                                        'directeur_exploitation',
-                                        'chef_parc'
-                                    ]))
+                                    {{-- ACTIONS --}}
 
-                                        <button type="button"
-                                                class="btn btn-warning btn-sm"
-                                                data-toggle="modal"
-                                                data-target="#modalEditIncident{{ $incident->id }}"
-                                                title="Modifier">
+                                    <td class="text-center">
 
-                                            <i class="fas fa-edit"></i>
+                                        <div class="d-inline-flex align-items-center">
 
-                                        </button>
 
-                                    @endif
+                                            {{-- VOIR --}}
 
+                                            <button type="button"
+                                                    class="btn btn-info btn-sm mr-1"
+                                                    data-toggle="modal"
+                                                    data-target="#modalShowIncident{{ $incident->id }}"
+                                                    title="Voir les détails">
 
-                                    {{-- SUPPRIMER --}}
-
-                                    @if(in_array(auth()->user()->role, [
-                                        'admin',
-                                        'directeur_exploitation'
-                                    ]))
-
-                                        <form action="{{ route('incidents.destroy', $incident) }}"
-                                              method="POST"
-                                              class="d-inline delete-incident-form">
-
-                                            @csrf
-
-                                            @method('DELETE')
-
-                                            <button type="submit"
-                                                    class="btn btn-danger btn-sm"
-                                                    title="Supprimer">
-
-                                                <i class="fas fa-trash"></i>
+                                                <i class="fas fa-eye"></i>
 
                                             </button>
 
-                                        </form>
 
-                                    @endif
 
-                                @endauth
+                                            {{-- =================================================
+                                                 DROIT DE MODIFICATION
+                                            ================================================== --}}
 
-                            </td>
+                                            @php
 
-                        </tr>
+                                                $canEditIncident = false;
 
-                    @empty
+                                                /*
+                                                | ADMIN
+                                                */
 
-                        <tr>
+                                                if (
+                                                    auth()->user()->role === 'admin'
+                                                ) {
 
-                            <td colspan="11"
-                                class="text-center py-5">
+                                                    $canEditIncident = true;
 
-                                <i class="fas fa-exclamation-triangle fa-3x text-muted mb-3"></i>
+                                                }
 
-                                <p class="text-muted mb-0">
+                                                /*
+                                                | DIRECTEUR EXPLOITATION
+                                                */
 
-                                    Aucun incident enregistré.
+                                                elseif (
+                                                    auth()->user()->role ===
+                                                    'directeur_exploitation'
+                                                ) {
 
-                                </p>
+                                                    $canEditIncident = true;
 
-                            </td>
+                                                }
 
-                        </tr>
+                                                /*
+                                                | INCIDENT NON RÉSOLU
+                                                */
 
-                    @endforelse
+                                                elseif (
+                                                    $incident->statut !== 'resolu'
+                                                ) {
 
-                </tbody>
+                                                    /*
+                                                    | Chef d'agence
+                                                    */
 
-            </table>
+                                                    if (
+                                                        auth()->user()->role ===
+                                                        'chef_agence'
+                                                        &&
+                                                        (int) $incident->agence_id ===
+                                                        (int) auth()->user()->agence_id
+                                                    ) {
+
+                                                        $canEditIncident = true;
+
+                                                    }
+
+                                                    /*
+                                                    | Créateur de l'incident
+                                                    */
+
+                                                    elseif (
+                                                        (int) $incident->user_id ===
+                                                        (int) auth()->id()
+                                                    ) {
+
+                                                        $canEditIncident = true;
+
+                                                    }
+
+                                                }
+
+                                            @endphp
+
+
+
+                                            @if($canEditIncident)
+
+                                                <button type="button"
+                                                        class="btn btn-warning btn-sm mr-1"
+                                                        data-toggle="modal"
+                                                        data-target="#modalEditIncident{{ $incident->id }}"
+                                                        title="Modifier">
+
+                                                    <i class="fas fa-edit"></i>
+
+                                                </button>
+
+                                            @endif
+
+
+
+                                            {{-- =================================================
+                                                 SUPPRIMER
+                                            ================================================== --}}
+
+                                            @if(
+                                                auth()->user()->role === 'admin'
+                                                ||
+                                                auth()->user()->role ===
+                                                'directeur_exploitation'
+                                            )
+
+                                                <form action="{{ route('incidents.destroy', $incident) }}"
+                                                      method="POST"
+                                                      class="d-inline delete-form">
+
+                                                    @csrf
+
+                                                    @method('DELETE')
+
+                                                    <button type="submit"
+                                                            class="btn btn-danger btn-sm"
+                                                            title="Supprimer">
+
+                                                        <i class="fas fa-trash"></i>
+
+                                                    </button>
+
+                                                </form>
+
+                                            @endif
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+
+                            @empty
+
+                                <tr>
+
+                                    <td colspan="8"
+                                        class="text-center py-5">
+
+                                        <i class="fas fa-exclamation-triangle fa-3x text-muted mb-3"></i>
+
+                                        <h5 class="text-muted">
+
+                                            Aucun incident trouvé
+
+                                        </h5>
+
+                                        <p class="text-muted mb-0">
+
+                                            Aucun incident ne correspond
+                                            aux critères sélectionnés.
+
+                                        </p>
+
+                                    </td>
+
+                                </tr>
+
+                            @endforelse
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
 
         </div>
+
+
+
+        {{-- =====================================================
+             PAGINATION
+        ====================================================== --}}
+
+        @if($incidents->hasPages())
+
+            <div class="card-footer bg-white">
+
+                {{ $incidents->links() }}
+
+            </div>
+
+        @endif
+
 
     </div>
-
-
-    {{-- =========================================================
-         PAGINATION
-    ========================================================== --}}
-
-    @if($incidents->hasPages())
-
-        <div class="card-footer bg-white">
-
-            {{ $incidents->links() }}
-
-        </div>
-
-    @endif
 
 </div>
 
 
+
 {{-- =========================================================
-     MODAL CREATE
-========================================================== --}}
+     MODAL CRÉATION
+========================================================= --}}
 
-@auth
+@include('incidents.modal.create')
 
-    @if(in_array(auth()->user()->role, [
-        'admin',
-        'directeur_exploitation',
-        'chef_parc',
-        'chef_agence',
-        'chauffeur'
-    ]))
-
-        @include('incidents.modal.create')
-
-    @endif
-
-@endauth
 
 
 {{-- =========================================================
-     MODALS SHOW / EDIT
-========================================================== --}}
+     MODALS AFFICHAGE
+========================================================= --}}
 
 @foreach($incidents as $incident)
 
@@ -826,24 +831,194 @@
         ['incident' => $incident]
     )
 
+@endforeach
 
-    @auth
 
-        @if(in_array(auth()->user()->role, [
-            'admin',
-            'directeur_exploitation',
-            'chef_parc'
-        ]))
 
-            @include(
-                'incidents.modal.edit',
-                ['incident' => $incident]
-            )
+{{-- =========================================================
+     MODALS MODIFICATION
+========================================================= --}}
 
-        @endif
+@foreach($incidents as $incident)
 
-    @endauth
+    @php
+
+        $canEditIncident = false;
+
+        if (
+            auth()->user()->role === 'admin'
+        ) {
+
+            $canEditIncident = true;
+
+        }
+
+        elseif (
+            auth()->user()->role === 'directeur_exploitation'
+        ) {
+
+            $canEditIncident = true;
+
+        }
+
+        elseif (
+            $incident->statut !== 'resolu'
+        ) {
+
+            if (
+                auth()->user()->role === 'chef_agence'
+                &&
+                (int) $incident->agence_id ===
+                (int) auth()->user()->agence_id
+            ) {
+
+                $canEditIncident = true;
+
+            }
+
+            elseif (
+                (int) $incident->user_id ===
+                (int) auth()->id()
+            ) {
+
+                $canEditIncident = true;
+
+            }
+
+        }
+
+    @endphp
+
+
+    @if($canEditIncident)
+
+        @include(
+            'incidents.modal.edit',
+            ['incident' => $incident]
+        )
+
+    @endif
 
 @endforeach
+
+
+
+{{-- =========================================================
+     SWEETALERT
+========================================================= --}}
+
+@push('scripts')
+
+<script>
+
+$(document).ready(function () {
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | MESSAGE DE SUCCÈS
+    |--------------------------------------------------------------------------
+    */
+
+    @if(session('success'))
+
+        Swal.fire({
+
+            icon: 'success',
+
+            title: 'Succès',
+
+            text: @json(session('success')),
+
+            confirmButtonText: 'OK',
+
+            confirmButtonColor: '#28a745',
+
+            timer: 3000,
+
+            timerProgressBar: true
+
+        });
+
+    @endif
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | MESSAGE D'ERREUR
+    |--------------------------------------------------------------------------
+    */
+
+    @if(session('error'))
+
+        Swal.fire({
+
+            icon: 'error',
+
+            title: 'Erreur',
+
+            text: @json(session('error')),
+
+            confirmButtonText: 'OK',
+
+            confirmButtonColor: '#dc3545'
+
+        });
+
+    @endif
+
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SUPPRESSION
+    |--------------------------------------------------------------------------
+    */
+
+    $('.delete-form').on('submit', function (e) {
+
+        e.preventDefault();
+
+        const form = this;
+
+        Swal.fire({
+
+            title: 'Supprimer cet incident ?',
+
+            text: 'Cette action est irréversible.',
+
+            icon: 'warning',
+
+            showCancelButton: true,
+
+            confirmButtonText: 'Oui, supprimer',
+
+            cancelButtonText: 'Annuler',
+
+            confirmButtonColor: '#dc3545',
+
+            cancelButtonColor: '#6c757d',
+
+            reverseButtons: true
+
+        }).then(function (result) {
+
+            if (result.isConfirmed) {
+
+                form.submit();
+
+            }
+
+        });
+
+    });
+
+});
+
+</script>
+
+@endpush
+
 
 @endsection

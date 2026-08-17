@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Agence;
 use App\Models\Bus;
 use App\Models\Incident;
+use App\Models\User;
 use App\Models\Voyage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
@@ -14,29 +16,19 @@ class IncidentController extends Controller
 {
     /*
     |--------------------------------------------------------------------------
-    | Vérifier si l'utilisateur est connecté
-    |--------------------------------------------------------------------------
-    */
-
-    private function connecte(): bool
-    {
-        return auth()->check();
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Rôles autorisés à accéder au module
+    | Vérification des rôles
     |--------------------------------------------------------------------------
     */
 
     private function peutAcceder(): bool
     {
-        if (!auth()->check()) {
+        $user = Auth::user();
+
+        if (!$user) {
             return false;
         }
 
-        return in_array(auth()->user()->role, [
+        return in_array($user->role, [
             'admin',
             'directeur_exploitation',
             'chef_parc',
@@ -46,68 +38,48 @@ class IncidentController extends Controller
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Administration complète
-    |--------------------------------------------------------------------------
-    */
-
     private function estAdmin(): bool
     {
-        return auth()->check()
-            && auth()->user()->role === 'admin';
+        $user = Auth::user();
+
+        return $user instanceof User
+            && $user->role === 'admin';
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Direction exploitation
-    |--------------------------------------------------------------------------
-    */
 
     private function estDirecteur(): bool
     {
-        return auth()->check()
-            && auth()->user()->role === 'directeur_exploitation';
+        $user = Auth::user();
+
+        return $user instanceof User
+            && $user->role === 'directeur_exploitation';
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Chef parc
-    |--------------------------------------------------------------------------
-    */
 
     private function estChefParc(): bool
     {
-        return auth()->check()
-            && auth()->user()->role === 'chef_parc';
+        $user = Auth::user();
+
+        return $user instanceof User
+            && $user->role === 'chef_parc';
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Chef agence
-    |--------------------------------------------------------------------------
-    */
 
     private function estChefAgence(): bool
     {
-        return auth()->check()
-            && auth()->user()->role === 'chef_agence';
+        $user = Auth::user();
+
+        return $user instanceof User
+            && $user->role === 'chef_agence';
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Chauffeur
-    |--------------------------------------------------------------------------
-    */
-
     private function estChauffeur(): bool
     {
-        return auth()->check()
-            && auth()->user()->role === 'chauffeur';
+        $user = Auth::user();
+
+        return $user instanceof User
+            && $user->role === 'chauffeur';
     }
 
 
@@ -119,8 +91,15 @@ class IncidentController extends Controller
 
     public function index(Request $request)
     {
-        if (!$this->connecte()) {
+        /*
+        |--------------------------------------------------------------------------
+        | UTILISATEUR CONNECTÉ
+        |--------------------------------------------------------------------------
+        */
 
+        $user = Auth::user();
+
+        if (!$user) {
             return redirect()
                 ->route('login')
                 ->with(
@@ -130,8 +109,13 @@ class IncidentController extends Controller
         }
 
 
-        if (!$this->peutAcceder()) {
+        /*
+        |--------------------------------------------------------------------------
+        | AUTORISATION
+        |--------------------------------------------------------------------------
+        */
 
+        if (!$this->peutAcceder()) {
             return redirect()
                 ->route('dashboard')
                 ->with(
@@ -143,272 +127,240 @@ class IncidentController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Filtres
+        | FILTRES
         |--------------------------------------------------------------------------
         */
 
         $search = $request->input('search');
-
         $type = $request->input('type');
-
         $gravite = $request->input('gravite');
-
         $statut = $request->input('statut');
 
 
         /*
         |--------------------------------------------------------------------------
-        | Requête incidents
+        | INCIDENTS
         |--------------------------------------------------------------------------
         */
 
         $incidents = Incident::with([
             'voyage.ligne',
             'voyage.bus',
+            'voyage.equipe.chauffeurTitulaire',
+            'voyage.equipe.chauffeurSecondaire',
             'bus',
             'agence',
             'user',
         ])
 
+            /*
+            |--------------------------------------------------------------------------
+            | CHEF D'AGENCE
+            |--------------------------------------------------------------------------
+            */
 
-        /*
-        |--------------------------------------------------------------------------
-        | Chef agence
-        |--------------------------------------------------------------------------
-        |
-        | Il ne voit que les incidents de son agence.
-        |
-        */
+            ->when(
+                $user->role === 'chef_agence',
+                function ($query) use ($user) {
 
-        ->when(
-            $this->estChefAgence(),
-            function ($query) {
-
-                $query->where(
-                    'agence_id',
-                    auth()->user()->agence_id
-                );
-
-            }
-        )
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Chauffeur
-        |--------------------------------------------------------------------------
-        |
-        | Pour le moment, on limite aux incidents qu'il a déclarés.
-        | Lorsque nous confirmerons la relation chauffeur <-> voyages,
-        | on pourra élargir automatiquement aux incidents de ses voyages.
-        |
-        */
-
-        ->when(
-            $this->estChauffeur(),
-            function ($query) {
-
-                $query->where(
-                    'user_id',
-                    auth()->id()
-                );
-
-            }
-        )
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Recherche
-        |--------------------------------------------------------------------------
-        */
-
-        ->when(
-            $search,
-            function ($query) use ($search) {
-
-                $query->where(function ($q) use ($search) {
-
-                    $q->where(
-                        'reference',
-                        'like',
-                        '%' . $search . '%'
-                    )
-
-                    ->orWhere(
-                        'titre',
-                        'like',
-                        '%' . $search . '%'
-                    )
-
-                    ->orWhere(
-                        'description',
-                        'like',
-                        '%' . $search . '%'
+                    $query->where(
+                        'agence_id',
+                        $user->agence_id
                     );
+                }
+            )
 
-                });
 
-            }
-        )
+            /*
+            |--------------------------------------------------------------------------
+            | CHAUFFEUR
+            |--------------------------------------------------------------------------
+            */
+
+            ->when(
+                $user->role === 'chauffeur',
+                function ($query) use ($user) {
+
+                    $query->where(
+                        'user_id',
+                        $user->id
+                    );
+                }
+            )
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | RECHERCHE
+            |--------------------------------------------------------------------------
+            */
+
+            ->when(
+                $search,
+                function ($query) use ($search) {
+
+                    $query->where(function ($q) use ($search) {
+
+                        $q->where(
+                            'reference',
+                            'like',
+                            '%' . $search . '%'
+                        )
+
+                            ->orWhere(
+                                'titre',
+                                'like',
+                                '%' . $search . '%'
+                            )
+
+                            ->orWhere(
+                                'description',
+                                'like',
+                                '%' . $search . '%'
+                            );
+                    });
+                }
+            )
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | TYPE
+            |--------------------------------------------------------------------------
+            */
+
+            ->when(
+                $type,
+                function ($query) use ($type) {
+
+                    $query->where(
+                        'type',
+                        $type
+                    );
+                }
+            )
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | GRAVITÉ
+            |--------------------------------------------------------------------------
+            */
+
+            ->when(
+                $gravite,
+                function ($query) use ($gravite) {
+
+                    $query->where(
+                        'gravite',
+                        $gravite
+                    );
+                }
+            )
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | STATUT
+            |--------------------------------------------------------------------------
+            */
+
+            ->when(
+                $statut,
+                function ($query) use ($statut) {
+
+                    $query->where(
+                        'statut',
+                        $statut
+                    );
+                }
+            )
+
+            ->latest()
+            ->paginate(15)
+            ->withQueryString();
 
 
         /*
         |--------------------------------------------------------------------------
-        | Type
-        |--------------------------------------------------------------------------
-        */
-
-        ->when(
-            $type,
-            function ($query) use ($type) {
-
-                $query->where(
-                    'type',
-                    $type
-                );
-
-            }
-        )
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Gravité
-        |--------------------------------------------------------------------------
-        */
-
-        ->when(
-            $gravite,
-            function ($query) use ($gravite) {
-
-                $query->where(
-                    'gravite',
-                    $gravite
-                );
-
-            }
-        )
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Statut
-        |--------------------------------------------------------------------------
-        */
-
-        ->when(
-            $statut,
-            function ($query) use ($statut) {
-
-                $query->where(
-                    'statut',
-                    $statut
-                );
-
-            }
-        )
-
-
-        ->latest()
-
-        ->paginate(15)
-
-        ->withQueryString();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Voyages disponibles
+        | VOYAGES DISPONIBLES POUR LE MODAL
         |--------------------------------------------------------------------------
         */
 
         $voyages = Voyage::with([
             'ligne',
             'bus',
+            'equipe.chauffeurTitulaire',
+            'equipe.chauffeurSecondaire',
             'voyageAgences.agence',
         ])
 
-        ->whereIn('statut', [
-            'planifie',
-            'en_cours',
-        ])
+            ->whereIn('statut', [
+                'planifie',
+                'en_cours',
+            ])
+
+            ->when(
+                $user->role === 'chef_agence',
+                function ($query) use ($user) {
+
+                    $query->whereHas(
+                        'voyageAgences',
+                        function ($q) use ($user) {
+
+                            $q->where(
+                                'agence_id',
+                                $user->agence_id
+                            );
+                        }
+                    );
+                }
+            )
+
+            ->latest()
+            ->get();
 
 
         /*
         |--------------------------------------------------------------------------
-        | Chef agence
+        | AGENCES
         |--------------------------------------------------------------------------
         */
 
-        ->when(
-            $this->estChefAgence(),
-            function ($query) {
-
-                $query->whereHas(
-                    'voyageAgences',
-                    function ($q) {
-
-                        $q->where(
-                            'agence_id',
-                            auth()->user()->agence_id
-                        );
-
-                    }
-                );
-
-            }
-        )
-
-
-        ->latest()
-
-        ->get();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Agences
-        |--------------------------------------------------------------------------
-        */
-
-        if ($this->estChefAgence()) {
+        if ($user->role === 'chef_agence') {
 
             $agences = Agence::where(
                 'id',
-                auth()->user()->agence_id
+                $user->agence_id
             )
-            ->where('active', true)
-            ->orderBy('nom')
-            ->get();
-
+                ->where('active', true)
+                ->orderBy('nom')
+                ->get();
         } else {
 
             $agences = Agence::where(
                 'active',
                 true
             )
-            ->orderBy('nom')
-            ->get();
-
+                ->orderBy('nom')
+                ->get();
         }
 
 
         /*
         |--------------------------------------------------------------------------
-        | Bus
+        | BUS
         |--------------------------------------------------------------------------
-        |
-        | Conservé pour les relations.
-        | Le formulaire incident récupérera automatiquement
-        | le bus du voyage.
-        |
         */
 
-        $buses = Bus::orderBy(
-            'numero'
-        )->get();
+        $buses = Bus::orderBy('numero')->get();
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | PAGE
+        |--------------------------------------------------------------------------
+        */
 
         return view(
             'incidents.index',
@@ -428,52 +380,78 @@ class IncidentController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | INFORMATIONS D'UN VOYAGE
+    | INFORMATIONS DU VOYAGE
     |--------------------------------------------------------------------------
     */
 
-    public function voyageInformations(
-        Voyage $voyage
-    ) {
+    public function voyageInformations(Voyage $voyage)
+    {
+        /*
+        |--------------------------------------------------------------------------
+        | UTILISATEUR
+        |--------------------------------------------------------------------------
+        */
+
+        $user = Auth::user();
+
+        if (!$user) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Vous devez être connecté.',
+            ], 401);
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | AUTORISATION
+        |--------------------------------------------------------------------------
+        */
 
         if (!$this->peutAcceder()) {
 
             return response()->json([
                 'success' => false,
-                'message' =>
-                    'Vous n\'êtes pas autorisé à consulter ce voyage.',
+                'message' => 'Accès non autorisé.',
             ], 403);
         }
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | CHARGEMENT COMPLET DU VOYAGE
+        |--------------------------------------------------------------------------
+        */
+
         $voyage->load([
             'ligne',
             'bus',
+            'equipe.chauffeurTitulaire',
+            'equipe.chauffeurSecondaire',
             'voyageAgences.agence',
         ]);
 
 
         /*
         |--------------------------------------------------------------------------
-        | Chef agence
+        | VÉRIFICATION CHEF AGENCE
         |--------------------------------------------------------------------------
         */
 
-        if ($this->estChefAgence()) {
+        if ($user->role === 'chef_agence') {
 
-            $autorise =
-                $voyage->voyageAgences
-                    ->contains(
-                        'agence_id',
-                        auth()->user()->agence_id
-                    );
+            $autorise = $voyage->voyageAgences->contains(
+                'agence_id',
+                $user->agence_id
+            );
 
             if (!$autorise) {
 
                 return response()->json([
                     'success' => false,
                     'message' =>
-                        'Ce voyage ne concerne pas votre agence.',
+                    'Ce voyage ne concerne pas votre agence.',
                 ], 403);
             }
         }
@@ -481,43 +459,101 @@ class IncidentController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Agences du voyage
+        | AGENCES DU VOYAGE
         |--------------------------------------------------------------------------
         */
 
-        $agences =
-            $voyage->voyageAgences
-                ->sortBy(function ($etape) {
+        $agences = $voyage->voyageAgences
+            ->sortBy(function ($voyageAgence) {
 
-                    return $etape->ordre ?? 0;
+                return $voyageAgence->ordre ?? 0;
+            })
+            ->map(function ($voyageAgence) {
 
-                })
-                ->map(function ($etape) {
+                return [
 
-                    return [
-                        'id' =>
-                            $etape->agence_id,
+                    'id' =>
+                    $voyageAgence->agence_id,
 
-                        'nom' =>
-                            $etape->agence
-                                ? $etape->agence->nom
-                                : 'Agence',
+                    'nom' =>
+                    $voyageAgence->agence
+                        ? $voyageAgence->agence->nom
+                        : 'Agence',
 
-                        'type' =>
-                            $etape->type ?? null,
+                    'type' =>
+                    $voyageAgence->type,
 
-                        'ordre' =>
-                            $etape->ordre ?? null,
-                    ];
+                    'ordre' =>
+                    $voyageAgence->ordre,
 
-                })
-                ->values()
-                ->toArray();
+                ];
+            })
+            ->values()
+            ->toArray();
 
 
         /*
         |--------------------------------------------------------------------------
-        | Réponse
+        | ÉQUIPE
+        |--------------------------------------------------------------------------
+        */
+
+        $equipe = null;
+
+        if ($voyage->equipe) {
+
+            $equipe = [
+
+                'id' =>
+                $voyage->equipe->id,
+
+                'code' =>
+                $voyage->equipe->code,
+
+                'nom' =>
+                $voyage->equipe->nom,
+
+                'chauffeur_titulaire' =>
+                $voyage->equipe->chauffeurTitulaire
+                    ? $voyage->equipe->chauffeurTitulaire->nom
+                    : null,
+
+                'chauffeur_secondaire' =>
+                $voyage->equipe->chauffeurSecondaire
+                    ? $voyage->equipe->chauffeurSecondaire->nom
+                    : null,
+            ];
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | BUS
+        |--------------------------------------------------------------------------
+        */
+
+        $bus = null;
+
+        if ($voyage->bus) {
+
+            $bus = [
+
+                'id' =>
+                $voyage->bus->id,
+
+                'numero' =>
+                $voyage->bus->numero,
+
+                'immatriculation' =>
+                $voyage->bus->immatriculation,
+
+            ];
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | RÉPONSE JSON
         |--------------------------------------------------------------------------
         */
 
@@ -528,33 +564,26 @@ class IncidentController extends Controller
             'voyage' => [
 
                 'id' =>
-                    $voyage->id,
+                $voyage->id,
 
                 'code' =>
-                    $voyage->code,
+                $voyage->code,
 
                 'ligne' =>
-                    $voyage->ligne
-                        ? $voyage->ligne->nom
-                        : null,
+                $voyage->ligne
+                    ? $voyage->ligne->nom
+                    : null,
 
                 'bus' =>
-                    $voyage->bus
-                        ? [
-                            'id' =>
-                                $voyage->bus->id,
+                $bus,
 
-                            'numero' =>
-                                $voyage->bus->numero,
-
-                            'immatriculation' =>
-                                $voyage->bus->immatriculation,
-                        ]
-                        : null,
+                'equipe' =>
+                $equipe,
 
                 'agences' =>
-                    $agences,
+                $agences,
             ],
+
         ]);
     }
 
@@ -567,6 +596,31 @@ class IncidentController extends Controller
 
     public function store(Request $request)
     {
+        /*
+        |--------------------------------------------------------------------------
+        | UTILISATEUR
+        |--------------------------------------------------------------------------
+        */
+
+        $user = Auth::user();
+
+        if (!$user) {
+
+            return redirect()
+                ->route('login')
+                ->with(
+                    'error',
+                    'Vous devez être connecté.'
+                );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | AUTORISATION
+        |--------------------------------------------------------------------------
+        */
+
         if (!$this->peutAcceder()) {
 
             return redirect()
@@ -577,6 +631,12 @@ class IncidentController extends Controller
                 );
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDATION
+        |--------------------------------------------------------------------------
+        */
 
         $validated = $request->validate([
 
@@ -637,13 +697,12 @@ class IncidentController extends Controller
                 'nullable',
                 'string',
             ],
-
         ]);
 
 
         /*
         |--------------------------------------------------------------------------
-        | Charger le voyage
+        | VOYAGE
         |--------------------------------------------------------------------------
         */
 
@@ -657,8 +716,7 @@ class IncidentController extends Controller
 
         if (!$voyage) {
 
-            return redirect()
-                ->back()
+            return back()
                 ->withInput()
                 ->with(
                     'error',
@@ -669,44 +727,43 @@ class IncidentController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Vérifier l'agence
+        | VÉRIFICATION AGENCE
         |--------------------------------------------------------------------------
         */
 
         $agenceAutorisee =
-            $voyage->voyageAgences
-                ->contains(
-                    'agence_id',
-                    $validated['agence_id']
-                );
+            $voyage->voyageAgences->contains(
+                'agence_id',
+                $validated['agence_id']
+            );
 
 
         if (!$agenceAutorisee) {
 
-            return redirect()
-                ->back()
+            return back()
                 ->withInput()
                 ->with(
                     'error',
-                    'L\'agence sélectionnée ne fait pas partie du parcours de ce voyage.'
+                    'Cette agence ne fait pas partie du parcours du voyage.'
                 );
         }
 
 
         /*
         |--------------------------------------------------------------------------
-        | Chef agence
+        | CHEF D'AGENCE
         |--------------------------------------------------------------------------
         */
 
         if (
-            $this->estChefAgence()
-            && (int) $validated['agence_id']
-                !== (int) auth()->user()->agence_id
+            $user->role === 'chef_agence'
+            &&
+            (int) $validated['agence_id']
+            !==
+            (int) $user->agence_id
         ) {
 
-            return redirect()
-                ->back()
+            return back()
                 ->withInput()
                 ->with(
                     'error',
@@ -717,30 +774,34 @@ class IncidentController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Bus récupéré automatiquement depuis le voyage
+        | BUS DU VOYAGE
         |--------------------------------------------------------------------------
         */
 
-        $busId =
-            $voyage->bus_id;
+        $busId = $voyage->bus_id;
 
 
         try {
 
             DB::transaction(function () use (
                 $validated,
-                $busId
+                $busId,
+                $user
             ) {
+
+                /*
+                |--------------------------------------------------------------------------
+                | RÉFÉRENCE
+                |--------------------------------------------------------------------------
+                */
 
                 $dernierIncident =
                     Incident::latest('id')->first();
 
-
                 $numero =
                     $dernierIncident
-                        ? $dernierIncident->id + 1
-                        : 1;
-
+                    ? $dernierIncident->id + 1
+                    : 1;
 
                 $reference =
                     'INC-' .
@@ -752,55 +813,59 @@ class IncidentController extends Controller
                     );
 
 
+                /*
+                |--------------------------------------------------------------------------
+                | CRÉATION
+                |--------------------------------------------------------------------------
+                */
+
                 Incident::create([
 
                     'reference' =>
-                        $reference,
+                    $reference,
 
                     'voyage_id' =>
-                        $validated['voyage_id'],
+                    $validated['voyage_id'],
 
                     'bus_id' =>
-                        $busId,
+                    $busId,
 
                     'agence_id' =>
-                        $validated['agence_id'],
+                    $validated['agence_id'],
 
                     'user_id' =>
-                        auth()->id(),
+                    $user->id,
 
                     'type' =>
-                        $validated['type'],
+                    $validated['type'],
 
                     'titre' =>
-                        $validated['titre'],
+                    $validated['titre'],
 
                     'description' =>
-                        $validated['description'],
+                    $validated['description'],
 
                     'date_incident' =>
-                        $validated['date_incident'],
+                    $validated['date_incident'],
 
                     'heure_incident' =>
-                        $validated['heure_incident'],
+                    $validated['heure_incident'],
 
                     'gravite' =>
-                        $validated['gravite'],
+                    $validated['gravite'],
 
                     'statut' =>
-                        'ouvert',
+                    'ouvert',
 
                     'resolution' =>
-                        null,
+                    null,
 
                     'date_resolution' =>
-                        null,
+                    null,
 
                     'observation' =>
-                        $validated['observation'] ?? null,
-
+                    $validated['observation'] ?? null,
                 ]);
-
             });
 
 
@@ -808,13 +873,11 @@ class IncidentController extends Controller
                 ->route('incidents.index')
                 ->with(
                     'success',
-                    'L\'incident a été enregistré avec succès.'
+                    'Incident enregistré avec succès.'
                 );
-
         } catch (\Throwable $e) {
 
-            return redirect()
-                ->back()
+            return back()
                 ->withInput()
                 ->with(
                     'error',
@@ -832,31 +895,57 @@ class IncidentController extends Controller
 
     public function show(Incident $incident)
     {
+        /*
+        |--------------------------------------------------------------------------
+        | UTILISATEUR
+        |--------------------------------------------------------------------------
+        */
+
+        $user = Auth::user();
+
+        if (!$user) {
+
+            return redirect()
+                ->route('login')
+                ->with(
+                    'error',
+                    'Vous devez être connecté.'
+                );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | AUTORISATION
+        |--------------------------------------------------------------------------
+        */
+
         if (!$this->peutAcceder()) {
 
             return redirect()
                 ->route('dashboard')
                 ->with(
                     'error',
-                    'Vous n\'êtes pas autorisé à consulter les incidents.'
+                    'Vous n\'êtes pas autorisé à consulter cet incident.'
                 );
         }
 
 
         /*
         |--------------------------------------------------------------------------
-        | Chef agence
+        | CHEF D'AGENCE
         |--------------------------------------------------------------------------
         */
 
         if (
-            $this->estChefAgence()
-            && (int) $incident->agence_id
-                !== (int) auth()->user()->agence_id
+            $user->role === 'chef_agence'
+            &&
+            (int) $incident->agence_id
+            !==
+            (int) $user->agence_id
         ) {
 
-            return redirect()
-                ->route('incidents.index')
+            return back()
                 ->with(
                     'error',
                     'Vous n\'êtes pas autorisé à consulter cet incident.'
@@ -866,28 +955,37 @@ class IncidentController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Chauffeur
+        | CHAUFFEUR
         |--------------------------------------------------------------------------
         */
 
         if (
-            $this->estChauffeur()
-            && (int) $incident->user_id
-                !== (int) auth()->id()
+            $user->role === 'chauffeur'
+            &&
+            (int) $incident->user_id
+            !==
+            (int) $user->id
         ) {
 
-            return redirect()
-                ->route('incidents.index')
+            return back()
                 ->with(
                     'error',
                     'Vous n\'êtes pas autorisé à consulter cet incident.'
                 );
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | CHARGEMENT
+        |--------------------------------------------------------------------------
+        */
 
         $incident->load([
             'voyage.ligne',
             'voyage.bus',
+            'voyage.equipe.chauffeurTitulaire',
+            'voyage.equipe.chauffeurSecondaire',
             'bus',
             'agence',
             'user',
@@ -907,25 +1005,142 @@ class IncidentController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function update(
-        Request $request,
-        Incident $incident
-    ) {
+    public function update(Request $request, Incident $incident)
+    {
+        /*
+        |--------------------------------------------------------------------------
+        | UTILISATEUR CONNECTÉ
+        |--------------------------------------------------------------------------
+        */
 
-        if (
-            !$this->estAdmin()
-            && !$this->estDirecteur()
-            && !$this->estChefParc()
-        ) {
+        $user = Auth::user();
+
+        if (!$user) {
 
             return redirect()
-                ->back()
+                ->route('login')
                 ->with(
                     'error',
-                    'Vous n\'êtes pas autorisé à modifier un incident.'
+                    'Vous devez être connecté.'
                 );
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | VÉRIFICATION DES DROITS
+        |--------------------------------------------------------------------------
+        |
+        | ADMIN :
+        | Peut toujours modifier.
+        |
+        | DIRECTEUR EXPLOITATION :
+        | Peut toujours modifier.
+        |
+        | CHEF D'AGENCE :
+        | Peut modifier les incidents de son agence
+        | tant qu'ils ne sont pas résolus.
+        |
+        | CRÉATEUR :
+        | Peut modifier son propre incident
+        | tant qu'il n'est pas résolu.
+        |
+        | AUTRES :
+        | Ne peuvent pas modifier.
+        |
+        */
+
+        $canEdit = false;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | ADMIN
+        |--------------------------------------------------------------------------
+        */
+
+        if ($user->role === 'admin') {
+
+            $canEdit = true;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | DIRECTEUR EXPLOITATION
+        |--------------------------------------------------------------------------
+        */ elseif ($user->role === 'directeur_exploitation') {
+
+            $canEdit = true;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | INCIDENT NON RÉSOLU
+        |--------------------------------------------------------------------------
+        */ elseif ($incident->statut !== 'resolu') {
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | CHEF D'AGENCE
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                $user->role === 'chef_agence'
+                &&
+                $incident->agence_id !== null
+                &&
+                $user->agence_id !== null
+                &&
+                (int) $incident->agence_id ===
+                (int) $user->agence_id
+            ) {
+
+                $canEdit = true;
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | CRÉATEUR DE L'INCIDENT
+            |--------------------------------------------------------------------------
+            */ elseif (
+                $incident->user_id !== null
+                &&
+                (int) $incident->user_id ===
+                (int) $user->id
+            ) {
+
+                $canEdit = true;
+            }
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | REFUS
+        |--------------------------------------------------------------------------
+        */
+
+        if (!$canEdit) {
+
+            return redirect()
+                ->route('incidents.index')
+                ->with(
+                    'error',
+                    'Vous n\'êtes pas autorisé à modifier cet incident.'
+                );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDATION
+        |--------------------------------------------------------------------------
+        */
 
         $validated = $request->validate([
 
@@ -994,69 +1209,117 @@ class IncidentController extends Controller
         ]);
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | DATE DE RÉSOLUTION
+        |--------------------------------------------------------------------------
+        */
+
+        if ($validated['statut'] === 'resolu') {
+
+            $dateResolution =
+                $incident->date_resolution ?? now();
+        } else {
+
+            $dateResolution = null;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | MISE À JOUR
+        |--------------------------------------------------------------------------
+        */
+
         $incident->update([
 
             'type' =>
-                $validated['type'],
+            $validated['type'],
 
             'titre' =>
-                $validated['titre'],
+            $validated['titre'],
 
             'description' =>
-                $validated['description'],
+            $validated['description'],
 
             'date_incident' =>
-                $validated['date_incident'],
+            $validated['date_incident'],
 
             'heure_incident' =>
-                $validated['heure_incident'],
+            $validated['heure_incident'],
 
             'gravite' =>
-                $validated['gravite'],
+            $validated['gravite'],
 
             'statut' =>
-                $validated['statut'],
+            $validated['statut'],
 
             'resolution' =>
-                $validated['resolution'] ?? null,
+            $validated['resolution'] ?? null,
 
             'date_resolution' =>
-                $validated['statut'] === 'resolu'
-                    ? now()
-                    : null,
+            $dateResolution,
 
             'observation' =>
-                $validated['observation'] ?? null,
-
+            $validated['observation'] ?? null,
         ]);
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | SUCCÈS
+        |--------------------------------------------------------------------------
+        */
 
         return redirect()
             ->route('incidents.index')
             ->with(
                 'success',
-                'L\'incident a été modifié avec succès.'
+                'Incident modifié avec succès.'
             );
     }
 
 
     /*
     |--------------------------------------------------------------------------
-    | DESTROY
+    | DELETE
     |--------------------------------------------------------------------------
     */
 
-    public function destroy(
-        Incident $incident
-    ) {
+    public function destroy(Incident $incident)
+    {
+        /*
+        |--------------------------------------------------------------------------
+        | UTILISATEUR
+        |--------------------------------------------------------------------------
+        */
 
-        if (
-            !$this->estAdmin()
-            && !$this->estDirecteur()
-        ) {
+        $user = Auth::user();
+
+        if (!$user) {
 
             return redirect()
-                ->back()
+                ->route('login')
+                ->with(
+                    'error',
+                    'Vous devez être connecté.'
+                );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | AUTORISATION
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            $user->role !== 'admin'
+            &&
+            $user->role !== 'directeur_exploitation'
+        ) {
+
+            return back()
                 ->with(
                     'error',
                     'Vous n\'êtes pas autorisé à supprimer un incident.'
@@ -1064,14 +1327,26 @@ class IncidentController extends Controller
         }
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | SUPPRESSION
+        |--------------------------------------------------------------------------
+        */
+
         $incident->delete();
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | SUCCÈS
+        |--------------------------------------------------------------------------
+        */
 
         return redirect()
             ->route('incidents.index')
             ->with(
                 'success',
-                'L\'incident a été supprimé avec succès.'
+                'Incident supprimé avec succès.'
             );
     }
 }

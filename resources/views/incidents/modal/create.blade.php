@@ -1,5 +1,7 @@
 <div class="modal fade"
      id="modalCreateIncident"
+     data-backdrop="static"
+     data-keyboard="false"
      tabindex="-1"
      role="dialog"
      aria-labelledby="modalCreateIncidentLabel"
@@ -8,45 +10,61 @@
     <div class="modal-dialog modal-lg modal-dialog-centered"
          role="document">
 
-        <div class="modal-content">
-
-            {{-- =====================================================
-                 HEADER
-            ====================================================== --}}
-
-            <div class="modal-header">
-
-                <h5 class="modal-title"
-                    id="modalCreateIncidentLabel">
-
-                    <i class="fas fa-exclamation-triangle mr-2"></i>
-
-                    Déclarer un incident
-
-                </h5>
-
-                <button type="button"
-                        class="close"
-                        data-dismiss="modal"
-                        aria-label="Fermer">
-
-                    <span aria-hidden="true">&times;</span>
-
-                </button>
-
-            </div>
-
-
-            {{-- =====================================================
-                 FORMULAIRE
-            ====================================================== --}}
+        <div class="modal-content shadow-lg border-0">
 
             <form action="{{ route('incidents.store') }}"
-                  method="POST">
+                  method="POST"
+                  autocomplete="off">
 
                 @csrf
 
-                <div class="modal-body">
+
+                {{-- =====================================================
+                     HEADER
+                ====================================================== --}}
+
+                <div class="modal-header ocn-modal-header">
+
+                    <div>
+
+                        <h5 class="modal-title text-white"
+                            id="modalCreateIncidentLabel">
+
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+
+                            Déclarer un incident
+
+                        </h5>
+
+                        <small class="text-white">
+
+                            Enregistrer un incident survenu pendant un voyage
+
+                        </small>
+
+                    </div>
+
+
+                    <button type="button"
+                            class="close text-white"
+                            data-dismiss="modal"
+                            aria-label="Fermer">
+
+                        <span aria-hidden="true">
+                            &times;
+                        </span>
+
+                    </button>
+
+                </div>
+
+
+                {{-- =====================================================
+                     BODY
+                ====================================================== --}}
+
+                <div class="modal-body p-4">
+
 
                     {{-- =================================================
                          VOYAGE
@@ -62,62 +80,90 @@
 
                         </label>
 
-                        <select name="voyage_id"
-                                id="incident_voyage_id"
-                                class="form-control"
-                                required>
 
-                            <option value="">
+                        <div class="input-group">
 
-                                Sélectionner un voyage
+                            <div class="input-group-prepend">
 
-                            </option>
+                                <span class="input-group-text ocn-light">
 
-                            @forelse($voyages as $voyage)
+                                    <i class="fas fa-route ocn-green"></i>
 
-                                <option value="{{ $voyage->id }}">
+                                </span>
 
-                                    {{ $voyage->code }}
+                            </div>
 
-                                    @if($voyage->ligne)
 
-                                        —
-                                        {{ $voyage->ligne->nom }}
+                            <select name="voyage_id"
+                                    id="incident_voyage_id"
+                                    class="form-control"
+                                    required>
 
-                                    @endif
+                                <option value="">
 
-                                </option>
-
-                            @empty
-
-                                <option value=""
-                                        disabled>
-
-                                    Aucun voyage disponible
+                                    Sélectionner un voyage
 
                                 </option>
 
-                            @endforelse
 
-                        </select>
+                                @forelse($voyages as $voyage)
+
+                                    <option value="{{ $voyage->id }}">
+
+                                        {{ $voyage->code }}
+
+                                        @if($voyage->ligne)
+
+                                            —
+                                            {{ $voyage->ligne->nom }}
+
+                                        @endif
+
+                                    </option>
+
+                                @empty
+
+                                    <option value=""
+                                            disabled>
+
+                                        Aucun voyage disponible
+
+                                    </option>
+
+                                @endforelse
+
+                            </select>
+
+                        </div>
+
+
+                        <small class="text-muted">
+
+                            Sélectionnez le voyage concerné par l'incident.
+
+                        </small>
 
                     </div>
 
 
+
                     {{-- =================================================
-                         INFORMATIONS AUTOMATIQUES DU VOYAGE
+                         INFORMATIONS DU VOYAGE
                     ================================================== --}}
 
                     <div id="incidentVoyageInfo"
-                         class="d-none mb-3">
+                         class="d-none mb-4">
 
-                        <div class="card border">
+                        <div class="card border shadow-sm mb-0">
 
-                            <div class="card-header bg-light">
+
+                            {{-- HEADER --}}
+
+                            <div class="card-header ocn-light">
 
                                 <strong>
 
-                                    <i class="fas fa-route mr-1"></i>
+                                    <i class="fas fa-info-circle ocn-green mr-1"></i>
 
                                     Informations du voyage
 
@@ -126,11 +172,14 @@
                             </div>
 
 
+                            {{-- BODY --}}
+
                             <div class="card-body">
 
                                 <div class="row">
 
-                                    {{-- VOYAGE --}}
+
+                                    {{-- CODE VOYAGE --}}
 
                                     <div class="col-md-4 mb-3">
 
@@ -142,7 +191,7 @@
 
                                         <strong id="incidentInfoCode">
 
-                                            -
+                                            —
 
                                         </strong>
 
@@ -161,7 +210,7 @@
 
                                         <strong id="incidentInfoLigne">
 
-                                            -
+                                            —
 
                                         </strong>
 
@@ -174,24 +223,28 @@
 
                                         <small class="text-muted d-block">
 
+                                            <i class="fas fa-bus ocn-green mr-1"></i>
+
                                             Bus
 
                                         </small>
 
                                         <strong id="incidentInfoBus">
 
-                                            -
+                                            —
 
                                         </strong>
 
                                     </div>
 
 
-                                    {{-- EQUIPE --}}
+                                    {{-- ÉQUIPE --}}
 
                                     <div class="col-md-6 mb-3">
 
                                         <small class="text-muted d-block">
+
+                                            <i class="fas fa-users ocn-green mr-1"></i>
 
                                             Équipe
 
@@ -199,18 +252,20 @@
 
                                         <strong id="incidentInfoEquipe">
 
-                                            -
+                                            —
 
                                         </strong>
 
                                     </div>
 
 
-                                    {{-- CHAUFFEUR 1 --}}
+                                    {{-- CHAUFFEUR TITULAIRE --}}
 
-                                    <div class="col-md-6 mb-3">
+                                    <div class="col-md-6">
 
                                         <small class="text-muted d-block">
+
+                                            <i class="fas fa-user ocn-green mr-1"></i>
 
                                             Chauffeur titulaire
 
@@ -218,18 +273,20 @@
 
                                         <span id="incidentInfoChauffeur1">
 
-                                            -
+                                            —
 
                                         </span>
 
                                     </div>
 
 
-                                    {{-- CHAUFFEUR 2 --}}
+                                    {{-- CHAUFFEUR SECONDAIRE --}}
 
-                                    <div class="col-md-6 mb-3">
+                                    <div class="col-md-6">
 
                                         <small class="text-muted d-block">
+
+                                            <i class="fas fa-user ocn-green mr-1"></i>
 
                                             Chauffeur secondaire
 
@@ -237,7 +294,7 @@
 
                                         <span id="incidentInfoChauffeur2">
 
-                                            -
+                                            —
 
                                         </span>
 
@@ -250,6 +307,7 @@
                         </div>
 
                     </div>
+
 
 
                     {{-- =================================================
@@ -266,35 +324,54 @@
 
                         </label>
 
-                        <select name="agence_id"
-                                id="incident_agence_id"
-                                class="form-control"
-                                required
-                                disabled>
 
-                            <option value="">
+                        <div class="input-group">
 
-                                Sélectionnez d'abord un voyage
+                            <div class="input-group-prepend">
 
-                            </option>
+                                <span class="input-group-text ocn-light">
 
-                        </select>
+                                    <i class="fas fa-building ocn-green"></i>
 
-                        <small class="form-text text-muted">
+                                </span>
 
-                            Les agences proposées correspondent
-                            uniquement au parcours du voyage.
+                            </div>
+
+
+                            <select name="agence_id"
+                                    id="incident_agence_id"
+                                    class="form-control"
+                                    required
+                                    disabled>
+
+                                <option value="">
+
+                                    Sélectionnez d'abord un voyage
+
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <small class="text-muted">
+
+                            Les agences proposées correspondent au parcours
+                            du voyage.
 
                         </small>
 
                     </div>
 
 
+
                     {{-- =================================================
-                         TYPE + GRAVITE
+                         TYPE + GRAVITÉ
                     ================================================== --}}
 
                     <div class="row">
+
 
                         {{-- TYPE --}}
 
@@ -310,61 +387,65 @@
 
                                 </label>
 
-                                <select name="type"
-                                        id="incident_type"
-                                        class="form-control"
-                                        required>
 
-                                    <option value="">
+                                <div class="input-group">
 
-                                        Sélectionner le type
+                                    <div class="input-group-prepend">
 
-                                    </option>
+                                        <span class="input-group-text ocn-light">
 
-                                    <option value="panne">
+                                            <i class="fas fa-exclamation-circle ocn-green"></i>
 
-                                        Panne
+                                        </span>
 
-                                    </option>
+                                    </div>
 
-                                    <option value="accident">
 
-                                        Accident
+                                    <select name="type"
+                                            id="incident_type"
+                                            class="form-control"
+                                            required>
 
-                                    </option>
+                                        <option value="">
 
-                                    <option value="retard">
+                                            Sélectionner le type
 
-                                        Retard
+                                        </option>
 
-                                    </option>
+                                        <option value="panne">
+                                            Panne
+                                        </option>
 
-                                    <option value="probleme_chauffeur">
+                                        <option value="accident">
+                                            Accident
+                                        </option>
 
-                                        Problème chauffeur
+                                        <option value="retard">
+                                            Retard
+                                        </option>
 
-                                    </option>
+                                        <option value="probleme_chauffeur">
+                                            Problème chauffeur
+                                        </option>
 
-                                    <option value="probleme_technique">
+                                        <option value="probleme_technique">
+                                            Problème technique
+                                        </option>
 
-                                        Problème technique
+                                        <option value="autre">
+                                            Autre
+                                        </option>
 
-                                    </option>
+                                    </select>
 
-                                    <option value="autre">
-
-                                        Autre
-
-                                    </option>
-
-                                </select>
+                                </div>
 
                             </div>
 
                         </div>
 
 
-                        {{-- GRAVITE --}}
+                        {{-- GRAVITÉ --}}
 
                         <div class="col-md-6">
 
@@ -378,48 +459,57 @@
 
                                 </label>
 
-                                <select name="gravite"
-                                        id="incident_gravite"
-                                        class="form-control"
-                                        required>
 
-                                    <option value="">
+                                <div class="input-group">
 
-                                        Sélectionner la gravité
+                                    <div class="input-group-prepend">
 
-                                    </option>
+                                        <span class="input-group-text ocn-light">
 
-                                    <option value="faible">
+                                            <i class="fas fa-signal ocn-green"></i>
 
-                                        Faible
+                                        </span>
 
-                                    </option>
+                                    </div>
 
-                                    <option value="moyenne">
 
-                                        Moyenne
+                                    <select name="gravite"
+                                            id="incident_gravite"
+                                            class="form-control"
+                                            required>
 
-                                    </option>
+                                        <option value="">
 
-                                    <option value="grave">
+                                            Sélectionner la gravité
 
-                                        Grave
+                                        </option>
 
-                                    </option>
+                                        <option value="faible">
+                                            Faible
+                                        </option>
 
-                                    <option value="critique">
+                                        <option value="moyenne">
+                                            Moyenne
+                                        </option>
 
-                                        Critique
+                                        <option value="grave">
+                                            Grave
+                                        </option>
 
-                                    </option>
+                                        <option value="critique">
+                                            Critique
+                                        </option>
 
-                                </select>
+                                    </select>
+
+                                </div>
 
                             </div>
 
                         </div>
 
                     </div>
+
 
 
                     {{-- =================================================
@@ -430,21 +520,39 @@
 
                         <label for="incident_titre">
 
-                            Titre
+                            Titre de l'incident
 
                             <span class="text-danger">*</span>
 
                         </label>
 
-                        <input type="text"
-                               name="titre"
-                               id="incident_titre"
-                               class="form-control"
-                               maxlength="255"
-                               placeholder="Exemple : Panne moteur"
-                               required>
+
+                        <div class="input-group">
+
+                            <div class="input-group-prepend">
+
+                                <span class="input-group-text ocn-light">
+
+                                    <i class="fas fa-heading ocn-green"></i>
+
+                                </span>
+
+                            </div>
+
+
+                            <input type="text"
+                                   name="titre"
+                                   id="incident_titre"
+                                   class="form-control"
+                                   maxlength="255"
+                                   placeholder="Ex : Panne moteur du bus"
+                                   value="{{ old('titre') }}"
+                                   required>
+
+                        </div>
 
                     </div>
+
 
 
                     {{-- =================================================
@@ -452,6 +560,7 @@
                     ================================================== --}}
 
                     <div class="row">
+
 
                         <div class="col-md-6">
 
@@ -465,12 +574,28 @@
 
                                 </label>
 
-                                <input type="date"
-                                       name="date_incident"
-                                       id="incident_date"
-                                       class="form-control"
-                                       value="{{ now()->format('Y-m-d') }}"
-                                       required>
+
+                                <div class="input-group">
+
+                                    <div class="input-group-prepend">
+
+                                        <span class="input-group-text ocn-light">
+
+                                            <i class="fas fa-calendar-alt ocn-green"></i>
+
+                                        </span>
+
+                                    </div>
+
+
+                                    <input type="date"
+                                           name="date_incident"
+                                           id="incident_date"
+                                           class="form-control"
+                                           value="{{ old('date_incident', now()->format('Y-m-d')) }}"
+                                           required>
+
+                                </div>
 
                             </div>
 
@@ -489,18 +614,35 @@
 
                                 </label>
 
-                                <input type="time"
-                                       name="heure_incident"
-                                       id="incident_heure"
-                                       class="form-control"
-                                       value="{{ now()->format('H:i') }}"
-                                       required>
+
+                                <div class="input-group">
+
+                                    <div class="input-group-prepend">
+
+                                        <span class="input-group-text ocn-light">
+
+                                            <i class="fas fa-clock ocn-green"></i>
+
+                                        </span>
+
+                                    </div>
+
+
+                                    <input type="time"
+                                           name="heure_incident"
+                                           id="incident_heure"
+                                           class="form-control"
+                                           value="{{ old('heure_incident', now()->format('H:i')) }}"
+                                           required>
+
+                                </div>
 
                             </div>
 
                         </div>
 
                     </div>
+
 
 
                     {{-- =================================================
@@ -517,14 +659,16 @@
 
                         </label>
 
+
                         <textarea name="description"
                                   id="incident_description"
                                   class="form-control"
                                   rows="4"
                                   placeholder="Décrivez précisément ce qui s'est passé..."
-                                  required></textarea>
+                                  required>{{ old('description') }}</textarea>
 
                     </div>
+
 
 
                     {{-- =================================================
@@ -539,17 +683,19 @@
 
                         </label>
 
+
                         <textarea name="observation"
                                   id="incident_observation"
                                   class="form-control"
                                   rows="3"
-                                  placeholder="Informations complémentaires..."></textarea>
+                                  placeholder="Informations complémentaires...">{{ old('observation') }}</textarea>
 
                     </div>
 
 
+
                     {{-- =================================================
-                         DECLARE PAR
+                         DÉCLARANT
                     ================================================== --}}
 
                     <div class="form-group">
@@ -560,21 +706,60 @@
 
                         </label>
 
-                        <input type="text"
-                               class="form-control"
-                               value="{{ auth()->user()->name }}"
-                               readonly>
+
+                        <div class="input-group">
+
+                            <div class="input-group-prepend">
+
+                                <span class="input-group-text ocn-light">
+
+                                    <i class="fas fa-user ocn-green"></i>
+
+                                </span>
+
+                            </div>
+
+
+                            <input type="text"
+                                   class="form-control"
+                                   value="{{ auth()->user()->name }}"
+                                   readonly>
+
+                        </div>
 
                     </div>
 
+
+
+                    {{-- NOTE --}}
+
+                    <div class="alert alert-light border mb-0">
+
+                        <i class="fas fa-info-circle ocn-green mr-2"></i>
+
+                        Le bus, l'équipe et les chauffeurs sont récupérés
+                        automatiquement à partir du voyage sélectionné.
+
+                    </div>
+
+
+                    <small class="text-muted d-block mt-3">
+
+                        <span class="text-danger">*</span>
+
+                        Champs obligatoires.
+
+                    </small>
+
                 </div>
+
 
 
                 {{-- =====================================================
                      FOOTER
                 ====================================================== --}}
 
-                <div class="modal-footer">
+                <div class="modal-footer ocn-modal-footer">
 
                     <button type="button"
                             class="btn btn-secondary"
@@ -605,3 +790,413 @@
     </div>
 
 </div>
+
+
+
+{{-- =============================================================
+     JAVASCRIPT
+============================================================= --}}
+
+@push('scripts')
+
+<script>
+
+$(document).ready(function () {
+
+    $('#incident_voyage_id').on('change', function () {
+
+        const voyageId = $(this).val();
+
+        const info = $('#incidentVoyageInfo');
+
+        const agence = $('#incident_agence_id');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | RESET
+        |--------------------------------------------------------------------------
+        */
+
+        info.addClass('d-none');
+
+        $('#incidentInfoCode').text('—');
+        $('#incidentInfoLigne').text('—');
+        $('#incidentInfoBus').text('—');
+        $('#incidentInfoEquipe').text('—');
+        $('#incidentInfoChauffeur1').text('—');
+        $('#incidentInfoChauffeur2').text('—');
+
+
+        agence
+            .prop('disabled', true)
+            .empty()
+            .append(
+                '<option value="">Sélectionnez d\'abord un voyage</option>'
+            );
+
+
+        if (!voyageId) {
+            return;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CHARGEMENT
+        |--------------------------------------------------------------------------
+        */
+
+        agence
+            .empty()
+            .append(
+                '<option value="">Chargement...</option>'
+            );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | URL DE LA ROUTE
+        |--------------------------------------------------------------------------
+        */
+
+        let url =
+            "{{ route('incidents.voyage.informations', ':voyage') }}";
+
+        url = url.replace(
+            ':voyage',
+            voyageId
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | AJAX
+        |--------------------------------------------------------------------------
+        */
+
+        $.ajax({
+
+            url: url,
+
+            type: 'GET',
+
+            dataType: 'json',
+
+            success: function (response) {
+
+                console.log(
+                    'Informations voyage :',
+                    response
+                );
+
+
+                if (
+                    !response.success
+                    ||
+                    !response.voyage
+                ) {
+
+                    alert(
+                        response.message
+                        ||
+                        'Impossible de récupérer les informations du voyage.'
+                    );
+
+                    return;
+                }
+
+
+                const voyage =
+                    response.voyage;
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | VOYAGE
+                |--------------------------------------------------------------------------
+                */
+
+                $('#incidentInfoCode')
+                    .text(
+                        voyage.code
+                        ||
+                        '—'
+                    );
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | LIGNE
+                |--------------------------------------------------------------------------
+                */
+
+                $('#incidentInfoLigne')
+                    .text(
+                        voyage.ligne
+                        ||
+                        'Aucune ligne'
+                    );
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | BUS
+                |--------------------------------------------------------------------------
+                */
+
+                if (voyage.bus) {
+
+                    let bus = '';
+
+
+                    if (voyage.bus.numero) {
+
+                        bus =
+                            voyage.bus.numero;
+
+                    }
+
+
+                    if (
+                        voyage.bus.immatriculation
+                    ) {
+
+                        if (bus !== '') {
+
+                            bus +=
+                                ' — ';
+
+                        }
+
+                        bus +=
+                            voyage.bus.immatriculation;
+                    }
+
+
+                    $('#incidentInfoBus')
+                        .text(
+                            bus
+                            ||
+                            'Bus non renseigné'
+                        );
+
+                } else {
+
+                    $('#incidentInfoBus')
+                        .text(
+                            'Aucun bus'
+                        );
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | ÉQUIPE
+                |--------------------------------------------------------------------------
+                */
+
+                if (voyage.equipe) {
+
+                    let equipe =
+                        voyage.equipe.nom
+                        ||
+                        voyage.equipe.code
+                        ||
+                        'Équipe';
+
+                    $('#incidentInfoEquipe')
+                        .text(equipe);
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | CHAUFFEUR TITULAIRE
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $('#incidentInfoChauffeur1')
+                        .text(
+                            voyage.equipe.chauffeur_titulaire
+                            ||
+                            'Aucun chauffeur'
+                        );
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | CHAUFFEUR SECONDAIRE
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $('#incidentInfoChauffeur2')
+                        .text(
+                            voyage.equipe.chauffeur_secondaire
+                            ||
+                            'Aucun chauffeur'
+                        );
+
+                } else {
+
+                    $('#incidentInfoEquipe')
+                        .text(
+                            'Aucune équipe'
+                        );
+
+                    $('#incidentInfoChauffeur1')
+                        .text(
+                            'Aucun chauffeur'
+                        );
+
+                    $('#incidentInfoChauffeur2')
+                        .text(
+                            'Aucun chauffeur'
+                        );
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | AGENCES
+                |--------------------------------------------------------------------------
+                */
+
+                const agences =
+                    voyage.agences
+                    ||
+                    [];
+
+
+                agence.empty();
+
+
+                if (agences.length > 0) {
+
+                    agence.append(
+                        '<option value="">'
+                        +
+                        'Sélectionner une agence'
+                        +
+                        '</option>'
+                    );
+
+
+                    agences.forEach(function (item) {
+
+                        let texte =
+                            item.nom
+                            ||
+                            'Agence';
+
+
+                        if (item.type) {
+
+                            texte +=
+                                ' — '
+                                +
+                                item.type;
+                        }
+
+
+                        agence.append(
+
+                            $('<option>', {
+
+                                value:
+                                    item.id,
+
+                                text:
+                                    texte
+
+                            })
+
+                        );
+
+                    });
+
+
+                    agence.prop(
+                        'disabled',
+                        false
+                    );
+
+                } else {
+
+                    agence.append(
+                        '<option value="">'
+                        +
+                        'Aucune agence disponible'
+                        +
+                        '</option>'
+                    );
+
+                    agence.prop(
+                        'disabled',
+                        true
+                    );
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | AFFICHER LES INFORMATIONS
+                |--------------------------------------------------------------------------
+                */
+
+                info.removeClass(
+                    'd-none'
+                );
+
+            },
+
+
+            error: function (xhr) {
+
+                console.error(
+                    'Erreur AJAX :',
+                    xhr
+                );
+
+
+                agence
+                    .empty()
+                    .append(
+                        '<option value="">'
+                        +
+                        'Erreur de chargement'
+                        +
+                        '</option>'
+                    )
+                    .prop(
+                        'disabled',
+                        true
+                    );
+
+
+                let message =
+                    'Impossible de récupérer les informations du voyage.';
+
+
+                if (
+                    xhr.responseJSON
+                    &&
+                    xhr.responseJSON.message
+                ) {
+
+                    message =
+                        xhr.responseJSON.message;
+                }
+
+
+                alert(message);
+            }
+
+        });
+
+    });
+
+});
+
+</script>
+
+@endpush

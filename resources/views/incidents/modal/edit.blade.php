@@ -1,75 +1,165 @@
+@php
+
+    $canEditIncident = false;
+
+    /*
+    |--------------------------------------------------------------------------
+    | ADMIN
+    |--------------------------------------------------------------------------
+    */
+
+    if (auth()->user()->role === 'admin') {
+
+        $canEditIncident = true;
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | DIRECTEUR EXPLOITATION
+    |--------------------------------------------------------------------------
+    */
+
+    elseif (
+        auth()->user()->role === 'directeur_exploitation'
+    ) {
+
+        $canEditIncident = true;
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | INCIDENT NON RÉSOLU
+    |--------------------------------------------------------------------------
+    */
+
+    elseif (
+        $incident->statut !== 'resolu'
+    ) {
+
+        /*
+        | Chef d'agence
+        */
+
+        if (
+            auth()->user()->role === 'chef_agence'
+            &&
+            (int) $incident->agence_id ===
+            (int) auth()->user()->agence_id
+        ) {
+
+            $canEditIncident = true;
+
+        }
+
+        /*
+        | Déclarant
+        */
+
+        elseif (
+            (int) $incident->user_id ===
+            (int) auth()->id()
+        ) {
+
+            $canEditIncident = true;
+
+        }
+
+    }
+
+@endphp
+
+
+@if($canEditIncident)
+
 <div class="modal fade"
      id="modalEditIncident{{ $incident->id }}"
+     data-backdrop="static"
+     data-keyboard="false"
      tabindex="-1"
      role="dialog"
-     aria-labelledby="modalEditIncidentLabel{{ $incident->id }}"
      aria-hidden="true">
 
     <div class="modal-dialog modal-lg modal-dialog-centered"
          role="document">
 
-        <div class="modal-content">
+        <div class="modal-content shadow-lg border-0">
 
-            {{-- =====================================================
-                 HEADER
-            ====================================================== --}}
-
-            <div class="modal-header">
-
-                <h5 class="modal-title"
-                    id="modalEditIncidentLabel{{ $incident->id }}">
-
-                    <i class="fas fa-edit mr-2"></i>
-
-                    Modifier l'incident
-
-                    <span class="text-muted">
-
-                        — {{ $incident->reference }}
-
-                    </span>
-
-                </h5>
-
-                <button type="button"
-                        class="close"
-                        data-dismiss="modal"
-                        aria-label="Fermer">
-
-                    <span aria-hidden="true">&times;</span>
-
-                </button>
-
-            </div>
-
-
-            {{-- =====================================================
-                 FORMULAIRE
-            ====================================================== --}}
 
             <form action="{{ route('incidents.update', $incident) }}"
-                  method="POST">
+                  method="POST"
+                  autocomplete="off">
 
                 @csrf
 
                 @method('PUT')
 
 
-                <div class="modal-body">
+                {{-- =====================================================
+                     HEADER
+                ====================================================== --}}
+
+                <div class="modal-header ocn-modal-header">
+
+                    <div>
+
+                        <h5 class="modal-title text-white">
+
+                            <i class="fas fa-edit mr-2"></i>
+
+                            Modifier l'incident
+
+                        </h5>
+
+                        <small class="text-white">
+
+                            {{ $incident->reference }}
+
+                            —
+
+                            {{ $incident->titre }}
+
+                        </small>
+
+                    </div>
+
+
+                    <button type="button"
+                            class="close text-white"
+                            data-dismiss="modal"
+                            aria-label="Fermer">
+
+                        <span aria-hidden="true">
+                            &times;
+                        </span>
+
+                    </button>
+
+                </div>
+
+
+
+                {{-- =====================================================
+                     BODY
+                ====================================================== --}}
+
+                <div class="modal-body p-4">
+
 
                     {{-- =================================================
                          INFORMATIONS DU VOYAGE
                     ================================================== --}}
 
-                    <div class="card border mb-3">
+                    <div class="card border shadow-sm mb-4">
 
-                        <div class="card-header bg-light">
+                        <div class="card-header ocn-light">
 
                             <strong>
 
-                                <i class="fas fa-route mr-1"></i>
+                                <i class="fas fa-route ocn-green mr-1"></i>
 
-                                Voyage concerné
+                                Informations du voyage
 
                             </strong>
 
@@ -79,6 +169,7 @@
                         <div class="card-body">
 
                             <div class="row">
+
 
                                 {{-- VOYAGE --}}
 
@@ -92,7 +183,7 @@
 
                                     <strong>
 
-                                        {{ $incident->voyage->code ?? '-' }}
+                                        {{ $incident->voyage->code ?? '—' }}
 
                                     </strong>
 
@@ -111,7 +202,7 @@
 
                                     <strong>
 
-                                        {{ $incident->voyage->ligne->nom ?? '-' }}
+                                        {{ $incident->voyage->ligne->nom ?? '—' }}
 
                                     </strong>
 
@@ -120,9 +211,11 @@
 
                                 {{-- BUS --}}
 
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-6">
 
                                     <small class="text-muted d-block">
+
+                                        <i class="fas fa-bus ocn-green mr-1"></i>
 
                                         Bus
 
@@ -143,7 +236,7 @@
 
                                         @else
 
-                                            -
+                                            —
 
                                         @endif
 
@@ -154,9 +247,11 @@
 
                                 {{-- AGENCE --}}
 
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-6">
 
                                     <small class="text-muted d-block">
+
+                                        <i class="fas fa-building ocn-green mr-1"></i>
 
                                         Agence concernée
 
@@ -164,7 +259,7 @@
 
                                     <strong>
 
-                                        {{ $incident->agence->nom ?? '-' }}
+                                        {{ $incident->agence->nom ?? '—' }}
 
                                     </strong>
 
@@ -177,11 +272,13 @@
                     </div>
 
 
+
                     {{-- =================================================
-                         TYPE + GRAVITE
+                         TYPE + GRAVITÉ
                     ================================================== --}}
 
                     <div class="row">
+
 
                         {{-- TYPE --}}
 
@@ -197,60 +294,77 @@
 
                                 </label>
 
-                                <select name="type"
-                                        class="form-control"
-                                        required>
 
-                                    <option value="panne"
-                                        {{ $incident->type === 'panne' ? 'selected' : '' }}>
+                                <div class="input-group">
 
-                                        Panne
+                                    <div class="input-group-prepend">
 
-                                    </option>
+                                        <span class="input-group-text ocn-light">
 
-                                    <option value="accident"
-                                        {{ $incident->type === 'accident' ? 'selected' : '' }}>
+                                            <i class="fas fa-exclamation-circle ocn-green"></i>
 
-                                        Accident
+                                        </span>
 
-                                    </option>
+                                    </div>
 
-                                    <option value="retard"
-                                        {{ $incident->type === 'retard' ? 'selected' : '' }}>
 
-                                        Retard
+                                    <select name="type"
+                                            class="form-control"
+                                            required>
 
-                                    </option>
+                                        <option value="panne"
+                                            {{ old('type', $incident->type) === 'panne' ? 'selected' : '' }}>
 
-                                    <option value="probleme_chauffeur"
-                                        {{ $incident->type === 'probleme_chauffeur' ? 'selected' : '' }}>
+                                            Panne
 
-                                        Problème chauffeur
+                                        </option>
 
-                                    </option>
+                                        <option value="accident"
+                                            {{ old('type', $incident->type) === 'accident' ? 'selected' : '' }}>
 
-                                    <option value="probleme_technique"
-                                        {{ $incident->type === 'probleme_technique' ? 'selected' : '' }}>
+                                            Accident
 
-                                        Problème technique
+                                        </option>
 
-                                    </option>
+                                        <option value="retard"
+                                            {{ old('type', $incident->type) === 'retard' ? 'selected' : '' }}>
 
-                                    <option value="autre"
-                                        {{ $incident->type === 'autre' ? 'selected' : '' }}>
+                                            Retard
 
-                                        Autre
+                                        </option>
 
-                                    </option>
+                                        <option value="probleme_chauffeur"
+                                            {{ old('type', $incident->type) === 'probleme_chauffeur' ? 'selected' : '' }}>
 
-                                </select>
+                                            Problème chauffeur
+
+                                        </option>
+
+                                        <option value="probleme_technique"
+                                            {{ old('type', $incident->type) === 'probleme_technique' ? 'selected' : '' }}>
+
+                                            Problème technique
+
+                                        </option>
+
+                                        <option value="autre"
+                                            {{ old('type', $incident->type) === 'autre' ? 'selected' : '' }}>
+
+                                            Autre
+
+                                        </option>
+
+                                    </select>
+
+                                </div>
 
                             </div>
 
                         </div>
 
 
-                        {{-- GRAVITE --}}
+
+                        {{-- GRAVITÉ --}}
 
                         <div class="col-md-6">
 
@@ -264,45 +378,62 @@
 
                                 </label>
 
-                                <select name="gravite"
-                                        class="form-control"
-                                        required>
 
-                                    <option value="faible"
-                                        {{ $incident->gravite === 'faible' ? 'selected' : '' }}>
+                                <div class="input-group">
 
-                                        Faible
+                                    <div class="input-group-prepend">
 
-                                    </option>
+                                        <span class="input-group-text ocn-light">
 
-                                    <option value="moyenne"
-                                        {{ $incident->gravite === 'moyenne' ? 'selected' : '' }}>
+                                            <i class="fas fa-signal ocn-green"></i>
 
-                                        Moyenne
+                                        </span>
 
-                                    </option>
+                                    </div>
 
-                                    <option value="grave"
-                                        {{ $incident->gravite === 'grave' ? 'selected' : '' }}>
 
-                                        Grave
+                                    <select name="gravite"
+                                            class="form-control"
+                                            required>
 
-                                    </option>
+                                        <option value="faible"
+                                            {{ old('gravite', $incident->gravite) === 'faible' ? 'selected' : '' }}>
 
-                                    <option value="critique"
-                                        {{ $incident->gravite === 'critique' ? 'selected' : '' }}>
+                                            Faible
 
-                                        Critique
+                                        </option>
 
-                                    </option>
+                                        <option value="moyenne"
+                                            {{ old('gravite', $incident->gravite) === 'moyenne' ? 'selected' : '' }}>
 
-                                </select>
+                                            Moyenne
+
+                                        </option>
+
+                                        <option value="grave"
+                                            {{ old('gravite', $incident->gravite) === 'grave' ? 'selected' : '' }}>
+
+                                            Grave
+
+                                        </option>
+
+                                        <option value="critique"
+                                            {{ old('gravite', $incident->gravite) === 'critique' ? 'selected' : '' }}>
+
+                                            Critique
+
+                                        </option>
+
+                                    </select>
+
+                                </div>
 
                             </div>
 
                         </div>
 
                     </div>
+
 
 
                     {{-- =================================================
@@ -313,20 +444,37 @@
 
                         <label>
 
-                            Titre
+                            Titre de l'incident
 
                             <span class="text-danger">*</span>
 
                         </label>
 
-                        <input type="text"
-                               name="titre"
-                               class="form-control"
-                               value="{{ old('titre', $incident->titre) }}"
-                               maxlength="255"
-                               required>
+
+                        <div class="input-group">
+
+                            <div class="input-group-prepend">
+
+                                <span class="input-group-text ocn-light">
+
+                                    <i class="fas fa-heading ocn-green"></i>
+
+                                </span>
+
+                            </div>
+
+
+                            <input type="text"
+                                   name="titre"
+                                   class="form-control"
+                                   value="{{ old('titre', $incident->titre) }}"
+                                   maxlength="255"
+                                   required>
+
+                        </div>
 
                     </div>
+
 
 
                     {{-- =================================================
@@ -334,6 +482,7 @@
                     ================================================== --}}
 
                     <div class="row">
+
 
                         <div class="col-md-6">
 
@@ -347,15 +496,11 @@
 
                                 </label>
 
+
                                 <input type="date"
                                        name="date_incident"
                                        class="form-control"
-                                       value="{{ old(
-                                           'date_incident',
-                                           $incident->date_incident
-                                               ? $incident->date_incident->format('Y-m-d')
-                                               : ''
-                                       ) }}"
+                                       value="{{ old('date_incident', optional($incident->date_incident)->format('Y-m-d')) }}"
                                        required>
 
                             </div>
@@ -375,15 +520,11 @@
 
                                 </label>
 
+
                                 <input type="time"
                                        name="heure_incident"
                                        class="form-control"
-                                       value="{{ old(
-                                           'heure_incident',
-                                           $incident->heure_incident
-                                               ? substr($incident->heure_incident, 0, 5)
-                                               : ''
-                                       ) }}"
+                                       value="{{ old('heure_incident', $incident->heure_incident) }}"
                                        required>
 
                             </div>
@@ -391,6 +532,7 @@
                         </div>
 
                     </div>
+
 
 
                     {{-- =================================================
@@ -407,26 +549,27 @@
 
                         </label>
 
+
                         <select name="statut"
                                 class="form-control"
                                 required>
 
                             <option value="ouvert"
-                                {{ $incident->statut === 'ouvert' ? 'selected' : '' }}>
+                                {{ old('statut', $incident->statut) === 'ouvert' ? 'selected' : '' }}>
 
                                 Ouvert
 
                             </option>
 
                             <option value="en_cours"
-                                {{ $incident->statut === 'en_cours' ? 'selected' : '' }}>
+                                {{ old('statut', $incident->statut) === 'en_cours' ? 'selected' : '' }}>
 
                                 En cours
 
                             </option>
 
                             <option value="resolu"
-                                {{ $incident->statut === 'resolu' ? 'selected' : '' }}>
+                                {{ old('statut', $incident->statut) === 'resolu' ? 'selected' : '' }}>
 
                                 Résolu
 
@@ -435,6 +578,7 @@
                         </select>
 
                     </div>
+
 
 
                     {{-- =================================================
@@ -451,19 +595,18 @@
 
                         </label>
 
+
                         <textarea name="description"
                                   class="form-control"
                                   rows="4"
-                                  required>{{ old(
-                                      'description',
-                                      $incident->description
-                                  ) }}</textarea>
+                                  required>{{ old('description', $incident->description) }}</textarea>
 
                     </div>
 
 
+
                     {{-- =================================================
-                         RESOLUTION
+                         RÉSOLUTION
                     ================================================== --}}
 
                     <div class="form-group">
@@ -474,15 +617,14 @@
 
                         </label>
 
+
                         <textarea name="resolution"
                                   class="form-control"
                                   rows="3"
-                                  placeholder="Indiquer la résolution si le problème est résolu...">{{ old(
-                                      'resolution',
-                                      $incident->resolution
-                                  ) }}</textarea>
+                                  placeholder="Décrire la solution apportée...">{{ old('resolution', $incident->resolution) }}</textarea>
 
                     </div>
+
 
 
                     {{-- =================================================
@@ -497,43 +639,33 @@
 
                         </label>
 
+
                         <textarea name="observation"
                                   class="form-control"
-                                  rows="3">{{ old(
-                                      'observation',
-                                      $incident->observation
-                                  ) }}</textarea>
+                                  rows="3"
+                                  placeholder="Informations complémentaires...">{{ old('observation', $incident->observation) }}</textarea>
 
                     </div>
 
 
-                    {{-- =================================================
-                         DECLARE PAR
-                    ================================================== --}}
 
-                    <div class="form-group">
+                    <small class="text-muted">
 
-                        <label>
+                        <span class="text-danger">*</span>
 
-                            Déclaré par
+                        Champs obligatoires.
 
-                        </label>
-
-                        <input type="text"
-                               class="form-control"
-                               value="{{ $incident->user->name ?? '-' }}"
-                               readonly>
-
-                    </div>
+                    </small>
 
                 </div>
+
 
 
                 {{-- =====================================================
                      FOOTER
                 ====================================================== --}}
 
-                <div class="modal-footer">
+                <div class="modal-footer ocn-modal-footer">
 
                     <button type="button"
                             class="btn btn-secondary"
@@ -547,7 +679,7 @@
 
 
                     <button type="submit"
-                            class="btn btn-warning">
+                            class="btn ocn-btn">
 
                         <i class="fas fa-save mr-1"></i>
 
@@ -564,3 +696,5 @@
     </div>
 
 </div>
+
+@endif

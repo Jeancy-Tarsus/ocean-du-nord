@@ -2367,4 +2367,238 @@
 
 
 
+.ocn-table-wrapper {
+    padding: 8px 10px;
+    background: #f8f9fa;
+}
 
+.ocn-table {
+    border-collapse: separate;
+    border-spacing: 0 5px;
+}
+
+.ocn-table thead th {
+    border: none !important;
+    background: transparent !important;
+    padding: 10px 12px;
+}
+
+.ocn-table tbody tr {
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .04);
+}
+
+.ocn-table tbody td {
+    border-top: 1px solid #f0f0f0;
+    border-bottom: 1px solid #f0f0f0;
+    padding: 11px 12px;
+    vertical-align: middle;
+}
+
+.ocn-table tbody td:first-child {
+    border-left: 1px solid #f0f0f0;
+    border-radius: 6px 0 0 6px;
+}
+
+.ocn-table tbody td:last-child {
+    border-right: 1px solid #f0f0f0;
+    border-radius: 0 6px 6px 0;
+}
+
+.ocn-table tbody tr:hover td {
+    background: #fcfcfc;
+}
+
+
+/* =========================================================
+   CORRECTION - TAILLE DES TEXTES DES FORMULAIRES
+   Connexion + Profil
+========================================================= */
+
+
+/* =========================================================
+   PAGE DE CONNEXION
+========================================================= */
+
+/* Labels */
+.ocn-form-group label {
+
+    font-size: 13px !important;
+
+}
+
+
+/* Champs email et mot de passe */
+.ocn-input-wrapper input {
+
+    font-size: 14px !important;
+
+}
+
+
+/* Texte indicatif dans les champs */
+.ocn-input-wrapper input::placeholder {
+
+    font-size: 13px !important;
+
+}
+
+
+/* Options : se souvenir de moi / mot de passe oublié */
+.ocn-login-options label {
+
+    font-size: 11px !important;
+
+}
+
+
+.ocn-login-options a {
+
+    font-size: 11px !important;
+
+}
+
+
+/* Bouton connexion */
+.ocn-login-button {
+
+    font-size: 13px !important;
+
+}
+
+
+/* Messages d'erreur */
+.ocn-errors {
+
+    font-size: 12px !important;
+
+}
+
+
+/* Message de succès */
+.ocn-success {
+
+    font-size: 12px !important;
+
+}
+
+
+/* =========================================================
+   PAGE PROFIL
+========================================================= */
+
+
+/* Labels des champs */
+.ocn-profile-card label {
+
+    font-size: 13px !important;
+
+}
+
+
+/* Champs du profil */
+.ocn-profile-card input[type="text"],
+.ocn-profile-card input[type="email"],
+.ocn-profile-card input[type="password"] {
+
+    font-size: 14px !important;
+
+}
+
+
+/* Placeholder du profil */
+.ocn-profile-card input::placeholder {
+
+    font-size: 13px !important;
+
+}
+
+
+/* Messages d'erreur */
+.ocn-profile-card .text-red-600,
+.ocn-profile-card .text-red-500 {
+
+    font-size: 12px !important;
+
+}
+
+
+/* Message de succès */
+.ocn-profile-card .text-green-600 {
+
+    font-size: 12px !important;
+
+}
+
+
+/* Boutons du profil */
+.ocn-profile-card button {
+
+    font-size: 12px !important;
+
+}
+
+
+/* =========================================================
+   RESPONSIVE MOBILE
+   On évite que le texte redevienne minuscule
+========================================================= */
+
+@media (max-width: 480px) {
+
+    /* Connexion */
+
+    .ocn-form-group label {
+
+        font-size: 12px !important;
+
+    }
+
+
+    .ocn-input-wrapper input {
+
+        font-size: 14px !important;
+
+    }
+
+
+    .ocn-input-wrapper input::placeholder {
+
+        font-size: 13px !important;
+
+    }
+
+
+    .ocn-login-options label,
+    .ocn-login-options a {
+
+        font-size: 11px !important;
+
+    }
+
+
+    /* Profil */
+
+    .ocn-profile-card label {
+
+        font-size: 12px !important;
+
+    }
+
+
+    .ocn-profile-card input[type="text"],
+    .ocn-profile-card input[type="email"],
+    .ocn-profile-card input[type="password"] {
+
+        font-size: 14px !important;
+
+    }
+
+
+    .ocn-profile-card input::placeholder {
+
+        font-size: 13px !important;
+
+    }
+
+}
