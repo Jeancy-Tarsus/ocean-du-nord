@@ -8,13 +8,7 @@
 
 <div class="container-fluid">
 
-
-    {{-- =========================================================
-         CARD PRINCIPALE
-    ========================================================== --}}
-
     <div class="card ocn-card shadow-sm">
-
 
         {{-- =====================================================
              HEADER
@@ -23,9 +17,6 @@
         <div class="card-header bg-white">
 
             <div class="row align-items-center">
-
-
-                {{-- TITRE --}}
 
                 <div class="col-md-6">
 
@@ -45,8 +36,6 @@
 
                 </div>
 
-
-                {{-- BOUTON NOUVEAU --}}
 
                 <div class="col-md-6 text-right">
 
@@ -68,7 +57,6 @@
         </div>
 
 
-
         {{-- =====================================================
              FILTRES
         ====================================================== --}}
@@ -79,7 +67,6 @@
                   method="GET">
 
                 <div class="row">
-
 
                     {{-- RECHERCHE --}}
 
@@ -107,23 +94,18 @@
                     </div>
 
 
-
                     {{-- TYPE --}}
 
                     <div class="col-md-2">
 
                         <div class="form-group mb-md-0">
 
-                            <label>
-                                Type
-                            </label>
+                            <label>Type</label>
 
                             <select name="type"
                                     class="form-control">
 
-                                <option value="">
-                                    Tous
-                                </option>
+                                <option value="">Tous</option>
 
                                 <option value="panne"
                                     {{ ($type ?? '') === 'panne' ? 'selected' : '' }}>
@@ -162,23 +144,18 @@
                     </div>
 
 
-
                     {{-- GRAVITÉ --}}
 
                     <div class="col-md-2">
 
                         <div class="form-group mb-md-0">
 
-                            <label>
-                                Gravité
-                            </label>
+                            <label>Gravité</label>
 
                             <select name="gravite"
                                     class="form-control">
 
-                                <option value="">
-                                    Toutes
-                                </option>
+                                <option value="">Toutes</option>
 
                                 <option value="faible"
                                     {{ ($gravite ?? '') === 'faible' ? 'selected' : '' }}>
@@ -207,23 +184,18 @@
                     </div>
 
 
-
                     {{-- STATUT --}}
 
                     <div class="col-md-2">
 
                         <div class="form-group mb-md-0">
 
-                            <label>
-                                Statut
-                            </label>
+                            <label>Statut</label>
 
                             <select name="statut"
                                     class="form-control">
 
-                                <option value="">
-                                    Tous
-                                </option>
+                                <option value="">Tous</option>
 
                                 <option value="ouvert"
                                     {{ ($statut ?? '') === 'ouvert' ? 'selected' : '' }}>
@@ -247,16 +219,13 @@
                     </div>
 
 
-
                     {{-- BOUTONS --}}
 
                     <div class="col-md-2">
 
                         <div class="form-group mb-md-0">
 
-                            <label class="d-block">
-                                &nbsp;
-                            </label>
+                            <label class="d-block">&nbsp;</label>
 
                             <div class="d-flex">
 
@@ -268,7 +237,6 @@
                                     Filtrer
 
                                 </button>
-
 
                                 <a href="{{ route('incidents.index') }}"
                                    class="btn btn-secondary"
@@ -291,13 +259,11 @@
         </div>
 
 
-
         {{-- =====================================================
              TABLEAU
         ====================================================== --}}
 
         <div class="card-body p-0">
-
 
             <div class="ocn-table-wrapper">
 
@@ -305,43 +271,26 @@
 
                     <table class="table ocn-table mb-0">
 
-
-                        {{-- EN-TÊTE --}}
-
                         <thead class="ocn-table-header">
 
                             <tr>
 
-                                <th>
-                                    Référence
-                                </th>
+                                <th>Référence</th>
 
-                                <th>
-                                    Voyage
-                                </th>
+                                <th>Voyage</th>
 
-                                <th>
-                                    Bus
-                                </th>
+                                <th>Bus</th>
 
-                                <th>
-                                    Type
-                                </th>
+                                <th>Type</th>
 
-                                <th>
-                                    Gravité
-                                </th>
+                                <th>Gravité</th>
 
-                                <th>
-                                    Statut
-                                </th>
+                                <th>Statut</th>
 
-                                <th>
-                                    Déclaré par
-                                </th>
+                                <th>Déclaré par</th>
 
                                 <th class="text-center"
-                                    style="width: 140px;">
+                                    style="width: 160px;">
 
                                     Actions
 
@@ -352,15 +301,11 @@
                         </thead>
 
 
-
-                        {{-- CORPS --}}
-
                         <tbody>
 
                             @forelse($incidents as $incident)
 
                                 <tr>
-
 
                                     {{-- RÉFÉRENCE --}}
 
@@ -387,7 +332,6 @@
                                     </td>
 
 
-
                                     {{-- VOYAGE --}}
 
                                     <td>
@@ -410,14 +354,11 @@
 
                                         @else
 
-                                            <span class="text-muted">
-                                                —
-                                            </span>
+                                            <span class="text-muted">—</span>
 
                                         @endif
 
                                     </td>
-
 
 
                                     {{-- BUS --}}
@@ -432,14 +373,11 @@
 
                                         @else
 
-                                            <span class="text-muted">
-                                                —
-                                            </span>
+                                            <span class="text-muted">—</span>
 
                                         @endif
 
                                     </td>
-
 
 
                                     {{-- TYPE --}}
@@ -499,7 +437,6 @@
                                     </td>
 
 
-
                                     {{-- GRAVITÉ --}}
 
                                     <td>
@@ -543,7 +480,6 @@
                                     </td>
 
 
-
                                     {{-- STATUT --}}
 
                                     <td>
@@ -579,7 +515,6 @@
                                     </td>
 
 
-
                                     {{-- DÉCLARÉ PAR --}}
 
                                     <td>
@@ -590,19 +525,117 @@
 
                                         @else
 
-                                            <span class="text-muted">
-                                                —
-                                            </span>
+                                            <span class="text-muted">—</span>
 
                                         @endif
 
                                     </td>
 
 
-
                                     {{-- ACTIONS --}}
 
                                     <td class="text-center">
+
+                                        @php
+
+                                            $user = auth()->user();
+
+                                            /*
+                                            |--------------------------------------------------------------------------
+                                            | MODIFICATION
+                                            |--------------------------------------------------------------------------
+                                            |
+                                            | ADMIN :
+                                            | toujours
+                                            |
+                                            | DIRECTEUR :
+                                            | toujours
+                                            |
+                                            | CHEF AGENCE :
+                                            | son agence uniquement
+                                            | et incident non résolu
+                                            |
+                                            | AUTRES :
+                                            | jamais
+                                            |
+                                            */
+
+                                            $canEditIncident =
+
+                                                $user->role === 'admin'
+
+                                                ||
+
+                                                $user->role === 'directeur_exploitation'
+
+                                                ||
+
+                                                (
+                                                    $user->role === 'chef_agence'
+
+                                                    &&
+
+                                                    $incident->statut !== 'resolu'
+
+                                                    &&
+
+                                                    $incident->agence_id !== null
+
+                                                    &&
+
+                                                    $user->agence_id !== null
+
+                                                    &&
+
+                                                    (int) $incident->agence_id ===
+                                                    (int) $user->agence_id
+                                                );
+
+
+                                            /*
+                                            |--------------------------------------------------------------------------
+                                            | PRISE EN CHARGE
+                                            |--------------------------------------------------------------------------
+                                            */
+
+                                            $canTakeCharge =
+
+                                                $user->role === 'admin'
+
+                                                ||
+
+                                                $user->role === 'directeur_exploitation'
+
+                                                ||
+
+                                                (
+                                                    $user->role === 'chef_agence'
+
+                                                    &&
+
+                                                    $incident->agence_id !== null
+
+                                                    &&
+
+                                                    $user->agence_id !== null
+
+                                                    &&
+
+                                                    (int) $incident->agence_id ===
+                                                    (int) $user->agence_id
+                                                );
+
+
+                                            /*
+                                            |--------------------------------------------------------------------------
+                                            | RÉSOLUTION
+                                            |--------------------------------------------------------------------------
+                                            */
+
+                                            $canResolve = $canTakeCharge;
+
+                                        @endphp
+
 
                                         <div class="d-inline-flex align-items-center">
 
@@ -620,82 +653,7 @@
                                             </button>
 
 
-
-                                            {{-- =================================================
-                                                 DROIT DE MODIFICATION
-                                            ================================================== --}}
-
-                                            @php
-
-                                                $canEditIncident = false;
-
-                                                /*
-                                                | ADMIN
-                                                */
-
-                                                if (
-                                                    auth()->user()->role === 'admin'
-                                                ) {
-
-                                                    $canEditIncident = true;
-
-                                                }
-
-                                                /*
-                                                | DIRECTEUR EXPLOITATION
-                                                */
-
-                                                elseif (
-                                                    auth()->user()->role ===
-                                                    'directeur_exploitation'
-                                                ) {
-
-                                                    $canEditIncident = true;
-
-                                                }
-
-                                                /*
-                                                | INCIDENT NON RÉSOLU
-                                                */
-
-                                                elseif (
-                                                    $incident->statut !== 'resolu'
-                                                ) {
-
-                                                    /*
-                                                    | Chef d'agence
-                                                    */
-
-                                                    if (
-                                                        auth()->user()->role ===
-                                                        'chef_agence'
-                                                        &&
-                                                        (int) $incident->agence_id ===
-                                                        (int) auth()->user()->agence_id
-                                                    ) {
-
-                                                        $canEditIncident = true;
-
-                                                    }
-
-                                                    /*
-                                                    | Créateur de l'incident
-                                                    */
-
-                                                    elseif (
-                                                        (int) $incident->user_id ===
-                                                        (int) auth()->id()
-                                                    ) {
-
-                                                        $canEditIncident = true;
-
-                                                    }
-
-                                                }
-
-                                            @endphp
-
-
+                                            {{-- MODIFIER --}}
 
                                             @if($canEditIncident)
 
@@ -712,16 +670,62 @@
                                             @endif
 
 
-
-                                            {{-- =================================================
-                                                 SUPPRIMER
-                                            ================================================== --}}
+                                            {{-- PRENDRE EN CHARGE --}}
 
                                             @if(
-                                                auth()->user()->role === 'admin'
+                                                $incident->statut === 'ouvert'
+                                                &&
+                                                $canTakeCharge
+                                            )
+
+                                                <form action="{{ route('incidents.prendreEnCharge', $incident) }}"
+                                                      method="POST"
+                                                      class="d-inline mr-1">
+
+                                                    @csrf
+
+                                                    @method('PATCH')
+
+                                                    <button type="submit"
+                                                            class="btn btn-warning btn-sm"
+                                                            title="Prendre en charge">
+
+                                                        <i class="fas fa-hand-paper"></i>
+
+                                                    </button>
+
+                                                </form>
+
+                                            @endif
+
+
+                                            {{-- RÉSOUDRE --}}
+
+                                            @if(
+                                                $incident->statut === 'en_cours'
+                                                &&
+                                                $canResolve
+                                            )
+
+                                                <button type="button"
+                                                        class="btn ocn-btn btn-sm mr-1"
+                                                        data-toggle="modal"
+                                                        data-target="#modalResolveIncident{{ $incident->id }}"
+                                                        title="Résoudre">
+
+                                                    <i class="fas fa-check-circle"></i>
+
+                                                </button>
+
+                                            @endif
+
+
+                                            {{-- SUPPRIMER --}}
+
+                                            @if(
+                                                $user->role === 'admin'
                                                 ||
-                                                auth()->user()->role ===
-                                                'directeur_exploitation'
+                                                $user->role === 'directeur_exploitation'
                                             )
 
                                                 <form action="{{ route('incidents.destroy', $incident) }}"
@@ -749,7 +753,6 @@
                                     </td>
 
                                 </tr>
-
 
                             @empty
 
@@ -790,10 +793,7 @@
         </div>
 
 
-
-        {{-- =====================================================
-             PAGINATION
-        ====================================================== --}}
+        {{-- PAGINATION --}}
 
         @if($incidents->hasPages())
 
@@ -805,11 +805,9 @@
 
         @endif
 
-
     </div>
 
 </div>
-
 
 
 {{-- =========================================================
@@ -819,9 +817,8 @@
 @include('incidents.modal.create')
 
 
-
 {{-- =========================================================
-     MODALS AFFICHAGE
+     MODALS SHOW
 ========================================================= --}}
 
 @foreach($incidents as $incident)
@@ -834,58 +831,52 @@
 @endforeach
 
 
-
 {{-- =========================================================
-     MODALS MODIFICATION
+     MODALS EDIT
 ========================================================= --}}
 
 @foreach($incidents as $incident)
 
     @php
 
-        $canEditIncident = false;
+        $user = auth()->user();
 
-        if (
-            auth()->user()->role === 'admin'
-        ) {
+        /*
+        |--------------------------------------------------------------------------
+        | RÈGLE MODIFICATION
+        |--------------------------------------------------------------------------
+        */
 
-            $canEditIncident = true;
+        $canEditIncident =
 
-        }
+            $user->role === 'admin'
 
-        elseif (
-            auth()->user()->role === 'directeur_exploitation'
-        ) {
+            ||
 
-            $canEditIncident = true;
+            $user->role === 'directeur_exploitation'
 
-        }
+            ||
 
-        elseif (
-            $incident->statut !== 'resolu'
-        ) {
+            (
+                $user->role === 'chef_agence'
 
-            if (
-                auth()->user()->role === 'chef_agence'
                 &&
+
+                $incident->statut !== 'resolu'
+
+                &&
+
+                $incident->agence_id !== null
+
+                &&
+
+                $user->agence_id !== null
+
+                &&
+
                 (int) $incident->agence_id ===
-                (int) auth()->user()->agence_id
-            ) {
-
-                $canEditIncident = true;
-
-            }
-
-            elseif (
-                (int) $incident->user_id ===
-                (int) auth()->id()
-            ) {
-
-                $canEditIncident = true;
-
-            }
-
-        }
+                (int) $user->agence_id
+            );
 
     @endphp
 
@@ -902,6 +893,213 @@
 @endforeach
 
 
+{{-- =========================================================
+     MODALS RÉSOLUTION
+========================================================= --}}
+
+@foreach($incidents as $incident)
+
+    @php
+
+        $user = auth()->user();
+
+        $canResolveIncident =
+
+            $user->role === 'admin'
+
+            ||
+
+            $user->role === 'directeur_exploitation'
+
+            ||
+
+            (
+                $user->role === 'chef_agence'
+
+                &&
+
+                $incident->agence_id !== null
+
+                &&
+
+                $user->agence_id !== null
+
+                &&
+
+                (int) $incident->agence_id ===
+                (int) $user->agence_id
+            );
+
+    @endphp
+
+
+    @if(
+        $incident->statut === 'en_cours'
+        &&
+        $canResolveIncident
+    )
+
+        <div class="modal fade"
+             id="modalResolveIncident{{ $incident->id }}"
+             data-backdrop="static"
+             data-keyboard="false"
+             tabindex="-1"
+             role="dialog"
+             aria-hidden="true">
+
+            <div class="modal-dialog modal-lg modal-dialog-centered"
+                 role="document">
+
+                <div class="modal-content shadow-lg border-0">
+
+                    <form action="{{ route('incidents.resoudre', $incident) }}"
+                          method="POST">
+
+                        @csrf
+
+                        @method('PATCH')
+
+
+                        {{-- HEADER --}}
+
+                        <div class="modal-header ocn-modal-header">
+
+                            <div>
+
+                                <h5 class="modal-title text-white">
+
+                                    <i class="fas fa-check-circle mr-2"></i>
+
+                                    Résoudre l'incident
+
+                                </h5>
+
+                                <small class="text-white">
+
+                                    {{ $incident->reference }}
+
+                                    —
+
+                                    {{ $incident->titre }}
+
+                                </small>
+
+                            </div>
+
+
+                            <button type="button"
+                                    class="close text-white"
+                                    data-dismiss="modal"
+                                    aria-label="Fermer">
+
+                                <span aria-hidden="true">
+                                    &times;
+                                </span>
+
+                            </button>
+
+                        </div>
+
+
+                        {{-- BODY --}}
+
+                        <div class="modal-body p-4">
+
+                            <div class="alert alert-light border">
+
+                                <i class="fas fa-info-circle ocn-green mr-1"></i>
+
+                                Vous êtes sur le point de clôturer cet incident.
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label>
+
+                                    Solution apportée
+
+                                    <span class="text-danger">*</span>
+
+                                </label>
+
+                                <textarea name="resolution"
+                                          class="form-control"
+                                          rows="5"
+                                          placeholder="Décrire la solution apportée..."
+                                          required></textarea>
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label>
+
+                                    Observation finale
+
+                                </label>
+
+                                <textarea name="observation"
+                                          class="form-control"
+                                          rows="4"
+                                          placeholder="Ajouter une observation complémentaire..."></textarea>
+
+                            </div>
+
+
+                            <small class="text-muted">
+
+                                <span class="text-danger">*</span>
+
+                                La résolution est obligatoire.
+
+                                La date de résolution sera enregistrée automatiquement.
+
+                            </small>
+
+                        </div>
+
+
+                        {{-- FOOTER --}}
+
+                        <div class="modal-footer ocn-modal-footer">
+
+                            <button type="button"
+                                    class="btn btn-secondary"
+                                    data-dismiss="modal">
+
+                                <i class="fas fa-times mr-1"></i>
+
+                                Annuler
+
+                            </button>
+
+
+                            <button type="submit"
+                                    class="btn ocn-btn">
+
+                                <i class="fas fa-check-circle mr-1"></i>
+
+                                Valider la résolution
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    @endif
+
+@endforeach
+
 
 {{-- =========================================================
      SWEETALERT
@@ -916,7 +1114,7 @@ $(document).ready(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | MESSAGE DE SUCCÈS
+    | SUCCÈS
     |--------------------------------------------------------------------------
     */
 
@@ -943,10 +1141,9 @@ $(document).ready(function () {
     @endif
 
 
-
     /*
     |--------------------------------------------------------------------------
-    | MESSAGE D'ERREUR
+    | ERREUR
     |--------------------------------------------------------------------------
     */
 
@@ -969,6 +1166,35 @@ $(document).ready(function () {
     @endif
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | ERREURS DE VALIDATION
+    |--------------------------------------------------------------------------
+    */
+
+    @if($errors->any())
+
+        Swal.fire({
+
+            icon: 'error',
+
+            title: 'Erreur de validation',
+
+            html: @json(
+                implode(
+                    '<br>',
+                    $errors->all()
+                )
+            ),
+
+            confirmButtonText: 'OK',
+
+            confirmButtonColor: '#dc3545'
+
+        });
+
+    @endif
+
 
     /*
     |--------------------------------------------------------------------------
@@ -981,6 +1207,7 @@ $(document).ready(function () {
         e.preventDefault();
 
         const form = this;
+
 
         Swal.fire({
 
@@ -1019,6 +1246,5 @@ $(document).ready(function () {
 </script>
 
 @endpush
-
 
 @endsection

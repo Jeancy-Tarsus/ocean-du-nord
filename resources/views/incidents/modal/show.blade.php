@@ -175,7 +175,6 @@
 
                                 </small>
 
-
                                 @switch($incident->gravite)
 
                                     @case('faible')
@@ -669,7 +668,7 @@
 
 
                 {{-- =================================================
-                     DÉCLARANT
+                     DÉCLARATION
                 ================================================== --}}
 
                 <div class="card border shadow-sm">
@@ -739,6 +738,131 @@
             ====================================================== --}}
 
             <div class="modal-footer ocn-modal-footer">
+
+                @php
+
+                    $user = auth()->user();
+
+                    $canTakeCharge = false;
+
+                    $canResolve = false;
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | ADMIN
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if ($user->role === 'admin') {
+
+                        $canTakeCharge = true;
+
+                        $canResolve = true;
+
+                    }
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | DIRECTEUR EXPLOITATION
+                    |--------------------------------------------------------------------------
+                    */
+
+                    elseif ($user->role === 'directeur_exploitation') {
+
+                        $canTakeCharge = true;
+
+                        $canResolve = true;
+
+                    }
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | CHEF D'AGENCE
+                    |--------------------------------------------------------------------------
+                    */
+
+                    elseif (
+                        $user->role === 'chef_agence'
+                        &&
+                        $incident->agence_id !== null
+                        &&
+                        $user->agence_id !== null
+                        &&
+                        (int) $incident->agence_id ===
+                        (int) $user->agence_id
+                    ) {
+
+                        $canTakeCharge = true;
+
+                        $canResolve = true;
+
+                    }
+
+                @endphp
+
+
+                {{-- =================================================
+                     PRENDRE EN CHARGE
+                ================================================== --}}
+
+                @if(
+                    $incident->statut === 'ouvert'
+                    &&
+                    $canTakeCharge
+                )
+
+                    <form action="{{ route('incidents.prendreEnCharge', $incident) }}"
+                          method="POST"
+                          class="d-inline">
+
+                        @csrf
+
+                        @method('PATCH')
+
+                        <button type="submit"
+                                class="btn btn-warning">
+
+                            <i class="fas fa-hand-paper mr-1"></i>
+
+                            Prendre en charge
+
+                        </button>
+
+                    </form>
+
+                @endif
+
+
+                {{-- =================================================
+                     RÉSOUDRE
+                ================================================== --}}
+
+                @if(
+                    $incident->statut === 'en_cours'
+                    &&
+                    $canResolve
+                )
+
+                    <button type="button"
+                            class="btn ocn-btn"
+                            data-toggle="modal"
+                            data-target="#modalResolveIncident{{ $incident->id }}">
+
+                        <i class="fas fa-check-circle mr-1"></i>
+
+                        Résoudre l'incident
+
+                    </button>
+
+                @endif
+
+
+                {{-- =================================================
+                     FERMER
+                ================================================== --}}
 
                 <button type="button"
                         class="btn btn-secondary"

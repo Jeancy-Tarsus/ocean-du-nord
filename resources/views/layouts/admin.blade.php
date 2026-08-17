@@ -331,22 +331,6 @@
         <ul class="navbar-nav ml-auto">
 
 
-            {{-- PLEIN ÉCRAN --}}
-
-            <li class="nav-item">
-
-                <a class="nav-link"
-                   href="#"
-                   data-widget="fullscreen"
-                   role="button">
-
-                    <i class="fas fa-expand-arrows-alt"></i>
-
-                </a>
-
-            </li>
-
-
             {{-- NOTIFICATIONS --}}
 
             <li class="nav-item dropdown ocn-notification">
@@ -381,184 +365,144 @@
 
             </li>
 
+            {{-- UTILISATEUR --}}
 
-            {{-- MESSAGES --}}
+            <li class="nav-item dropdown">
 
-            <li class="nav-item dropdown ocn-notification">
+                <a
+                    class="nav-link"
+                    data-toggle="dropdown"
+                    href="#"
+                >
 
-                <a class="nav-link"
-                   data-toggle="dropdown"
-                   href="#">
+                    <span class="ocn-navbar-user">
 
-                    <i class="far fa-envelope"></i>
+                        {{-- Avatar --}}
 
-                    <span class="badge badge-success">
-                        0
+                        <span class="ocn-navbar-avatar">
+
+                            <i class="fas fa-user"></i>
+
+                        </span>
+
+
+                        {{-- Nom utilisateur --}}
+
+                        @auth
+
+                            <span class="d-none d-md-inline">
+
+                                {{ Auth::user()->name }}
+
+                            </span>
+
+                        @endauth
+
+
+                        {{-- Flèche --}}
+
+                        <i class="fas fa-caret-down ml-2"></i>
+
                     </span>
 
                 </a>
 
-                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
 
-                    <span class="dropdown-item dropdown-header">
-                        Messages
-                    </span>
+                {{-- =====================================================
+                    MENU DÉROULANT
+                ====================================================== --}}
+
+                <div class="dropdown-menu dropdown-menu-right">
+
+
+                    {{-- =================================================
+                        INFORMATIONS UTILISATEUR
+                    ================================================== --}}
+
+                    @auth
+
+                        <div class="dropdown-header">
+
+                            <strong>
+
+                                {{ Auth::user()->name }}
+
+                            </strong>
+
+                            <br>
+
+                            <small class="text-muted">
+
+                                {{ Auth::user()->email }}
+
+                            </small>
+
+                        </div>
+
+                    @endauth
+
 
                     <div class="dropdown-divider"></div>
 
-                    <span class="dropdown-item text-muted text-center">
 
-                        Aucun message
+                    {{-- =================================================
+                        MON PROFIL
+                    ================================================== --}}
 
-                    </span>
+                    @auth
+
+                        <a
+                            href="{{ route('profile.edit') }}"
+                            class="dropdown-item"
+                        >
+
+                            <i class="fas fa-user mr-2"></i>
+
+                            Mon profil
+
+                        </a>
+
+                    @endauth
+
+
+                    {{-- =================================================
+                        SÉPARATION
+                    ================================================== --}}
+
+                    <div class="dropdown-divider"></div>
+
+
+                    {{-- =================================================
+                        DÉCONNEXION
+                    ================================================== --}}
+
+                    @auth
+
+                        <form
+                            method="POST"
+                            action="{{ route('logout') }}"
+                        >
+
+                            @csrf
+
+                            <button
+                                type="submit"
+                                class="dropdown-item"
+                            >
+
+                                <i class="fas fa-sign-out-alt mr-2"></i>
+
+                                Déconnexion
+
+                            </button>
+
+                        </form>
+
+                    @endauth
 
                 </div>
 
             </li>
-
-
-            {{-- UTILISATEUR --}}
-
-            {{-- =========================================================
-     UTILISATEUR
-========================================================= --}}
-
-<li class="nav-item dropdown">
-
-    <a
-        class="nav-link"
-        data-toggle="dropdown"
-        href="#"
-    >
-
-        <span class="ocn-navbar-user">
-
-            {{-- Avatar --}}
-
-            <span class="ocn-navbar-avatar">
-
-                <i class="fas fa-user"></i>
-
-            </span>
-
-
-            {{-- Nom utilisateur --}}
-
-            @auth
-
-                <span class="d-none d-md-inline">
-
-                    {{ Auth::user()->name }}
-
-                </span>
-
-            @endauth
-
-
-            {{-- Flèche --}}
-
-            <i class="fas fa-caret-down ml-2"></i>
-
-        </span>
-
-    </a>
-
-
-    {{-- =====================================================
-         MENU DÉROULANT
-    ====================================================== --}}
-
-    <div class="dropdown-menu dropdown-menu-right">
-
-
-        {{-- =================================================
-             INFORMATIONS UTILISATEUR
-        ================================================== --}}
-
-        @auth
-
-            <div class="dropdown-header">
-
-                <strong>
-
-                    {{ Auth::user()->name }}
-
-                </strong>
-
-                <br>
-
-                <small class="text-muted">
-
-                    {{ Auth::user()->email }}
-
-                </small>
-
-            </div>
-
-        @endauth
-
-
-        <div class="dropdown-divider"></div>
-
-
-        {{-- =================================================
-             MON PROFIL
-        ================================================== --}}
-
-        @auth
-
-            <a
-                href="{{ route('profile.edit') }}"
-                class="dropdown-item"
-            >
-
-                <i class="fas fa-user mr-2"></i>
-
-                Mon profil
-
-            </a>
-
-        @endauth
-
-
-        {{-- =================================================
-             SÉPARATION
-        ================================================== --}}
-
-        <div class="dropdown-divider"></div>
-
-
-        {{-- =================================================
-             DÉCONNEXION
-        ================================================== --}}
-
-        @auth
-
-            <form
-                method="POST"
-                action="{{ route('logout') }}"
-            >
-
-                @csrf
-
-                <button
-                    type="submit"
-                    class="dropdown-item"
-                >
-
-                    <i class="fas fa-sign-out-alt mr-2"></i>
-
-                    Déconnexion
-
-                </button>
-
-            </form>
-
-        @endauth
-
-    </div>
-
-</li>
         </ul>
 
     </nav>

@@ -91,4 +91,9 @@ class Voyage extends Model
     {
         return $this->hasMany(Incident::class);
     }
+
+    public function affectations(): HasMany
+    {
+        return $this->hasMany(Affectation::class);
+    }
 }

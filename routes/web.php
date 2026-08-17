@@ -1,16 +1,17 @@
 <?php
 
+use App\Http\Controllers\AffectationController;
 use App\Http\Controllers\AgenceController;
 use App\Http\Controllers\BusController;
 use App\Http\Controllers\ChauffeurController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EquipeController;
+use App\Http\Controllers\IncidentController;
 use App\Http\Controllers\LigneController;
+use App\Http\Controllers\PlanningController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VoyageController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\IncidentController;
-use App\Http\Controllers\PlanningController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -18,13 +19,6 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 | PAGE D'ACCUEIL
 |--------------------------------------------------------------------------
-|
-| Si l'utilisateur est déjà connecté :
-|       / → dashboard
-|
-| Sinon :
-|       / → login
-|
 */
 
 Route::get('/', function () {
@@ -40,7 +34,6 @@ Route::get('/', function () {
 });
 
 
-
 /*
 |--------------------------------------------------------------------------
 | DASHBOARD
@@ -50,9 +43,9 @@ Route::get('/', function () {
 Route::get(
     '/dashboard',
     [DashboardController::class, 'index']
-)->middleware('auth')
-  ->name('dashboard');
-
+)
+    ->middleware('auth')
+    ->name('dashboard');
 
 
 /*
@@ -60,13 +53,11 @@ Route::get(
 | AUTHENTIFICATION
 |--------------------------------------------------------------------------
 |
-| Les routes login, logout, register, mot de passe oublié,
-| etc. sont gérées par Breeze dans routes/auth.php.
+| Login, logout, register, mot de passe oublié, etc.
 |
 */
 
-require __DIR__.'/auth.php';
-
+require __DIR__ . '/auth.php';
 
 
 /*
@@ -97,13 +88,12 @@ Route::middleware('auth')->group(function () {
 });
 
 
-
 /*
 |--------------------------------------------------------------------------
 | UTILISATEURS
 |--------------------------------------------------------------------------
 |
-| Réservé à l'administrateur.
+| Administrateur uniquement
 |
 */
 
@@ -118,7 +108,6 @@ Route::middleware([
     );
 
 });
-
 
 
 /*
@@ -144,7 +133,6 @@ Route::middleware([
 });
 
 
-
 /*
 |--------------------------------------------------------------------------
 | BUS
@@ -166,7 +154,6 @@ Route::middleware([
     ]);
 
 });
-
 
 
 /*
@@ -192,7 +179,6 @@ Route::middleware([
 });
 
 
-
 /*
 |--------------------------------------------------------------------------
 | LIGNES
@@ -216,7 +202,6 @@ Route::middleware([
 });
 
 
-
 /*
 |--------------------------------------------------------------------------
 | ÉQUIPES
@@ -235,7 +220,6 @@ Route::middleware('auth')->group(function () {
     ]);
 
 });
-
 
 
 /*
@@ -298,7 +282,6 @@ Route::middleware('auth')->group(function () {
 });
 
 
-
 /*
 |--------------------------------------------------------------------------
 | PLANNING
@@ -315,7 +298,6 @@ Route::middleware('auth')->group(function () {
 });
 
 
-
 /*
 |--------------------------------------------------------------------------
 | INCIDENTS
@@ -324,11 +306,23 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware('auth')->group(function () {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Liste des incidents
+    |--------------------------------------------------------------------------
+    */
+
     Route::get(
         '/incidents',
         [IncidentController::class, 'index']
     )->name('incidents.index');
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Enregistrer un incident
+    |--------------------------------------------------------------------------
+    */
 
     Route::post(
         '/incidents',
@@ -336,17 +330,51 @@ Route::middleware('auth')->group(function () {
     )->name('incidents.store');
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | Informations du voyage
+    |--------------------------------------------------------------------------
+    |
+    | IMPORTANT :
+    | Cette route doit être AVANT /incidents/{incident}.
+    |
+    */
+
+    Route::get(
+        '/incidents/voyages/{voyage}/informations',
+        [IncidentController::class, 'voyageInformations']
+    )->name('incidents.voyage.informations');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Voir un incident
+    |--------------------------------------------------------------------------
+    */
+
     Route::get(
         '/incidents/{incident}',
         [IncidentController::class, 'show']
     )->name('incidents.show');
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | Modifier un incident
+    |--------------------------------------------------------------------------
+    */
+
     Route::put(
         '/incidents/{incident}',
         [IncidentController::class, 'update']
     )->name('incidents.update');
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Supprimer un incident
+    |--------------------------------------------------------------------------
+    */
 
     Route::delete(
         '/incidents/{incident}',
@@ -355,12 +383,45 @@ Route::middleware('auth')->group(function () {
 
 
     /*
-    | Informations d'un voyage pour les incidents
+    |--------------------------------------------------------------------------
+    | Prendre en charge un incident
+    |--------------------------------------------------------------------------
     */
 
-    Route::get(
-        '/incidents/voyages/{voyage}/informations',
-        [IncidentController::class, 'voyageInformations']
-    )->name('incidents.voyage.informations');
+    Route::patch(
+        '/incidents/{incident}/prendre-en-charge',
+        [IncidentController::class, 'prendreEnCharge']
+    )->name('incidents.prendreEnCharge');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Résoudre un incident
+    |--------------------------------------------------------------------------
+    */
+
+    Route::patch(
+        '/incidents/{incident}/resoudre',
+        [IncidentController::class, 'resoudre']
+    )->name('incidents.resoudre');
+
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| AFFECTATIONS
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth')->group(function () {
+
+    Route::resource(
+        'affectations',
+        AffectationController::class
+    )->except([
+        'create',
+        'edit',
+    ]);
 
 });

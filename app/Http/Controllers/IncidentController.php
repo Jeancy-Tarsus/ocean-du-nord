@@ -16,7 +16,7 @@ class IncidentController extends Controller
 {
     /*
     |--------------------------------------------------------------------------
-    | Vérification des rôles
+    | ACCÈS GÉNÉRAL
     |--------------------------------------------------------------------------
     */
 
@@ -38,51 +38,6 @@ class IncidentController extends Controller
     }
 
 
-    private function estAdmin(): bool
-    {
-        $user = Auth::user();
-
-        return $user instanceof User
-            && $user->role === 'admin';
-    }
-
-
-    private function estDirecteur(): bool
-    {
-        $user = Auth::user();
-
-        return $user instanceof User
-            && $user->role === 'directeur_exploitation';
-    }
-
-
-    private function estChefParc(): bool
-    {
-        $user = Auth::user();
-
-        return $user instanceof User
-            && $user->role === 'chef_parc';
-    }
-
-
-    private function estChefAgence(): bool
-    {
-        $user = Auth::user();
-
-        return $user instanceof User
-            && $user->role === 'chef_agence';
-    }
-
-
-    private function estChauffeur(): bool
-    {
-        $user = Auth::user();
-
-        return $user instanceof User
-            && $user->role === 'chauffeur';
-    }
-
-
     /*
     |--------------------------------------------------------------------------
     | INDEX
@@ -91,29 +46,13 @@ class IncidentController extends Controller
 
     public function index(Request $request)
     {
-        /*
-        |--------------------------------------------------------------------------
-        | UTILISATEUR CONNECTÉ
-        |--------------------------------------------------------------------------
-        */
-
         $user = Auth::user();
 
         if (!$user) {
             return redirect()
                 ->route('login')
-                ->with(
-                    'error',
-                    'Vous devez être connecté pour accéder aux incidents.'
-                );
+                ->with('error', 'Vous devez être connecté.');
         }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | AUTORISATION
-        |--------------------------------------------------------------------------
-        */
 
         if (!$this->peutAcceder()) {
             return redirect()
@@ -153,12 +92,6 @@ class IncidentController extends Controller
             'user',
         ])
 
-            /*
-            |--------------------------------------------------------------------------
-            | CHEF D'AGENCE
-            |--------------------------------------------------------------------------
-            */
-
             ->when(
                 $user->role === 'chef_agence',
                 function ($query) use ($user) {
@@ -170,13 +103,6 @@ class IncidentController extends Controller
                 }
             )
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | CHAUFFEUR
-            |--------------------------------------------------------------------------
-            */
-
             ->when(
                 $user->role === 'chauffeur',
                 function ($query) use ($user) {
@@ -187,13 +113,6 @@ class IncidentController extends Controller
                     );
                 }
             )
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | RECHERCHE
-            |--------------------------------------------------------------------------
-            */
 
             ->when(
                 $search,
@@ -207,27 +126,20 @@ class IncidentController extends Controller
                             '%' . $search . '%'
                         )
 
-                            ->orWhere(
-                                'titre',
-                                'like',
-                                '%' . $search . '%'
-                            )
+                        ->orWhere(
+                            'titre',
+                            'like',
+                            '%' . $search . '%'
+                        )
 
-                            ->orWhere(
-                                'description',
-                                'like',
-                                '%' . $search . '%'
-                            );
+                        ->orWhere(
+                            'description',
+                            'like',
+                            '%' . $search . '%'
+                        );
                     });
                 }
             )
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | TYPE
-            |--------------------------------------------------------------------------
-            */
 
             ->when(
                 $type,
@@ -240,13 +152,6 @@ class IncidentController extends Controller
                 }
             )
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | GRAVITÉ
-            |--------------------------------------------------------------------------
-            */
-
             ->when(
                 $gravite,
                 function ($query) use ($gravite) {
@@ -257,13 +162,6 @@ class IncidentController extends Controller
                     );
                 }
             )
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | STATUT
-            |--------------------------------------------------------------------------
-            */
 
             ->when(
                 $statut,
@@ -283,7 +181,7 @@ class IncidentController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | VOYAGES DISPONIBLES POUR LE MODAL
+        | VOYAGES
         |--------------------------------------------------------------------------
         */
 
@@ -336,6 +234,7 @@ class IncidentController extends Controller
                 ->where('active', true)
                 ->orderBy('nom')
                 ->get();
+
         } else {
 
             $agences = Agence::where(
@@ -356,12 +255,6 @@ class IncidentController extends Controller
         $buses = Bus::orderBy('numero')->get();
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | PAGE
-        |--------------------------------------------------------------------------
-        */
-
         return view(
             'incidents.index',
             compact(
@@ -380,18 +273,12 @@ class IncidentController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | INFORMATIONS DU VOYAGE
+    | INFORMATIONS VOYAGE
     |--------------------------------------------------------------------------
     */
 
     public function voyageInformations(Voyage $voyage)
     {
-        /*
-        |--------------------------------------------------------------------------
-        | UTILISATEUR
-        |--------------------------------------------------------------------------
-        */
-
         $user = Auth::user();
 
         if (!$user) {
@@ -403,12 +290,6 @@ class IncidentController extends Controller
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | AUTORISATION
-        |--------------------------------------------------------------------------
-        */
-
         if (!$this->peutAcceder()) {
 
             return response()->json([
@@ -417,12 +298,6 @@ class IncidentController extends Controller
             ], 403);
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | CHARGEMENT COMPLET DU VOYAGE
-        |--------------------------------------------------------------------------
-        */
 
         $voyage->load([
             'ligne',
@@ -435,7 +310,7 @@ class IncidentController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | VÉRIFICATION CHEF AGENCE
+        | CHEF AGENCE
         |--------------------------------------------------------------------------
         */
 
@@ -451,7 +326,7 @@ class IncidentController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' =>
-                    'Ce voyage ne concerne pas votre agence.',
+                        'Ce voyage ne concerne pas votre agence.',
                 ], 403);
             }
         }
@@ -459,7 +334,7 @@ class IncidentController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | AGENCES DU VOYAGE
+        | AGENCES
         |--------------------------------------------------------------------------
         */
 
@@ -467,26 +342,28 @@ class IncidentController extends Controller
             ->sortBy(function ($voyageAgence) {
 
                 return $voyageAgence->ordre ?? 0;
+
             })
             ->map(function ($voyageAgence) {
 
                 return [
 
                     'id' =>
-                    $voyageAgence->agence_id,
+                        $voyageAgence->agence_id,
 
                     'nom' =>
-                    $voyageAgence->agence
-                        ? $voyageAgence->agence->nom
-                        : 'Agence',
+                        $voyageAgence->agence
+                            ? $voyageAgence->agence->nom
+                            : 'Agence',
 
                     'type' =>
-                    $voyageAgence->type,
+                        $voyageAgence->type,
 
                     'ordre' =>
-                    $voyageAgence->ordre,
+                        $voyageAgence->ordre,
 
                 ];
+
             })
             ->values()
             ->toArray();
@@ -505,23 +382,23 @@ class IncidentController extends Controller
             $equipe = [
 
                 'id' =>
-                $voyage->equipe->id,
+                    $voyage->equipe->id,
 
                 'code' =>
-                $voyage->equipe->code,
+                    $voyage->equipe->code,
 
                 'nom' =>
-                $voyage->equipe->nom,
+                    $voyage->equipe->nom,
 
                 'chauffeur_titulaire' =>
-                $voyage->equipe->chauffeurTitulaire
-                    ? $voyage->equipe->chauffeurTitulaire->nom
-                    : null,
+                    $voyage->equipe->chauffeurTitulaire
+                        ? $voyage->equipe->chauffeurTitulaire->nom
+                        : null,
 
                 'chauffeur_secondaire' =>
-                $voyage->equipe->chauffeurSecondaire
-                    ? $voyage->equipe->chauffeurSecondaire->nom
-                    : null,
+                    $voyage->equipe->chauffeurSecondaire
+                        ? $voyage->equipe->chauffeurSecondaire->nom
+                        : null,
             ];
         }
 
@@ -539,23 +416,16 @@ class IncidentController extends Controller
             $bus = [
 
                 'id' =>
-                $voyage->bus->id,
+                    $voyage->bus->id,
 
                 'numero' =>
-                $voyage->bus->numero,
+                    $voyage->bus->numero,
 
                 'immatriculation' =>
-                $voyage->bus->immatriculation,
-
+                    $voyage->bus->immatriculation,
             ];
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | RÉPONSE JSON
-        |--------------------------------------------------------------------------
-        */
 
         return response()->json([
 
@@ -564,24 +434,24 @@ class IncidentController extends Controller
             'voyage' => [
 
                 'id' =>
-                $voyage->id,
+                    $voyage->id,
 
                 'code' =>
-                $voyage->code,
+                    $voyage->code,
 
                 'ligne' =>
-                $voyage->ligne
-                    ? $voyage->ligne->nom
-                    : null,
+                    $voyage->ligne
+                        ? $voyage->ligne->nom
+                        : null,
 
                 'bus' =>
-                $bus,
+                    $bus,
 
                 'equipe' =>
-                $equipe,
+                    $equipe,
 
                 'agences' =>
-                $agences,
+                    $agences,
             ],
 
         ]);
@@ -596,12 +466,6 @@ class IncidentController extends Controller
 
     public function store(Request $request)
     {
-        /*
-        |--------------------------------------------------------------------------
-        | UTILISATEUR
-        |--------------------------------------------------------------------------
-        */
-
         $user = Auth::user();
 
         if (!$user) {
@@ -615,28 +479,15 @@ class IncidentController extends Controller
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | AUTORISATION
-        |--------------------------------------------------------------------------
-        */
-
         if (!$this->peutAcceder()) {
 
-            return redirect()
-                ->back()
+            return back()
                 ->with(
                     'error',
                     'Vous n\'êtes pas autorisé à déclarer un incident.'
                 );
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | VALIDATION
-        |--------------------------------------------------------------------------
-        */
 
         $validated = $request->validate([
 
@@ -700,12 +551,6 @@ class IncidentController extends Controller
         ]);
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | VOYAGE
-        |--------------------------------------------------------------------------
-        */
-
         $voyage = Voyage::with([
             'bus',
             'voyageAgences',
@@ -727,7 +572,7 @@ class IncidentController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | VÉRIFICATION AGENCE
+        | AGENCE DU VOYAGE
         |--------------------------------------------------------------------------
         */
 
@@ -751,7 +596,7 @@ class IncidentController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | CHEF D'AGENCE
+        | CHEF AGENCE
         |--------------------------------------------------------------------------
         */
 
@@ -772,12 +617,6 @@ class IncidentController extends Controller
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | BUS DU VOYAGE
-        |--------------------------------------------------------------------------
-        */
-
         $busId = $voyage->bus_id;
 
 
@@ -789,19 +628,13 @@ class IncidentController extends Controller
                 $user
             ) {
 
-                /*
-                |--------------------------------------------------------------------------
-                | RÉFÉRENCE
-                |--------------------------------------------------------------------------
-                */
-
                 $dernierIncident =
                     Incident::latest('id')->first();
 
                 $numero =
                     $dernierIncident
-                    ? $dernierIncident->id + 1
-                    : 1;
+                        ? $dernierIncident->id + 1
+                        : 1;
 
                 $reference =
                     'INC-' .
@@ -813,58 +646,52 @@ class IncidentController extends Controller
                     );
 
 
-                /*
-                |--------------------------------------------------------------------------
-                | CRÉATION
-                |--------------------------------------------------------------------------
-                */
-
                 Incident::create([
 
                     'reference' =>
-                    $reference,
+                        $reference,
 
                     'voyage_id' =>
-                    $validated['voyage_id'],
+                        $validated['voyage_id'],
 
                     'bus_id' =>
-                    $busId,
+                        $busId,
 
                     'agence_id' =>
-                    $validated['agence_id'],
+                        $validated['agence_id'],
 
                     'user_id' =>
-                    $user->id,
+                        $user->id,
 
                     'type' =>
-                    $validated['type'],
+                        $validated['type'],
 
                     'titre' =>
-                    $validated['titre'],
+                        $validated['titre'],
 
                     'description' =>
-                    $validated['description'],
+                        $validated['description'],
 
                     'date_incident' =>
-                    $validated['date_incident'],
+                        $validated['date_incident'],
 
                     'heure_incident' =>
-                    $validated['heure_incident'],
+                        $validated['heure_incident'],
 
                     'gravite' =>
-                    $validated['gravite'],
+                        $validated['gravite'],
 
                     'statut' =>
-                    'ouvert',
+                        'ouvert',
 
                     'resolution' =>
-                    null,
+                        null,
 
                     'date_resolution' =>
-                    null,
+                        null,
 
                     'observation' =>
-                    $validated['observation'] ?? null,
+                        $validated['observation'] ?? null,
                 ]);
             });
 
@@ -875,13 +702,15 @@ class IncidentController extends Controller
                     'success',
                     'Incident enregistré avec succès.'
                 );
+
         } catch (\Throwable $e) {
 
             return back()
                 ->withInput()
                 ->with(
                     'error',
-                    'Une erreur est survenue lors de l\'enregistrement de l\'incident.'
+                    'Une erreur est survenue lors de l\'enregistrement de l\'incident : '
+                    . $e->getMessage()
                 );
         }
     }
@@ -895,12 +724,6 @@ class IncidentController extends Controller
 
     public function show(Incident $incident)
     {
-        /*
-        |--------------------------------------------------------------------------
-        | UTILISATEUR
-        |--------------------------------------------------------------------------
-        */
-
         $user = Auth::user();
 
         if (!$user) {
@@ -913,12 +736,6 @@ class IncidentController extends Controller
                 );
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | AUTORISATION
-        |--------------------------------------------------------------------------
-        */
 
         if (!$this->peutAcceder()) {
 
@@ -933,7 +750,7 @@ class IncidentController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | CHEF D'AGENCE
+        | CHEF AGENCE
         |--------------------------------------------------------------------------
         */
 
@@ -975,12 +792,6 @@ class IncidentController extends Controller
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | CHARGEMENT
-        |--------------------------------------------------------------------------
-        */
-
         $incident->load([
             'voyage.ligne',
             'voyage.bus',
@@ -1007,12 +818,6 @@ class IncidentController extends Controller
 
     public function update(Request $request, Incident $incident)
     {
-        /*
-        |--------------------------------------------------------------------------
-        | UTILISATEUR CONNECTÉ
-        |--------------------------------------------------------------------------
-        */
-
         $user = Auth::user();
 
         if (!$user) {
@@ -1028,25 +833,21 @@ class IncidentController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | VÉRIFICATION DES DROITS
+        | RÈGLE DE MODIFICATION
         |--------------------------------------------------------------------------
         |
-        | ADMIN :
-        | Peut toujours modifier.
+        | ADMIN
+        | -> peut toujours modifier.
         |
-        | DIRECTEUR EXPLOITATION :
-        | Peut toujours modifier.
+        | DIRECTEUR EXPLOITATION
+        | -> peut toujours modifier.
         |
-        | CHEF D'AGENCE :
-        | Peut modifier les incidents de son agence
-        | tant qu'ils ne sont pas résolus.
+        | CHEF AGENCE
+        | -> peut modifier uniquement les incidents
+        |    de son agence ET non résolus.
         |
-        | CRÉATEUR :
-        | Peut modifier son propre incident
-        | tant qu'il n'est pas résolu.
-        |
-        | AUTRES :
-        | Ne peuvent pas modifier.
+        | CHAUFFEUR
+        | -> ne peut pas modifier.
         |
         */
 
@@ -1069,7 +870,9 @@ class IncidentController extends Controller
         |--------------------------------------------------------------------------
         | DIRECTEUR EXPLOITATION
         |--------------------------------------------------------------------------
-        */ elseif ($user->role === 'directeur_exploitation') {
+        */
+
+        elseif ($user->role === 'directeur_exploitation') {
 
             $canEdit = true;
         }
@@ -1077,45 +880,24 @@ class IncidentController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | INCIDENT NON RÉSOLU
+        | CHEF AGENCE
         |--------------------------------------------------------------------------
-        */ elseif ($incident->statut !== 'resolu') {
+        */
 
+        elseif (
+            $user->role === 'chef_agence'
+            &&
+            $incident->statut !== 'resolu'
+            &&
+            $incident->agence_id !== null
+            &&
+            $user->agence_id !== null
+            &&
+            (int) $incident->agence_id ===
+            (int) $user->agence_id
+        ) {
 
-            /*
-            |--------------------------------------------------------------------------
-            | CHEF D'AGENCE
-            |--------------------------------------------------------------------------
-            */
-
-            if (
-                $user->role === 'chef_agence'
-                &&
-                $incident->agence_id !== null
-                &&
-                $user->agence_id !== null
-                &&
-                (int) $incident->agence_id ===
-                (int) $user->agence_id
-            ) {
-
-                $canEdit = true;
-            }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | CRÉATEUR DE L'INCIDENT
-            |--------------------------------------------------------------------------
-            */ elseif (
-                $incident->user_id !== null
-                &&
-                (int) $incident->user_id ===
-                (int) $user->id
-            ) {
-
-                $canEdit = true;
-            }
+            $canEdit = true;
         }
 
 
@@ -1174,7 +956,7 @@ class IncidentController extends Controller
 
             'heure_incident' => [
                 'required',
-                'date_format:H:i',
+                'date_format:H:i:s',
             ],
 
             'gravite' => [
@@ -1205,21 +987,67 @@ class IncidentController extends Controller
                 'nullable',
                 'string',
             ],
-
         ]);
 
 
         /*
         |--------------------------------------------------------------------------
-        | DATE DE RÉSOLUTION
+        | RÉSOLUTION
+        |--------------------------------------------------------------------------
+        */
+
+        $resolution =
+            $validated['resolution'] ?? null;
+
+
+        $dateResolution =
+            $incident->date_resolution;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SI LE STATUT EST RÉSOLU
         |--------------------------------------------------------------------------
         */
 
         if ($validated['statut'] === 'resolu') {
 
-            $dateResolution =
-                $incident->date_resolution ?? now();
+            /*
+            | Pour un incident déjà résolu, on conserve
+            | sa date de résolution.
+            */
+
+            if (!$dateResolution) {
+
+                $dateResolution = now();
+            }
+
+
+            /*
+            | Une résolution est obligatoire
+            | lorsqu'on passe directement à résolu.
+            */
+
+            if (
+                empty(trim((string) $resolution))
+            ) {
+
+                return back()
+                    ->withInput()
+                    ->with(
+                        'error',
+                        'Veuillez renseigner la résolution de l\'incident.'
+                    );
+            }
+
         } else {
+
+            /*
+            | Si l'incident n'est plus résolu,
+            | on efface les informations de résolution.
+            */
+
+            $resolution = null;
 
             $dateResolution = null;
         }
@@ -1231,51 +1059,313 @@ class IncidentController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $incident->update([
+        try {
 
-            'type' =>
-            $validated['type'],
+            $incident->type =
+                $validated['type'];
 
-            'titre' =>
-            $validated['titre'],
+            $incident->titre =
+                $validated['titre'];
 
-            'description' =>
-            $validated['description'],
+            $incident->description =
+                $validated['description'];
 
-            'date_incident' =>
-            $validated['date_incident'],
+            $incident->date_incident =
+                $validated['date_incident'];
 
-            'heure_incident' =>
-            $validated['heure_incident'],
+            $incident->heure_incident =
+                $validated['heure_incident'];
 
-            'gravite' =>
-            $validated['gravite'],
+            $incident->gravite =
+                $validated['gravite'];
 
-            'statut' =>
-            $validated['statut'],
+            $incident->statut =
+                $validated['statut'];
 
-            'resolution' =>
-            $validated['resolution'] ?? null,
+            $incident->resolution =
+                $resolution;
 
-            'date_resolution' =>
-            $dateResolution,
+            $incident->date_resolution =
+                $dateResolution;
 
-            'observation' =>
-            $validated['observation'] ?? null,
-        ]);
+            $incident->observation =
+                $validated['observation'] ?? null;
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | SAUVEGARDE
+            |--------------------------------------------------------------------------
+            */
+
+            $incident->save();
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | REDIRECTION
+            |--------------------------------------------------------------------------
+            */
+
+            return redirect()
+                ->route('incidents.index')
+                ->with(
+                    'success',
+                    'Incident modifié avec succès.'
+                );
+
+        } catch (\Throwable $e) {
+
+            return back()
+                ->withInput()
+                ->with(
+                    'error',
+                    'Impossible de modifier l\'incident : '
+                    . $e->getMessage()
+                );
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PRENDRE EN CHARGE
+    |--------------------------------------------------------------------------
+    */
+
+    public function prendreEnCharge(Incident $incident)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+
+            return redirect()
+                ->route('login')
+                ->with(
+                    'error',
+                    'Vous devez être connecté.'
+                );
+        }
+
+
+        $canTakeCharge = false;
 
 
         /*
         |--------------------------------------------------------------------------
-        | SUCCÈS
+        | ADMIN
         |--------------------------------------------------------------------------
         */
 
-        return redirect()
-            ->route('incidents.index')
+        if ($user->role === 'admin') {
+
+            $canTakeCharge = true;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | DIRECTEUR
+        |--------------------------------------------------------------------------
+        */
+
+        elseif ($user->role === 'directeur_exploitation') {
+
+            $canTakeCharge = true;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CHEF AGENCE
+        |--------------------------------------------------------------------------
+        */
+
+        elseif (
+            $user->role === 'chef_agence'
+            &&
+            $incident->agence_id !== null
+            &&
+            $user->agence_id !== null
+            &&
+            (int) $incident->agence_id ===
+            (int) $user->agence_id
+        ) {
+
+            $canTakeCharge = true;
+        }
+
+
+        if (!$canTakeCharge) {
+
+            return back()
+                ->with(
+                    'error',
+                    'Vous n\'êtes pas autorisé à prendre en charge cet incident.'
+                );
+        }
+
+
+        if ($incident->statut !== 'ouvert') {
+
+            return back()
+                ->with(
+                    'error',
+                    'Seul un incident ouvert peut être pris en charge.'
+                );
+        }
+
+
+        $incident->update([
+
+            'statut' =>
+                'en_cours',
+
+        ]);
+
+
+        return back()
             ->with(
                 'success',
-                'Incident modifié avec succès.'
+                'Incident pris en charge avec succès.'
+            );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | RÉSOUDRE
+    |--------------------------------------------------------------------------
+    */
+
+    public function resoudre(
+        Request $request,
+        Incident $incident
+    ) {
+
+        $user = Auth::user();
+
+        if (!$user) {
+
+            return redirect()
+                ->route('login')
+                ->with(
+                    'error',
+                    'Vous devez être connecté.'
+                );
+        }
+
+
+        $canResolve = false;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | ADMIN
+        |--------------------------------------------------------------------------
+        */
+
+        if ($user->role === 'admin') {
+
+            $canResolve = true;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | DIRECTEUR
+        |--------------------------------------------------------------------------
+        */
+
+        elseif ($user->role === 'directeur_exploitation') {
+
+            $canResolve = true;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CHEF AGENCE
+        |--------------------------------------------------------------------------
+        */
+
+        elseif (
+            $user->role === 'chef_agence'
+            &&
+            $incident->agence_id !== null
+            &&
+            $user->agence_id !== null
+            &&
+            (int) $incident->agence_id ===
+            (int) $user->agence_id
+        ) {
+
+            $canResolve = true;
+        }
+
+
+        if (!$canResolve) {
+
+            return back()
+                ->with(
+                    'error',
+                    'Vous n\'êtes pas autorisé à résoudre cet incident.'
+                );
+        }
+
+
+        if ($incident->statut !== 'en_cours') {
+
+            return back()
+                ->with(
+                    'error',
+                    'Seul un incident en cours peut être résolu.'
+                );
+        }
+
+
+        $validated = $request->validate([
+
+            'resolution' => [
+                'required',
+                'string',
+            ],
+
+            'observation' => [
+                'nullable',
+                'string',
+            ],
+
+        ], [
+
+            'resolution.required' =>
+                'Veuillez renseigner la résolution de l\'incident.',
+
+        ]);
+
+
+        $incident->update([
+
+            'statut' =>
+                'resolu',
+
+            'resolution' =>
+                $validated['resolution'],
+
+            'observation' =>
+                $validated['observation']
+                ?? $incident->observation,
+
+            'date_resolution' =>
+                now(),
+
+        ]);
+
+
+        return back()
+            ->with(
+                'success',
+                'Incident résolu avec succès.'
             );
     }
 
@@ -1288,12 +1378,6 @@ class IncidentController extends Controller
 
     public function destroy(Incident $incident)
     {
-        /*
-        |--------------------------------------------------------------------------
-        | UTILISATEUR
-        |--------------------------------------------------------------------------
-        */
-
         $user = Auth::user();
 
         if (!$user) {
@@ -1309,7 +1393,7 @@ class IncidentController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | AUTORISATION
+        | SEUL ADMIN + DIRECTEUR
         |--------------------------------------------------------------------------
         */
 
@@ -1327,20 +1411,8 @@ class IncidentController extends Controller
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | SUPPRESSION
-        |--------------------------------------------------------------------------
-        */
-
         $incident->delete();
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | SUCCÈS
-        |--------------------------------------------------------------------------
-        */
 
         return redirect()
             ->route('incidents.index')
