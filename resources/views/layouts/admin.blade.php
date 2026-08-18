@@ -12,26 +12,44 @@
         @yield('title', 'Océan du Nord')
     </title>
 
-    <link
-        rel="icon"
-        type="image/png"
-        href="{{ asset('images/logo1.png') }}"
-    >
+    <link rel="icon"
+          type="image/png"
+          href="{{ asset('images/logo1.png') }}">
 
+
+    {{-- =========================================================
+         ADMINLTE
+    ========================================================= --}}
 
     <link rel="stylesheet"
           href="{{ asset('vendor/adminlte/dist/css/adminlte.min.css') }}">
 
+
+    {{-- =========================================================
+         FONT AWESOME
+    ========================================================= --}}
+
     <link rel="stylesheet"
           href="{{ asset('vendor/fontawesome-free/css/all.min.css') }}">
 
+
+    {{-- =========================================================
+         SWEETALERT
+    ========================================================= --}}
+
     <link rel="stylesheet"
           href="{{ asset('sweetalert/dist/sweetalert2.min.css') }}">
+
+
+    {{-- =========================================================
+         VITE
+    ========================================================= --}}
 
     @vite([
         'resources/css/app.css',
         'resources/js/app.js'
     ])
+
 
     @stack('styles')
 
@@ -43,12 +61,18 @@
             background: #f4f6f9;
         }
 
+
+        /* =========================================================
+           NAVBAR
+        ========================================================= */
+
         .main-header {
             height: 70px;
             border-bottom: 1px solid #e5e7eb;
             box-shadow: 0 1px 4px rgba(0,0,0,.05);
             background: #ffffff !important;
         }
+
 
         .ocn-navbar-brand {
             position: absolute;
@@ -61,15 +85,22 @@
             justify-content: center;
         }
 
+
         .ocn-navbar-logo {
             height: 68px;
             width: auto;
             object-fit: contain;
         }
 
+
+        /* =========================================================
+           SIDEBAR
+        ========================================================= */
+
         .main-sidebar {
             background: #142c3d !important;
         }
+
 
         .main-sidebar .brand-link {
             height: 70px;
@@ -80,17 +111,20 @@
             padding: 5px 10px;
         }
 
+
         .ocn-sidebar-logo {
             width: 205px;
             max-height: 58px;
             object-fit: contain;
         }
 
+
         .ocn-user-panel {
             padding: 15px 10px;
             margin: 0 10px 10px;
             border-bottom: 1px solid rgba(255,255,255,.12);
         }
+
 
         .ocn-user-avatar {
             width: 45px;
@@ -104,20 +138,28 @@
             font-size: 22px;
         }
 
+
         .ocn-user-name {
             color: #ffffff !important;
             font-weight: 600;
         }
+
 
         .ocn-online {
             color: #35d16f;
             font-size: 12px;
         }
 
+
         .ocn-online i {
             font-size: 9px;
             margin-right: 4px;
         }
+
+
+        /* =========================================================
+           LIENS SIDEBAR
+        ========================================================= */
 
         .sidebar .nav-link {
             color: #d7e0e7 !important;
@@ -127,10 +169,12 @@
             transition: all .2s ease;
         }
 
+
         .sidebar .nav-link:hover {
             background: rgba(255,255,255,.08);
             color: #ffffff !important;
         }
+
 
         .sidebar .nav-link.active {
             background: #1677d2 !important;
@@ -138,15 +182,22 @@
             box-shadow: 0 3px 8px rgba(0,0,0,.15);
         }
 
+
         .sidebar .nav-icon {
             width: 25px;
             font-size: 16px;
         }
 
+
         .sidebar .nav-link p {
             font-size: 14px;
             margin-left: 4px;
         }
+
+
+        /* =========================================================
+           TITRES DES SECTIONS
+        ========================================================= */
 
         .ocn-menu-title {
             color: rgba(255,255,255,.35);
@@ -157,13 +208,46 @@
             font-weight: 600;
         }
 
+
+        /* =========================================================
+           SOUS-MENU
+        ========================================================= */
+
+        .sidebar .nav-treeview {
+            padding-left: 8px;
+        }
+
+
+        .sidebar .nav-treeview .nav-link {
+            margin-left: 18px;
+            padding-top: 9px;
+            padding-bottom: 9px;
+        }
+
+
+        .sidebar .nav-treeview .nav-icon {
+            font-size: 13px;
+        }
+
+
+        .sidebar .nav-treeview .nav-link p {
+            font-size: 13px;
+        }
+
+
+        /* =========================================================
+           CONTENU
+        ========================================================= */
+
         .content-wrapper {
             background: #f4f6f9;
         }
 
+
         .content-header {
             padding: 20px 25px 10px;
         }
+
 
         .ocn-page-title {
             color: #20384d;
@@ -172,11 +256,13 @@
             margin: 0;
         }
 
+
         .ocn-page-subtitle {
             color: #8995a1;
             font-size: 14px;
             margin-left: 10px;
         }
+
 
         .ocn-breadcrumb {
             background: transparent;
@@ -185,9 +271,15 @@
             font-size: 13px;
         }
 
+
         .ocn-breadcrumb a {
             color: #337ab7;
         }
+
+
+        /* =========================================================
+           FOOTER
+        ========================================================= */
 
         .main-footer {
             background: #ffffff;
@@ -196,20 +288,28 @@
             padding: 15px 20px;
         }
 
+
         .ocn-footer-title {
             color: #20384d;
             font-weight: 600;
         }
 
+
+        /* =========================================================
+           RECHERCHE
+        ========================================================= */
+
         .ocn-search {
             width: 230px;
         }
+
 
         .ocn-search .form-control {
             border-right: 0;
             border-color: #dfe4e8;
             height: 38px;
         }
+
 
         .ocn-search .btn {
             background: #ffffff;
@@ -218,10 +318,16 @@
             color: #506070;
         }
 
+
+        /* =========================================================
+           NOTIFICATIONS
+        ========================================================= */
+
         .ocn-notification {
             position: relative;
             margin-left: 8px;
         }
+
 
         .ocn-notification .badge {
             position: absolute;
@@ -234,11 +340,17 @@
             border-radius: 50%;
         }
 
+
+        /* =========================================================
+           UTILISATEUR NAVBAR
+        ========================================================= */
+
         .ocn-navbar-user {
             display: flex;
             align-items: center;
             margin-left: 12px;
         }
+
 
         .ocn-navbar-avatar {
             width: 35px;
@@ -252,19 +364,27 @@
             margin-right: 7px;
         }
 
+
+        /* =========================================================
+           RESPONSIVE
+        ========================================================= */
+
         @media (max-width: 768px) {
 
             .ocn-search {
                 display: none;
             }
 
+
             .ocn-page-title {
                 font-size: 23px;
             }
 
+
             .ocn-page-subtitle {
                 display: none;
             }
+
 
             .ocn-navbar-logo {
                 height: 42px;
@@ -283,10 +403,14 @@
 <div class="wrapper">
 
 
-    {{-- NAVBAR --}}
+    {{-- =========================================================
+         NAVBAR
+    ========================================================= --}}
 
     <nav class="main-header navbar navbar-expand navbar-white navbar-light">
 
+
+        {{-- LOGO CENTRAL --}}
 
         <a href="{{ route('dashboard') }}"
            class="ocn-navbar-brand">
@@ -297,6 +421,8 @@
 
         </a>
 
+
+        {{-- MENU MOBILE / SIDEBAR --}}
 
         <ul class="navbar-nav">
 
@@ -316,6 +442,8 @@
         </ul>
 
 
+        {{-- TITRE --}}
+
         <div class="d-none d-md-flex align-items-center ml-2">
 
             <span class="font-weight-semibold"
@@ -327,6 +455,10 @@
 
         </div>
 
+
+        {{-- =====================================================
+             PARTIE DROITE
+        ====================================================== --}}
 
         <ul class="navbar-nav ml-auto">
 
@@ -342,18 +474,25 @@
                     <i class="far fa-bell"></i>
 
                     <span class="badge badge-danger">
+
                         0
+
                     </span>
 
                 </a>
 
+
                 <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
 
                     <span class="dropdown-item dropdown-header">
+
                         Notifications
+
                     </span>
 
+
                     <div class="dropdown-divider"></div>
+
 
                     <span class="dropdown-item text-muted text-center">
 
@@ -365,19 +504,16 @@
 
             </li>
 
+
             {{-- UTILISATEUR --}}
 
             <li class="nav-item dropdown">
 
-                <a
-                    class="nav-link"
-                    data-toggle="dropdown"
-                    href="#"
-                >
+                <a class="nav-link"
+                   data-toggle="dropdown"
+                   href="#">
 
                     <span class="ocn-navbar-user">
-
-                        {{-- Avatar --}}
 
                         <span class="ocn-navbar-avatar">
 
@@ -385,8 +521,6 @@
 
                         </span>
 
-
-                        {{-- Nom utilisateur --}}
 
                         @auth
 
@@ -399,8 +533,6 @@
                         @endauth
 
 
-                        {{-- Flèche --}}
-
                         <i class="fas fa-caret-down ml-2"></i>
 
                     </span>
@@ -408,16 +540,8 @@
                 </a>
 
 
-                {{-- =====================================================
-                    MENU DÉROULANT
-                ====================================================== --}}
-
                 <div class="dropdown-menu dropdown-menu-right">
 
-
-                    {{-- =================================================
-                        INFORMATIONS UTILISATEUR
-                    ================================================== --}}
 
                     @auth
 
@@ -445,16 +569,10 @@
                     <div class="dropdown-divider"></div>
 
 
-                    {{-- =================================================
-                        MON PROFIL
-                    ================================================== --}}
-
                     @auth
 
-                        <a
-                            href="{{ route('profile.edit') }}"
-                            class="dropdown-item"
-                        >
+                        <a href="{{ route('profile.edit') }}"
+                           class="dropdown-item">
 
                             <i class="fas fa-user mr-2"></i>
 
@@ -465,30 +583,18 @@
                     @endauth
 
 
-                    {{-- =================================================
-                        SÉPARATION
-                    ================================================== --}}
-
                     <div class="dropdown-divider"></div>
 
 
-                    {{-- =================================================
-                        DÉCONNEXION
-                    ================================================== --}}
-
                     @auth
 
-                        <form
-                            method="POST"
-                            action="{{ route('logout') }}"
-                        >
+                        <form method="POST"
+                              action="{{ route('logout') }}">
 
                             @csrf
 
-                            <button
-                                type="submit"
-                                class="dropdown-item"
-                            >
+                            <button type="submit"
+                                    class="dropdown-item">
 
                                 <i class="fas fa-sign-out-alt mr-2"></i>
 
@@ -503,18 +609,23 @@
                 </div>
 
             </li>
+
         </ul>
 
     </nav>
 
 
-    {{-- SIDEBAR --}}
+    {{-- =========================================================
+         SIDEBAR
+    ========================================================= --}}
 
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
 
 
+        {{-- LOGO --}}
+
         <a href="{{ route('dashboard') }}"
-           class="brand-link">
+           class="brand-link ocn-direct-link">
 
             <img src="{{ asset('images/logo1.png') }}"
                  class="ocn-sidebar-logo"
@@ -526,6 +637,10 @@
         <div class="sidebar">
 
 
+            {{-- =================================================
+                 MENU PRINCIPAL
+            ================================================== --}}
+
             <div class="ocn-menu-title">
 
                 Menu principal
@@ -536,20 +651,26 @@
             <nav class="mt-1">
 
                 <ul class="nav nav-pills nav-sidebar flex-column"
-                    role="menu">
+                    data-widget="treeview"
+                    role="menu"
+                    data-accordion="false">
 
 
-                    {{-- DASHBOARD --}}
+                    {{-- =================================================
+                         TABLEAU DE BORD
+                    ================================================== --}}
 
                     <li class="nav-item">
 
                         <a href="{{ route('dashboard') }}"
-                           class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                           class="nav-link ocn-direct-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
 
                             <i class="nav-icon fas fa-tachometer-alt"></i>
 
                             <p>
+
                                 Tableau de bord
+
                             </p>
 
                         </a>
@@ -559,54 +680,111 @@
 
                     @auth
 
-                        {{-- UTILISATEURS --}}
 
-                        @if(auth()->user()->isAdmin())
+                        {{-- =================================================
+                             VOYAGES
+                        ================================================== --}}
 
-                            <li class="nav-item">
+                        <li class="nav-item">
 
-                                <a href="{{ route('users.index') }}"
-                                   class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}">
+                            <a href="{{ route('voyages.index') }}"
+                               class="nav-link ocn-direct-link {{ request()->routeIs('voyages.*') ? 'active' : '' }}">
 
-                                    <i class="nav-icon fas fa-users-cog"></i>
+                                <i class="nav-icon fas fa-bus-alt"></i>
 
-                                    <p>
-                                        Utilisateurs
-                                    </p>
+                                <p>
 
-                                </a>
+                                    Voyages
 
-                            </li>
+                                </p>
 
-                        @endif
+                            </a>
 
-
-                        {{-- AGENCES --}}
-
-                        @if(
-                            auth()->user()->isAdmin() ||
-                            auth()->user()->role === 'chef_agence'
-                        )
-
-                            <li class="nav-item">
-
-                                <a href="{{ route('agences.index') }}"
-                                   class="nav-link {{ request()->routeIs('agences.*') ? 'active' : '' }}">
-
-                                    <i class="nav-icon fas fa-building"></i>
-
-                                    <p>
-                                        Agences
-                                    </p>
-
-                                </a>
-
-                            </li>
-
-                        @endif
+                        </li>
 
 
-                        {{-- BUS --}}
+                        {{-- =================================================
+                             PLANNING
+                        ================================================== --}}
+
+                        <li class="nav-item">
+
+                            <a href="{{ route('planning.index') }}"
+                               class="nav-link ocn-direct-link {{ request()->routeIs('planning.*') ? 'active' : '' }}">
+
+                                <i class="nav-icon fas fa-calendar-alt"></i>
+
+                                <p>
+
+                                    Planning
+
+                                </p>
+
+                            </a>
+
+                        </li>
+
+
+                        {{-- =================================================
+                             INCIDENTS
+                        ================================================== --}}
+
+                        <li class="nav-item">
+
+                            <a href="{{ route('incidents.index') }}"
+                               class="nav-link ocn-direct-link {{ request()->routeIs('incidents.*') ? 'active' : '' }}">
+
+                                <i class="nav-icon fas fa-exclamation-triangle"></i>
+
+                                <p>
+
+                                    Incidents
+
+                                </p>
+
+                            </a>
+
+                        </li>
+
+
+                        {{-- =================================================
+                             AFFECTATIONS
+                        ================================================== --}}
+
+                        <li class="nav-item">
+
+                            <a href="{{ route('affectations.index') }}"
+                               class="nav-link ocn-direct-link {{ request()->routeIs('affectations.*') ? 'active' : '' }}">
+
+                                <i class="nav-icon fas fa-exchange-alt"></i>
+
+                                <p>
+
+                                    Affectations
+
+                                </p>
+
+                            </a>
+
+                        </li>
+
+
+                    @endauth
+
+
+                    {{-- =================================================
+                         EXPLOITATION / RÉFÉRENTIELS
+                    ================================================== --}}
+
+                    @auth
+
+                        <li class="nav-header ocn-menu-title">
+
+                            Exploitation
+                        </li>
+
+
+                        {{-- PARC AUTOMOBILE --}}
 
                         @if(
                             auth()->user()->role === 'admin' ||
@@ -616,12 +794,14 @@
                             <li class="nav-item">
 
                                 <a href="{{ route('bus.index') }}"
-                                   class="nav-link {{ request()->routeIs('bus.*') ? 'active' : '' }}">
+                                   class="nav-link ocn-direct-link {{ request()->routeIs('bus.*') ? 'active' : '' }}">
 
                                     <i class="nav-icon fas fa-bus"></i>
 
                                     <p>
+
                                         Parc automobile
+
                                     </p>
 
                                 </a>
@@ -641,12 +821,14 @@
                             <li class="nav-item">
 
                                 <a href="{{ route('chauffeurs.index') }}"
-                                   class="nav-link {{ request()->routeIs('chauffeurs.*') ? 'active' : '' }}">
+                                   class="nav-link ocn-direct-link {{ request()->routeIs('chauffeurs.*') ? 'active' : '' }}">
 
                                     <i class="nav-icon fas fa-id-card"></i>
 
                                     <p>
+
                                         Chauffeurs
+
                                     </p>
 
                                 </a>
@@ -666,12 +848,14 @@
                             <li class="nav-item">
 
                                 <a href="{{ route('equipes.index') }}"
-                                   class="nav-link {{ request()->routeIs('equipes.*') ? 'active' : '' }}">
+                                   class="nav-link ocn-direct-link {{ request()->routeIs('equipes.*') ? 'active' : '' }}">
 
                                     <i class="nav-icon fas fa-users-cog"></i>
 
                                     <p>
+
                                         Équipes
+
                                     </p>
 
                                 </a>
@@ -691,12 +875,14 @@
                             <li class="nav-item">
 
                                 <a href="{{ route('lignes.index') }}"
-                                   class="nav-link {{ request()->routeIs('lignes.*') ? 'active' : '' }}">
+                                   class="nav-link ocn-direct-link {{ request()->routeIs('lignes.*') ? 'active' : '' }}">
 
                                     <i class="nav-icon fas fa-route"></i>
 
                                     <p>
+
                                         Lignes
+
                                     </p>
 
                                 </a>
@@ -706,57 +892,96 @@
                         @endif
 
 
-                        {{-- VOYAGES --}}
-
-                        <li class="nav-item">
-
-                            <a href="{{ route('voyages.index') }}"
-                               class="nav-link {{ request()->routeIs('voyages.*') ? 'active' : '' }}">
-
-                                <i class="nav-icon fas fa-bus-alt"></i>
-
-                                <p>
-                                    Voyages
-                                </p>
-
-                            </a>
-
-                        </li>
+                    @endauth
 
 
-                        {{-- PLANNING --}}
+                    {{-- =================================================
+                         PARAMÈTRES
+                    ================================================== --}}
 
-                        <li class="nav-item">
+                    @auth
 
-                           <a href="{{ route('planning.index') }}"
-                                class="nav-link {{ request()->routeIs('planning.*') ? 'active' : '' }}">
+                        @if(auth()->user()->isAdmin())
 
-                                <i class="nav-icon fas fa-calendar-alt"></i>
+                            <li class="nav-header ocn-menu-title">
 
-                                <p>
-                                    Planning
-                                </p>
+                                Paramètres
 
-                            </a>
-
-                        </li>
+                            </li>
 
 
-                        {{-- INCIDENTS --}}
+                            <li class="nav-item has-treeview
+                                {{ request()->routeIs('users.*') || request()->routeIs('agences.*') ? 'menu-open' : '' }}">
 
-                       <li class="nav-item">
-                            <a href="{{ route('incidents.index') }}"
-                            class="nav-link {{ request()->routeIs('incidents.*') ? 'active' : '' }}">
 
-                                <i class="nav-icon fas fa-exclamation-triangle"></i>
+                                {{-- BOUTON PARENT : PARAMÈTRES --}}
 
-                                <p>
-                                    Incidents
-                                </p>
+                                <a href="javascript:void(0);"
+                                   class="nav-link
+                                   {{ request()->routeIs('users.*') || request()->routeIs('agences.*') ? 'active' : '' }}"
+                                   data-widget="treeview"
+                                   role="button">
 
-                            </a>
+                                    <i class="nav-icon fas fa-cogs"></i>
 
-                        </li>
+                                    <p>
+
+                                        Paramètres
+
+                                        <i class="right fas fa-angle-left"></i>
+
+                                    </p>
+
+                                </a>
+
+
+                                <ul class="nav nav-treeview">
+
+
+                                    {{-- UTILISATEURS --}}
+
+                                    <li class="nav-item">
+
+                                        <a href="{{ route('users.index') }}"
+                                           class="nav-link ocn-direct-link {{ request()->routeIs('users.*') ? 'active' : '' }}">
+
+                                            <i class="nav-icon fas fa-users-cog"></i>
+
+                                            <p>
+
+                                                Utilisateurs
+
+                                            </p>
+
+                                        </a>
+
+                                    </li>
+
+
+                                    {{-- AGENCES --}}
+
+                                    <li class="nav-item">
+
+                                        <a href="{{ route('agences.index') }}"
+                                           class="nav-link ocn-direct-link {{ request()->routeIs('agences.*') ? 'active' : '' }}">
+
+                                            <i class="nav-icon fas fa-building"></i>
+
+                                            <p>
+
+                                                Agences
+
+                                            </p>
+
+                                        </a>
+
+                                    </li>
+
+                                </ul>
+
+                            </li>
+
+                        @endif
 
                     @endauth
 
@@ -770,7 +995,9 @@
     </aside>
 
 
-    {{-- CONTENU PRINCIPAL --}}
+    {{-- =========================================================
+         CONTENU PRINCIPAL
+    ========================================================= --}}
 
     <div class="content-wrapper">
 
@@ -817,7 +1044,8 @@
 
                             <li class="breadcrumb-item">
 
-                                <a href="{{ route('dashboard') }}">
+                                <a href="{{ route('dashboard') }}"
+                                   class="ocn-direct-link">
 
                                     <i class="fas fa-home mr-1"></i>
 
@@ -848,6 +1076,10 @@
         </section>
 
 
+        {{-- =========================================================
+             CONTENU
+        ========================================================= --}}
+
         <section class="content">
 
             <div class="container-fluid">
@@ -861,7 +1093,9 @@
     </div>
 
 
-    {{-- FOOTER --}}
+    {{-- =========================================================
+         FOOTER
+    ========================================================= --}}
 
     <footer class="main-footer">
 
@@ -889,6 +1123,10 @@
 </div>
 
 
+{{-- =========================================================
+     JAVASCRIPT
+========================================================= --}}
+
 <script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
 
 <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
@@ -896,6 +1134,62 @@
 <script src="{{ asset('vendor/adminlte/dist/js/adminlte.min.js') }}"></script>
 
 <script src="{{ asset('sweetalert/dist/sweetalert2.all.min.js') }}"></script>
+
+
+<script>
+
+$(document).ready(function () {
+
+    /*
+    |--------------------------------------------------------------------------
+    | NAVIGATION DIRECTE DES LIENS DU MENU
+    |--------------------------------------------------------------------------
+    |
+    | Les vrais liens de navigation passent directement vers leur URL.
+    | Cela évite qu'un comportement du treeview/AdminLTE intercepte
+    | le premier clic.
+    |
+    */
+
+    $(document).on(
+        'click',
+        '.ocn-direct-link',
+        function (e) {
+
+            e.stopPropagation();
+
+            var href = $(this).attr('href');
+
+
+            if (
+                href
+                &&
+                href !== '#'
+                &&
+                href !== 'javascript:void(0);'
+            ) {
+
+                window.location.href = href;
+
+            }
+
+        }
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PARAMÈTRES
+    |--------------------------------------------------------------------------
+    |
+    | Le parent Paramètres reste géré par AdminLTE.
+    | Ses enfants sont de vrais liens et utilisent .ocn-direct-link.
+    |
+    */
+
+});
+
+</script>
 
 
 @stack('scripts')

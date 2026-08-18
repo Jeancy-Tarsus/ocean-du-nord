@@ -6,7 +6,7 @@
      role="dialog"
      aria-hidden="true">
 
-    <div class="modal-dialog modal-lg modal-dialog-centered"
+    <div class="modal-dialog modal-xl modal-dialog-centered"
          role="document">
 
         <div class="modal-content shadow-lg border-0">
@@ -43,13 +43,14 @@
                         aria-label="Fermer">
 
                     <span aria-hidden="true">
+
                         &times;
+
                     </span>
 
                 </button>
 
             </div>
-
 
 
             {{-- =====================================================
@@ -60,18 +61,18 @@
 
 
                 {{-- =================================================
-                     IDENTIFICATION
+                     INFORMATIONS PRINCIPALES
                 ================================================== --}}
 
-                <div class="card border shadow-sm mb-4">
+                <div class="card border mb-4">
 
-                    <div class="card-header ocn-light">
+                    <div class="card-header bg-light">
 
                         <strong>
 
-                            <i class="fas fa-info-circle ocn-green mr-1"></i>
+                            <i class="fas fa-info-circle mr-1 ocn-green"></i>
 
-                            Identification
+                            Informations de l'incident
 
                         </strong>
 
@@ -117,7 +118,9 @@
                                     @case('panne')
 
                                         <span class="badge badge-warning">
+
                                             Panne
+
                                         </span>
 
                                         @break
@@ -125,7 +128,9 @@
                                     @case('accident')
 
                                         <span class="badge badge-danger">
+
                                             Accident
+
                                         </span>
 
                                         @break
@@ -133,7 +138,9 @@
                                     @case('retard')
 
                                         <span class="badge badge-info">
+
                                             Retard
+
                                         </span>
 
                                         @break
@@ -141,7 +148,9 @@
                                     @case('probleme_chauffeur')
 
                                         <span class="badge badge-secondary">
+
                                             Problème chauffeur
+
                                         </span>
 
                                         @break
@@ -149,7 +158,9 @@
                                     @case('probleme_technique')
 
                                         <span class="badge badge-primary">
+
                                             Problème technique
+
                                         </span>
 
                                         @break
@@ -157,7 +168,9 @@
                                     @default
 
                                         <span class="badge badge-light">
+
                                             Autre
+
                                         </span>
 
                                 @endswitch
@@ -180,7 +193,9 @@
                                     @case('faible')
 
                                         <span class="badge badge-success">
+
                                             Faible
+
                                         </span>
 
                                         @break
@@ -188,7 +203,9 @@
                                     @case('moyenne')
 
                                         <span class="badge badge-warning">
+
                                             Moyenne
+
                                         </span>
 
                                         @break
@@ -196,7 +213,9 @@
                                     @case('grave')
 
                                         <span class="badge badge-orange">
+
                                             Grave
+
                                         </span>
 
                                         @break
@@ -204,7 +223,9 @@
                                     @case('critique')
 
                                         <span class="badge badge-danger">
+
                                             Critique
+
                                         </span>
 
                                         @break
@@ -216,7 +237,7 @@
 
                             {{-- TITRE --}}
 
-                            <div class="col-md-12">
+                            <div class="col-md-12 mb-3">
 
                                 <small class="text-muted d-block">
 
@@ -232,6 +253,25 @@
 
                             </div>
 
+
+                            {{-- DESCRIPTION --}}
+
+                            <div class="col-md-12">
+
+                                <small class="text-muted d-block">
+
+                                    Description
+
+                                </small>
+
+                                <div class="p-3 bg-light rounded">
+
+                                    {{ $incident->description }}
+
+                                </div>
+
+                            </div>
+
                         </div>
 
                     </div>
@@ -239,20 +279,19 @@
                 </div>
 
 
-
                 {{-- =================================================
-                     VOYAGE
+                     VOYAGE / BUS / ÉQUIPE
                 ================================================== --}}
 
-                <div class="card border shadow-sm mb-4">
+                <div class="card border mb-4">
 
-                    <div class="card-header ocn-light">
+                    <div class="card-header bg-light">
 
                         <strong>
 
-                            <i class="fas fa-route ocn-green mr-1"></i>
+                            <i class="fas fa-bus mr-1 ocn-green"></i>
 
-                            Informations du voyage
+                            Ressources concernées
 
                         </strong>
 
@@ -266,38 +305,41 @@
 
                             {{-- VOYAGE --}}
 
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-6 mb-3">
 
                                 <small class="text-muted d-block">
+
+                                    <i class="fas fa-route ocn-green mr-1"></i>
 
                                     Voyage
 
                                 </small>
 
-                                <strong>
+                                @if($incident->voyage)
 
-                                    {{ $incident->voyage->code ?? '—' }}
+                                    <strong>
 
-                                </strong>
+                                        {{ $incident->voyage->code }}
 
-                            </div>
+                                    </strong>
 
+                                    <br>
 
-                            {{-- LIGNE --}}
+                                    <small class="text-muted">
 
-                            <div class="col-md-8 mb-3">
+                                        {{ $incident->voyage->ligne->nom ?? 'Ligne inconnue' }}
 
-                                <small class="text-muted d-block">
+                                    </small>
 
-                                    Ligne
+                                @else
 
-                                </small>
+                                    <span class="text-muted">
 
-                                <strong>
+                                        —
 
-                                    {{ $incident->voyage->ligne->nom ?? '—' }}
+                                    </span>
 
-                                </strong>
+                                @endif
 
                             </div>
 
@@ -363,7 +405,7 @@
 
                             @if($incident->voyage && $incident->voyage->equipe)
 
-                                <div class="col-md-4">
+                                <div class="col-md-6 mb-3">
 
                                     <small class="text-muted d-block">
 
@@ -381,40 +423,6 @@
 
                                 </div>
 
-
-                                <div class="col-md-4">
-
-                                    <small class="text-muted d-block">
-
-                                        Chauffeur titulaire
-
-                                    </small>
-
-                                    <span>
-
-                                        {{ $incident->voyage->equipe->chauffeurTitulaire->nom ?? '—' }}
-
-                                    </span>
-
-                                </div>
-
-
-                                <div class="col-md-4">
-
-                                    <small class="text-muted d-block">
-
-                                        Chauffeur secondaire
-
-                                    </small>
-
-                                    <span>
-
-                                        {{ $incident->voyage->equipe->chauffeurSecondaire->nom ?? '—' }}
-
-                                    </span>
-
-                                </div>
-
                             @endif
 
                         </div>
@@ -424,52 +432,17 @@
                 </div>
 
 
-
-                {{-- =================================================
-                     DESCRIPTION
-                ================================================== --}}
-
-                <div class="card border shadow-sm mb-4">
-
-                    <div class="card-header ocn-light">
-
-                        <strong>
-
-                            <i class="fas fa-align-left ocn-green mr-1"></i>
-
-                            Description de l'incident
-
-                        </strong>
-
-                    </div>
-
-
-                    <div class="card-body">
-
-                        <p class="mb-0"
-                           style="white-space: pre-line;">
-
-                            {{ $incident->description }}
-
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-
                 {{-- =================================================
                      DATE / HEURE / STATUT
                 ================================================== --}}
 
-                <div class="card border shadow-sm mb-4">
+                <div class="card border mb-4">
 
-                    <div class="card-header ocn-light">
+                    <div class="card-header bg-light">
 
                         <strong>
 
-                            <i class="fas fa-clock ocn-green mr-1"></i>
+                            <i class="fas fa-clock mr-1 ocn-green"></i>
 
                             Suivi
 
@@ -495,7 +468,10 @@
 
                                 <strong>
 
-                                    {{ \Carbon\Carbon::parse($incident->date_incident)->format('d/m/Y') }}
+                                    {{ $incident->date_incident
+                                        ? $incident->date_incident->format('d/m/Y')
+                                        : '—'
+                                    }}
 
                                 </strong>
 
@@ -575,122 +551,9 @@
                             </div>
 
 
-                            {{-- RÉSOLUTION --}}
+                            {{-- DÉCLARÉ PAR --}}
 
-                            @if($incident->resolution)
-
-                                <div class="col-md-12 mb-3">
-
-                                    <small class="text-muted d-block">
-
-                                        Résolution
-
-                                    </small>
-
-                                    <div class="mt-1"
-                                         style="white-space: pre-line;">
-
-                                        {{ $incident->resolution }}
-
-                                    </div>
-
-                                </div>
-
-                            @endif
-
-
-                            {{-- DATE RÉSOLUTION --}}
-
-                            @if($incident->date_resolution)
-
-                                <div class="col-md-6">
-
-                                    <small class="text-muted d-block">
-
-                                        Date de résolution
-
-                                    </small>
-
-                                    <strong>
-
-                                        {{ \Carbon\Carbon::parse($incident->date_resolution)->format('d/m/Y H:i') }}
-
-                                    </strong>
-
-                                </div>
-
-                            @endif
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-
-                {{-- =================================================
-                     OBSERVATION
-                ================================================== --}}
-
-                @if($incident->observation)
-
-                    <div class="card border shadow-sm mb-4">
-
-                        <div class="card-header ocn-light">
-
-                            <strong>
-
-                                <i class="fas fa-comment-alt ocn-green mr-1"></i>
-
-                                Observation
-
-                            </strong>
-
-                        </div>
-
-
-                        <div class="card-body">
-
-                            <p class="mb-0"
-                               style="white-space: pre-line;">
-
-                                {{ $incident->observation }}
-
-                            </p>
-
-                        </div>
-
-                    </div>
-
-                @endif
-
-
-
-                {{-- =================================================
-                     DÉCLARATION
-                ================================================== --}}
-
-                <div class="card border shadow-sm">
-
-                    <div class="card-header ocn-light">
-
-                        <strong>
-
-                            <i class="fas fa-user ocn-green mr-1"></i>
-
-                            Déclaration
-
-                        </strong>
-
-                    </div>
-
-
-                    <div class="card-body">
-
-                        <div class="row">
-
-                            <div class="col-md-6">
+                            <div class="col-md-6 mb-3">
 
                                 <small class="text-muted d-block">
 
@@ -700,14 +563,16 @@
 
                                 <strong>
 
-                                    {{ $incident->user->name ?? 'Utilisateur inconnu' }}
+                                    {{ $incident->user->name ?? '—' }}
 
                                 </strong>
 
                             </div>
 
 
-                            <div class="col-md-6">
+                            {{-- DATE ENREGISTREMENT --}}
+
+                            <div class="col-md-6 mb-3">
 
                                 <small class="text-muted d-block">
 
@@ -729,8 +594,101 @@
 
                 </div>
 
-            </div>
 
+                {{-- =================================================
+                     RÉSOLUTION
+                ================================================== --}}
+
+                @if($incident->statut === 'resolu')
+
+                    <div class="card border mb-4">
+
+                        <div class="card-header bg-light">
+
+                            <strong>
+
+                                <i class="fas fa-check-circle mr-1 text-success"></i>
+
+                                Résolution
+
+                            </strong>
+
+                        </div>
+
+
+                        <div class="card-body">
+
+                            <div class="mb-3">
+
+                                <small class="text-muted d-block">
+
+                                    Solution apportée
+
+                                </small>
+
+                                <div class="p-3 bg-light rounded">
+
+                                    {{ $incident->resolution ?? '—' }}
+
+                                </div>
+
+                            </div>
+
+
+                            @if($incident->date_resolution)
+
+                                <small class="text-muted">
+
+                                    Résolu le :
+
+                                    <strong>
+
+                                        {{ \Carbon\Carbon::parse($incident->date_resolution)->format('d/m/Y H:i') }}
+
+                                    </strong>
+
+                                </small>
+
+                            @endif
+
+                        </div>
+
+                    </div>
+
+                @endif
+
+
+                {{-- =================================================
+                     OBSERVATION
+                ================================================== --}}
+
+                @if($incident->observation)
+
+                    <div class="card border">
+
+                        <div class="card-header bg-light">
+
+                            <strong>
+
+                                <i class="fas fa-comment-alt mr-1 ocn-green"></i>
+
+                                Observation
+
+                            </strong>
+
+                        </div>
+
+                        <div class="card-body">
+
+                            {{ $incident->observation }}
+
+                        </div>
+
+                    </div>
+
+                @endif
+
+            </div>
 
 
             {{-- =====================================================
@@ -780,7 +738,7 @@
 
                     /*
                     |--------------------------------------------------------------------------
-                    | CHEF D'AGENCE
+                    | CHEF AGENCE
                     |--------------------------------------------------------------------------
                     */
 
@@ -805,7 +763,8 @@
 
 
                 {{-- =================================================
-                     PRENDRE EN CHARGE
+                     INCIDENT OUVERT
+                     → UNIQUEMENT PRENDRE EN CHARGE
                 ================================================== --}}
 
                 @if(
@@ -837,7 +796,43 @@
 
 
                 {{-- =================================================
-                     RÉSOUDRE
+                     INCIDENT EN COURS
+                     → AFFECTER UN BUS
+                ================================================== --}}
+
+                @if(
+                    $incident->statut === 'en_cours'
+                    &&
+                    $incident->voyage_id
+                    &&
+                    $incident->bus_id
+                    &&
+                    in_array($user->role, [
+                        'admin',
+                        'directeur_exploitation',
+                        'chef_parc',
+                        'chef_agence'
+                    ])
+                )
+
+                    <a href="{{ route('affectations.index', [
+                        'voyage_id' => $incident->voyage_id,
+                        'motif' => 'Incident ' . $incident->reference . ' : ' . $incident->titre
+                    ]) }}"
+                       class="btn btn-primary">
+
+                        <i class="fas fa-bus mr-1"></i>
+
+                        Affecter un bus de remplacement
+
+                    </a>
+
+                @endif
+
+
+                {{-- =================================================
+                     INCIDENT EN COURS
+                     → RÉSOUDRE
                 ================================================== --}}
 
                 @if(
@@ -848,16 +843,23 @@
 
                     <button type="button"
                             class="btn ocn-btn"
+                            data-dismiss="modal"
                             data-toggle="modal"
                             data-target="#modalResolveIncident{{ $incident->id }}">
 
                         <i class="fas fa-check-circle mr-1"></i>
 
-                        Résoudre l'incident
+                        Résoudre
 
                     </button>
 
                 @endif
+
+
+                {{-- =================================================
+                     INCIDENT RÉSOLU
+                     → AUCUNE ACTION SUPPLÉMENTAIRE
+                ================================================== --}}
 
 
                 {{-- =================================================

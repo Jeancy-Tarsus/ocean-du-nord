@@ -17,10 +17,14 @@
 
                 @csrf
 
-                {{-- HEADER --}}
+                {{-- =====================================================
+                     HEADER
+                ====================================================== --}}
+
                 <div class="modal-header ocn-modal-header">
 
                     <div>
+
                         <h5 class="modal-title text-white">
 
                             <i class="fas fa-exchange-alt mr-2"></i>
@@ -34,6 +38,7 @@
                             Remplacement d'une ressource pendant un voyage
 
                         </small>
+
                     </div>
 
                     <button type="button"
@@ -47,11 +52,17 @@
                 </div>
 
 
-                {{-- BODY --}}
+                {{-- =====================================================
+                     BODY
+                ====================================================== --}}
+
                 <div class="modal-body p-4">
 
 
-                    {{-- VOYAGE --}}
+                    {{-- =================================================
+                         VOYAGE
+                    ================================================== --}}
+
                     <div class="form-group">
 
                         <label>
@@ -79,10 +90,19 @@
                                         data-code="{{ $voyage->code }}"
                                         data-ligne="{{ $voyage->ligne->nom ?? 'Ligne inconnue' }}"
                                         data-statut="{{ $voyage->statut }}"
-                                        data-bus-id="{{ $voyage->bus_id }}"
+                                        data-bus-id="{{ $voyage->bus_id ?? '' }}"
                                         data-bus="{{ $voyage->bus->numero ?? '—' }}"
-                                        data-equipe-id="{{ $voyage->equipe_id }}"
-                                        data-equipe="{{ $voyage->equipe->nom ?? '—' }}">
+                                        data-equipe-id="{{ $voyage->equipe_id ?? '' }}"
+                                        data-equipe="{{ $voyage->equipe->nom ?? '—' }}"
+
+                                    @if(
+                                        isset($prefillVoyageId)
+                                        &&
+                                        (int) $prefillVoyageId === (int) $voyage->id
+                                    )
+                                        selected
+                                    @endif
+                                >
 
                                     {{ $voyage->code }}
                                     —
@@ -97,18 +117,20 @@
                     </div>
 
 
-                    {{-- INFORMATIONS VOYAGE --}}
+                    {{-- =================================================
+                         INFORMATIONS VOYAGE
+                    ================================================== --}}
+
                     <div id="voyageInformations"
-                         class="alert alert-light border d-none">
+                         class="alert alert-light border"
+                         style="display:none;">
 
                         <div class="row">
 
                             <div class="col-md-4">
 
                                 <small class="text-muted d-block">
-
                                     Voyage
-
                                 </small>
 
                                 <strong id="infoVoyage">
@@ -117,13 +139,10 @@
 
                             </div>
 
-
                             <div class="col-md-5">
 
                                 <small class="text-muted d-block">
-
                                     Ligne
-
                                 </small>
 
                                 <strong id="infoLigne">
@@ -132,13 +151,10 @@
 
                             </div>
 
-
                             <div class="col-md-3">
 
                                 <small class="text-muted d-block">
-
                                     Statut
-
                                 </small>
 
                                 <strong id="infoStatut">
@@ -152,7 +168,10 @@
                     </div>
 
 
-                    {{-- TYPE --}}
+                    {{-- =================================================
+                         TYPE
+                    ================================================== --}}
+
                     <div class="form-group">
 
                         <label>
@@ -197,7 +216,10 @@
                     </div>
 
 
-                    {{-- RESSOURCES ACTUELLES --}}
+                    {{-- =================================================
+                         RESSOURCES ACTUELLES
+                    ================================================== --}}
+
                     <div class="card border mb-4">
 
                         <div class="card-header bg-light">
@@ -212,20 +234,18 @@
 
                         </div>
 
-
                         <div class="card-body">
 
                             <div class="row">
 
-                                {{-- ANCIEN BUS --}}
+                                {{-- BUS ACTUEL --}}
+
                                 <div class="col-md-6">
 
                                     <div class="form-group mb-md-0">
 
                                         <label>
-
                                             Bus actuel
-
                                         </label>
 
                                         <input type="text"
@@ -243,15 +263,14 @@
                                 </div>
 
 
-                                {{-- ANCIENNE ÉQUIPE --}}
+                                {{-- ÉQUIPE ACTUELLE --}}
+
                                 <div class="col-md-6">
 
                                     <div class="form-group mb-md-0">
 
                                         <label>
-
                                             Équipe actuelle
-
                                         </label>
 
                                         <input type="text"
@@ -275,7 +294,10 @@
                     </div>
 
 
-                    {{-- RESSOURCES DE REMPLACEMENT --}}
+                    {{-- =================================================
+                         RESSOURCES DE REMPLACEMENT
+                    ================================================== --}}
+
                     <div class="card border mb-4">
 
                         <div class="card-header bg-light">
@@ -290,13 +312,16 @@
 
                         </div>
 
-
                         <div class="card-body">
 
 
-                            {{-- NOUVEAU BUS --}}
+                            {{-- =================================================
+                                 BUS DE REMPLACEMENT
+                            ================================================== --}}
+
                             <div id="blocNouveauBus"
-                                 class="form-group d-none">
+                                 class="form-group"
+                                 style="display:none;">
 
                                 <label>
 
@@ -322,7 +347,7 @@
 
                                             {{ $bus->numero }}
 
-                                            @if(isset($bus->immatriculation))
+                                            @if($bus->immatriculation)
 
                                                 —
                                                 {{ $bus->immatriculation }}
@@ -337,18 +362,20 @@
 
                                 <small class="text-muted">
 
-                                    Seuls les bus ayant le statut
-                                    <strong>disponible</strong>
-                                    sont proposés.
+                                    Seuls les bus disponibles sont proposés.
 
                                 </small>
 
                             </div>
 
 
-                            {{-- NOUVELLE ÉQUIPE --}}
+                            {{-- =================================================
+                                 NOUVELLE ÉQUIPE
+                            ================================================== --}}
+
                             <div id="blocNouvelleEquipe"
-                                 class="form-group d-none">
+                                 class="form-group"
+                                 style="display:none;">
 
                                 <label>
 
@@ -382,12 +409,29 @@
 
                             </div>
 
+
+                            {{-- =================================================
+                                 MESSAGE INITIAL
+                            ================================================== --}}
+
+                            <div id="messageChoixRemplacement"
+                                 class="text-muted text-center py-3">
+
+                                <i class="fas fa-info-circle mr-1"></i>
+
+                                Sélectionnez le type de remplacement.
+
+                            </div>
+
                         </div>
 
                     </div>
 
 
-                    {{-- MOTIF --}}
+                    {{-- =================================================
+                         MOTIF
+                    ================================================== --}}
+
                     <div class="form-group">
 
                         <label>
@@ -400,15 +444,19 @@
 
                         <input type="text"
                                name="motif"
+                               id="affectationMotif"
                                class="form-control"
                                placeholder="Ex : Panne moteur du bus"
-                               value="{{ old('motif') }}"
+                               value="{{ $prefillMotif ?? old('motif') }}"
                                required>
 
                     </div>
 
 
-                    {{-- DATE / HEURE --}}
+                    {{-- =================================================
+                         DATE / HEURE
+                    ================================================== --}}
+
                     <div class="row">
 
                         <div class="col-md-6">
@@ -459,7 +507,10 @@
                     </div>
 
 
-                    {{-- OBSERVATION --}}
+                    {{-- =================================================
+                         OBSERVATION
+                    ================================================== --}}
+
                     <div class="form-group">
 
                         <label>
@@ -476,23 +527,29 @@
                     </div>
 
 
-                    {{-- INFORMATION --}}
+                    {{-- =================================================
+                         INFORMATION
+                    ================================================== --}}
+
                     <div class="alert alert-warning mb-0">
 
                         <i class="fas fa-info-circle mr-1"></i>
 
                         <strong>Important :</strong>
 
-                        cette opération enregistre le remplacement
-                        dans l'historique. Les informations initiales
-                        du voyage ne sont pas modifiées.
+                        le voyage conserve son bus et son équipe
+                        d'origine. Cette opération enregistre le
+                        remplacement dans l'historique des affectations.
 
                     </div>
 
                 </div>
 
 
-                {{-- FOOTER --}}
+                {{-- =====================================================
+                     FOOTER
+                ====================================================== --}}
+
                 <div class="modal-footer ocn-modal-footer">
 
                     <button type="button"
@@ -525,171 +582,85 @@
 </div>
 
 
-{{-- =========================================================
-     JAVASCRIPT
-========================================================= --}}
-
 <script>
 
-$(document).ready(function () {
-
+(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | QUAND ON CHOISIT UN VOYAGE
+    | FONCTION : AFFICHER LES CHAMPS SELON LE TYPE
     |--------------------------------------------------------------------------
     */
 
-    $('#affectationVoyage').on('change', function () {
+    function gererTypeAffectation() {
 
-        const option = $(this).find('option:selected');
+        var typeElement =
+            document.getElementById('affectationType');
+
+        var blocBus =
+            document.getElementById('blocNouveauBus');
+
+        var blocEquipe =
+            document.getElementById('blocNouvelleEquipe');
+
+        var selectBus =
+            document.getElementById('nouveauBus');
+
+        var selectEquipe =
+            document.getElementById('nouvelleEquipe');
+
+        var message =
+            document.getElementById('messageChoixRemplacement');
 
 
-        /*
-        | Aucun voyage sélectionné
-        */
-
-        if (!option.val()) {
-
-            $('#voyageInformations')
-                .addClass('d-none');
-
-            $('#ancienBusLabel')
-                .val('Sélectionnez d\'abord un voyage');
-
-            $('#ancienneEquipeLabel')
-                .val('Sélectionnez d\'abord un voyage');
-
-            $('#ancienBusId')
-                .val('');
-
-            $('#ancienneEquipeId')
-                .val('');
-
-            $('#nouveauBus')
-                .val('');
-
-            $('#nouvelleEquipe')
-                .val('');
-
+        if (!typeElement) {
             return;
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | INFORMATIONS DU VOYAGE
-        |--------------------------------------------------------------------------
-        */
-
-        const code = option.attr('data-code') || '—';
-
-        const ligne = option.attr('data-ligne') || '—';
-
-        const statut = option.attr('data-statut') || '—';
-
-        const busId = option.attr('data-bus-id') || '';
-
-        const bus = option.attr('data-bus') || '—';
-
-        const equipeId = option.attr('data-equipe-id') || '';
-
-        const equipe = option.attr('data-equipe') || '—';
+        var type =
+            typeElement.value;
 
 
         /*
         |--------------------------------------------------------------------------
-        | AFFICHAGE DU RÉSUMÉ
+        | TOUT CACHER D'ABORD
         |--------------------------------------------------------------------------
         */
 
-        $('#voyageInformations')
-            .removeClass('d-none');
+        if (blocBus) {
 
-        $('#infoVoyage')
-            .text(code);
-
-        $('#infoLigne')
-            .text(ligne);
-
-        $('#infoStatut')
-            .text(statut);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | ANCIEN BUS
-        |--------------------------------------------------------------------------
-        */
-
-        $('#ancienBusLabel')
-            .val(bus);
-
-        $('#ancienBusId')
-            .val(busId);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | ANCIENNE ÉQUIPE
-        |--------------------------------------------------------------------------
-        */
-
-        $('#ancienneEquipeLabel')
-            .val(equipe);
-
-        $('#ancienneEquipeId')
-            .val(equipeId);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | RÉINITIALISATION DU BUS DE REMPLACEMENT
-        |--------------------------------------------------------------------------
-        */
-
-        $('#nouveauBus')
-            .val('');
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | LE BUS ACTUEL NE PEUT PAS ÊTRE SÉLECTIONNÉ
-        |--------------------------------------------------------------------------
-        */
-
-        $('#nouveauBus option')
-            .prop('disabled', false);
-
-        if (busId) {
-
-            $('#nouveauBus option[value="' + busId + '"]')
-                .prop('disabled', true);
+            blocBus.style.display = 'none';
 
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | RÉINITIALISATION DE L'ÉQUIPE
-        |--------------------------------------------------------------------------
-        */
+        if (blocEquipe) {
 
-        $('#nouvelleEquipe')
-            .val('');
+            blocEquipe.style.display = 'none';
 
-    });
+        }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | TYPE DE REMPLACEMENT
-    |--------------------------------------------------------------------------
-    */
+        if (selectBus) {
 
-    $('#affectationType').on('change', function () {
+            selectBus.required = false;
 
-        const type = $(this).val();
+        }
+
+
+        if (selectEquipe) {
+
+            selectEquipe.required = false;
+
+        }
+
+
+        if (message) {
+
+            message.style.display = 'none';
+
+        }
 
 
         /*
@@ -704,20 +675,18 @@ $(document).ready(function () {
             type === 'remplacement_bus_equipe'
         ) {
 
-            $('#blocNouveauBus')
-                .removeClass('d-none');
+            if (blocBus) {
 
-            $('#nouveauBus')
-                .prop('required', true);
+                blocBus.style.display = 'block';
 
-        } else {
+            }
 
-            $('#blocNouveauBus')
-                .addClass('d-none');
 
-            $('#nouveauBus')
-                .prop('required', false)
-                .val('');
+            if (selectBus) {
+
+                selectBus.required = true;
+
+            }
 
         }
 
@@ -734,25 +703,429 @@ $(document).ready(function () {
             type === 'remplacement_bus_equipe'
         ) {
 
-            $('#blocNouvelleEquipe')
-                .removeClass('d-none');
+            if (blocEquipe) {
 
-            $('#nouvelleEquipe')
-                .prop('required', true);
+                blocEquipe.style.display = 'block';
 
-        } else {
+            }
 
-            $('#blocNouvelleEquipe')
-                .addClass('d-none');
 
-            $('#nouvelleEquipe')
-                .prop('required', false)
-                .val('');
+            if (selectEquipe) {
+
+                selectEquipe.required = true;
+
+            }
 
         }
 
-    });
 
-});
+        /*
+        |--------------------------------------------------------------------------
+        | AUCUN TYPE
+        |--------------------------------------------------------------------------
+        */
+
+        if (!type) {
+
+            if (message) {
+
+                message.style.display = 'block';
+
+            }
+
+        }
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CHARGER LE VOYAGE
+    |--------------------------------------------------------------------------
+    */
+
+    function chargerVoyageAffectation() {
+
+        var select =
+            document.getElementById('affectationVoyage');
+
+
+        if (!select) {
+            return;
+        }
+
+
+        var option =
+            select.options[select.selectedIndex];
+
+
+        if (
+            !option
+            ||
+            !option.value
+        ) {
+
+            document.getElementById(
+                'voyageInformations'
+            ).style.display = 'none';
+
+
+            document.getElementById(
+                'ancienBusLabel'
+            ).value =
+                'Sélectionnez d\'abord un voyage';
+
+
+            document.getElementById(
+                'ancienneEquipeLabel'
+            ).value =
+                'Sélectionnez d\'abord un voyage';
+
+
+            document.getElementById(
+                'ancienBusId'
+            ).value = '';
+
+
+            document.getElementById(
+                'ancienneEquipeId'
+            ).value = '';
+
+            return;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | RÉCUPÉRATION DES DONNÉES
+        |--------------------------------------------------------------------------
+        */
+
+        var code =
+            option.getAttribute('data-code') || '—';
+
+        var ligne =
+            option.getAttribute('data-ligne') || '—';
+
+        var statut =
+            option.getAttribute('data-statut') || '—';
+
+        var busId =
+            option.getAttribute('data-bus-id') || '';
+
+        var bus =
+            option.getAttribute('data-bus') || '—';
+
+        var equipeId =
+            option.getAttribute('data-equipe-id') || '';
+
+        var equipe =
+            option.getAttribute('data-equipe') || '—';
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | INFORMATIONS DU VOYAGE
+        |--------------------------------------------------------------------------
+        */
+
+        document.getElementById(
+            'voyageInformations'
+        ).style.display = 'block';
+
+
+        document.getElementById(
+            'infoVoyage'
+        ).textContent = code;
+
+
+        document.getElementById(
+            'infoLigne'
+        ).textContent = ligne;
+
+
+        document.getElementById(
+            'infoStatut'
+        ).textContent = statut;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | BUS ACTUEL
+        |--------------------------------------------------------------------------
+        */
+
+        document.getElementById(
+            'ancienBusLabel'
+        ).value = bus;
+
+
+        document.getElementById(
+            'ancienBusId'
+        ).value = busId;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | ÉQUIPE ACTUELLE
+        |--------------------------------------------------------------------------
+        */
+
+        document.getElementById(
+            'ancienneEquipeLabel'
+        ).value = equipe;
+
+
+        document.getElementById(
+            'ancienneEquipeId'
+        ).value = equipeId;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | EMPÊCHER DE CHOISIR LE BUS ACTUEL
+        |--------------------------------------------------------------------------
+        */
+
+        var optionsBus =
+            document.querySelectorAll(
+                '#nouveauBus option'
+            );
+
+
+        optionsBus.forEach(function (busOption) {
+
+            busOption.disabled = false;
+
+        });
+
+
+        if (busId) {
+
+            var busActuel =
+                document.querySelector(
+                    '#nouveauBus option[value="' + busId + '"]'
+                );
+
+
+            if (busActuel) {
+
+                busActuel.disabled = true;
+
+            }
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | RESET DU NOUVEAU BUS
+        |--------------------------------------------------------------------------
+        */
+
+        document.getElementById(
+            'nouveauBus'
+        ).value = '';
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | RESET DE LA NOUVELLE ÉQUIPE
+        |--------------------------------------------------------------------------
+        */
+
+        document.getElementById(
+            'nouvelleEquipe'
+        ).value = '';
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | ATTENDRE QUE LE DOM SOIT CHARGÉ
+    |--------------------------------------------------------------------------
+    */
+
+    function initialiserAffectation() {
+
+        var selectVoyage =
+            document.getElementById(
+                'affectationVoyage'
+            );
+
+
+        var selectType =
+            document.getElementById(
+                'affectationType'
+            );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | VOYAGE
+        |--------------------------------------------------------------------------
+        */
+
+        if (selectVoyage) {
+
+            selectVoyage.addEventListener(
+                'change',
+                function () {
+
+                    chargerVoyageAffectation();
+
+                }
+            );
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | TYPE
+        |--------------------------------------------------------------------------
+        */
+
+        if (selectType) {
+
+            selectType.addEventListener(
+                'change',
+                function () {
+
+                    gererTypeAffectation();
+
+                }
+            );
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PRÉREMPLISSAGE
+        |--------------------------------------------------------------------------
+        */
+
+        var prefillVoyageId =
+            @json($prefillVoyageId ?? null);
+
+
+        var prefillMotif =
+            @json($prefillMotif ?? null);
+
+
+        if (prefillVoyageId) {
+
+            if (selectVoyage) {
+
+                selectVoyage.value =
+                    String(prefillVoyageId);
+
+
+                chargerVoyageAffectation();
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | TYPE PAR DÉFAUT DEPUIS INCIDENT
+            |--------------------------------------------------------------------------
+            */
+
+            if (selectType) {
+
+                selectType.value =
+                    'remplacement_bus';
+
+
+                gererTypeAffectation();
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | MOTIF INCIDENT
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                prefillMotif
+                &&
+                document.getElementById(
+                    'affectationMotif'
+                )
+            ) {
+
+                document.getElementById(
+                    'affectationMotif'
+                ).value =
+                    prefillMotif;
+
+            }
+
+        }
+
+        else {
+
+            /*
+            |--------------------------------------------------------------------------
+            | FORMULAIRE NORMAL
+            |--------------------------------------------------------------------------
+            */
+
+            gererTypeAffectation();
+
+        }
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SI JQUERY EST DISPONIBLE
+    |--------------------------------------------------------------------------
+    |
+    | On attend que le modal soit réellement chargé.
+    |
+    */
+
+    if (
+        typeof jQuery !== 'undefined'
+    ) {
+
+        jQuery(function () {
+
+            initialiserAffectation();
+
+        });
+
+    }
+
+    else {
+
+        if (
+            document.readyState === 'loading'
+        ) {
+
+            document.addEventListener(
+                'DOMContentLoaded',
+                initialiserAffectation
+            );
+
+        }
+
+        else {
+
+            initialiserAffectation();
+
+        }
+
+    }
+
+})();
 
 </script>

@@ -10,9 +10,9 @@
 
     <div class="card ocn-card shadow-sm">
 
-        {{-- =========================================================
+        {{-- =====================================================
              HEADER
-        ========================================================== --}}
+        ====================================================== --}}
 
         <div class="card-header bg-white">
 
@@ -58,9 +58,9 @@
         </div>
 
 
-        {{-- =========================================================
+        {{-- =====================================================
              FILTRES
-        ========================================================== --}}
+        ====================================================== --}}
 
         <div class="card-body border-bottom">
 
@@ -97,7 +97,11 @@
 
                         <div class="form-group mb-md-0">
 
-                            <label>Type</label>
+                            <label>
+
+                                Type
+
+                            </label>
 
                             <select name="type"
                                     class="form-control">
@@ -108,12 +112,14 @@
 
                                 </option>
 
+
                                 <option value="remplacement_bus"
                                     {{ ($type ?? '') === 'remplacement_bus' ? 'selected' : '' }}>
 
                                     Remplacement bus
 
                                 </option>
+
 
                                 <option value="remplacement_equipe"
                                     {{ ($type ?? '') === 'remplacement_equipe' ? 'selected' : '' }}>
@@ -122,10 +128,11 @@
 
                                 </option>
 
+
                                 <option value="remplacement_bus_equipe"
                                     {{ ($type ?? '') === 'remplacement_bus_equipe' ? 'selected' : '' }}>
 
-                                    Bus + équipe
+                                    Remplacement bus + équipe
 
                                 </option>
 
@@ -140,7 +147,11 @@
 
                         <div class="form-group mb-0">
 
-                            <label class="d-block">&nbsp;</label>
+                            <label class="d-block">
+
+                                &nbsp;
+
+                            </label>
 
                             <div class="d-flex">
 
@@ -155,7 +166,8 @@
 
 
                                 <a href="{{ route('affectations.index') }}"
-                                   class="btn btn-secondary">
+                                   class="btn btn-secondary"
+                                   title="Réinitialiser">
 
                                     <i class="fas fa-redo"></i>
 
@@ -174,9 +186,9 @@
         </div>
 
 
-        {{-- =========================================================
+        {{-- =====================================================
              TABLEAU
-        ========================================================== --}}
+        ====================================================== --}}
 
         <div class="card-body p-0">
 
@@ -188,24 +200,36 @@
 
                         <tr>
 
-                            <th>Voyage</th>
+                            <th>
+                                Voyage
+                            </th>
 
-                            <th>Bus</th>
+                            <th>
+                                Bus
+                            </th>
 
-                            <th>Équipe</th>
+                            <th>
+                                Équipe
+                            </th>
 
-                            <th>Type</th>
+                            <th>
+                                Type
+                            </th>
 
-                            <th>Motif</th>
+                            <th>
+                                Motif
+                            </th>
 
-                            <th>Date</th>
+                            <th>
+                                Date
+                            </th>
 
-                            <th>Effectué par</th>
+                            <th>
+                                Effectué par
+                            </th>
 
                             <th class="text-center">
-
                                 Actions
-
                             </th>
 
                         </tr>
@@ -219,7 +243,9 @@
 
                             <tr>
 
-                                {{-- VOYAGE --}}
+                                {{-- =================================================
+                                     VOYAGE
+                                ================================================== --}}
 
                                 <td>
 
@@ -252,7 +278,9 @@
                                 </td>
 
 
-                                {{-- BUS --}}
+                                {{-- =================================================
+                                     BUS
+                                ================================================== --}}
 
                                 <td>
 
@@ -291,7 +319,9 @@
                                 </td>
 
 
-                                {{-- ÉQUIPE --}}
+                                {{-- =================================================
+                                     ÉQUIPE
+                                ================================================== --}}
 
                                 <td>
 
@@ -326,7 +356,9 @@
                                 </td>
 
 
-                                {{-- TYPE --}}
+                                {{-- =================================================
+                                     TYPE
+                                ================================================== --}}
 
                                 <td>
 
@@ -354,11 +386,22 @@
                                             @break
 
 
-                                        @default
+                                        @case('remplacement_bus_equipe')
 
                                             <span class="badge badge-primary">
 
                                                 Bus + équipe
+
+                                            </span>
+
+                                            @break
+
+
+                                        @default
+
+                                            <span class="badge badge-secondary">
+
+                                                Autre
 
                                             </span>
 
@@ -367,7 +410,9 @@
                                 </td>
 
 
-                                {{-- MOTIF --}}
+                                {{-- =================================================
+                                     MOTIF
+                                ================================================== --}}
 
                                 <td>
 
@@ -376,90 +421,123 @@
                                 </td>
 
 
-                                {{-- DATE --}}
+                                {{-- =================================================
+                                     DATE
+                                ================================================== --}}
 
                                 <td>
 
-                                    {{ $affectation->date_affectation
-                                        ? $affectation->date_affectation->format('d/m/Y')
-                                        : '—'
-                                    }}
+                                    @if($affectation->date_affectation)
 
-                                    <br>
+                                        {{ \Carbon\Carbon::parse(
+                                            $affectation->date_affectation
+                                        )->format('d/m/Y') }}
 
-                                    <small class="text-muted">
+                                    @else
 
-                                        {{ $affectation->heure_affectation }}
+                                        —
 
-                                    </small>
+                                    @endif
+
+
+                                    @if($affectation->heure_affectation)
+
+                                        <br>
+
+                                        <small class="text-muted">
+
+                                            {{ $affectation->heure_affectation }}
+
+                                        </small>
+
+                                    @endif
 
                                 </td>
 
 
-                                {{-- UTILISATEUR --}}
+                                {{-- =================================================
+                                     UTILISATEUR
+                                ================================================== --}}
 
                                 <td>
 
-                                    {{ $affectation->user->name ?? '—' }}
+                                    @if($affectation->user)
+
+                                        {{ $affectation->user->name }}
+
+                                    @else
+
+                                        —
+
+                                    @endif
 
                                 </td>
 
 
-                                {{-- ACTIONS --}}
+                                {{-- =================================================
+                                     ACTIONS
+                                ================================================== --}}
 
                                 <td class="text-center">
 
-                                    {{-- VOIR --}}
-
-                                    <button type="button"
-                                            class="btn btn-info btn-sm mr-1"
-                                            data-toggle="modal"
-                                            data-target="#modalShowAffectation{{ $affectation->id }}"
-                                            title="Voir">
-
-                                        <i class="fas fa-eye"></i>
-
-                                    </button>
+                                    <div class="d-inline-flex align-items-center">
 
 
-                                    {{-- MODIFIER / SUPPRIMER --}}
-
-                                    @if(
-                                        auth()->user()->role === 'admin'
-                                        ||
-                                        auth()->user()->role === 'directeur_exploitation'
-                                    )
+                                        {{-- VOIR --}}
 
                                         <button type="button"
-                                                class="btn btn-warning btn-sm mr-1"
+                                                class="btn btn-info btn-sm mr-1"
                                                 data-toggle="modal"
-                                                data-target="#modalEditAffectation{{ $affectation->id }}"
-                                                title="Modifier">
+                                                data-target="#modalShowAffectation{{ $affectation->id }}"
+                                                title="Voir">
 
-                                            <i class="fas fa-edit"></i>
+                                            <i class="fas fa-eye"></i>
 
                                         </button>
 
 
-                                        <form action="{{ route('affectations.destroy', $affectation) }}"
-                                              method="POST"
-                                              class="d-inline delete-affectation">
+                                        {{-- MODIFIER --}}
 
-                                            @csrf
+                                        @if(
+                                            auth()->user()->role === 'admin'
+                                            ||
+                                            auth()->user()->role === 'directeur_exploitation'
+                                        )
 
-                                            @method('DELETE')
+                                            <button type="button"
+                                                    class="btn btn-warning btn-sm mr-1"
+                                                    data-toggle="modal"
+                                                    data-target="#modalEditAffectation{{ $affectation->id }}"
+                                                    title="Modifier">
 
-                                            <button type="submit"
-                                                    class="btn btn-danger btn-sm"
-                                                    title="Supprimer">
-
-                                                <i class="fas fa-trash"></i>
+                                                <i class="fas fa-edit"></i>
 
                                             </button>
 
-                                        </form>
 
-                                    @endif
+                                            {{-- SUPPRIMER --}}
+
+                                            <form action="{{ route('affectations.destroy', $affectation) }}"
+                                                  method="POST"
+                                                  class="d-inline delete-affectation">
+
+                                                @csrf
+
+                                                @method('DELETE')
+
+                                                <button type="submit"
+                                                        class="btn btn-danger btn-sm"
+                                                        title="Supprimer">
+
+                                                    <i class="fas fa-trash"></i>
+
+                                                </button>
+
+                                            </form>
+
+                                        @endif
+
+                                    </div>
 
                                 </td>
 
@@ -481,6 +559,12 @@
 
                                     </h5>
 
+                                    <p class="text-muted mb-0">
+
+                                        Les affectations enregistrées apparaîtront ici.
+
+                                    </p>
+
                                 </td>
 
                             </tr>
@@ -496,7 +580,9 @@
         </div>
 
 
-        {{-- PAGINATION --}}
+        {{-- =====================================================
+             PAGINATION
+        ====================================================== --}}
 
         @if($affectations->hasPages())
 
@@ -513,16 +599,16 @@
 </div>
 
 
-{{-- =============================================================
-     MODAL CREATE
-============================================================= --}}
+{{-- =========================================================
+     MODAL CRÉATION
+========================================================= --}}
 
 @include('affectations.modal.create')
 
 
-{{-- =============================================================
+{{-- =========================================================
      MODALS SHOW
-============================================================= --}}
+========================================================= --}}
 
 @foreach($affectations as $affectation)
 
@@ -534,9 +620,9 @@
 @endforeach
 
 
-{{-- =============================================================
+{{-- =========================================================
      MODALS EDIT
-============================================================= --}}
+========================================================= --}}
 
 @foreach($affectations as $affectation)
 
@@ -556,9 +642,9 @@
 @endforeach
 
 
-{{-- =============================================================
+{{-- =========================================================
      SCRIPTS
-============================================================= --}}
+========================================================= --}}
 
 @push('scripts')
 
@@ -566,9 +652,10 @@
 
 $(document).ready(function () {
 
+
     /*
     |--------------------------------------------------------------------------
-    | MESSAGE SUCCÈS
+    | SUCCÈS
     |--------------------------------------------------------------------------
     */
 
@@ -597,7 +684,7 @@ $(document).ready(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | MESSAGE ERREUR
+    | ERREUR
     |--------------------------------------------------------------------------
     */
 
@@ -622,7 +709,7 @@ $(document).ready(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | ERREURS VALIDATION
+    | ERREURS DE VALIDATION
     |--------------------------------------------------------------------------
     */
 
@@ -635,7 +722,10 @@ $(document).ready(function () {
             title: 'Erreur de validation',
 
             html: @json(
-                implode('<br>', $errors->all())
+                implode(
+                    '<br>',
+                    $errors->all()
+                )
             ),
 
             confirmButtonText: 'OK',
@@ -649,281 +739,7 @@ $(document).ready(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | ================================================================
-    | NOUVELLE AFFECTATION
-    | ================================================================
-    |--------------------------------------------------------------------------
-    */
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | CHOIX DU VOYAGE
-    |--------------------------------------------------------------------------
-    */
-
-    $(document).on(
-        'change',
-        '#affectationVoyage',
-        function () {
-
-            const option = $(this)
-                .find('option:selected');
-
-
-            /*
-            | Aucun voyage
-            */
-
-            if (!option.val()) {
-
-                $('#voyageInformations')
-                    .addClass('d-none');
-
-
-                $('#ancienBusLabel')
-                    .val('Sélectionnez d\'abord un voyage');
-
-
-                $('#ancienneEquipeLabel')
-                    .val('Sélectionnez d\'abord un voyage');
-
-
-                $('#ancienBusId')
-                    .val('');
-
-
-                $('#ancienneEquipeId')
-                    .val('');
-
-
-                $('#nouveauBus')
-                    .val('');
-
-
-                $('#nouvelleEquipe')
-                    .val('');
-
-
-                return;
-            }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | RÉCUPÉRATION DES INFORMATIONS
-            |--------------------------------------------------------------------------
-            */
-
-            const code =
-                option.attr('data-code') || '—';
-
-
-            const ligne =
-                option.attr('data-ligne') || '—';
-
-
-            const statut =
-                option.attr('data-statut') || '—';
-
-
-            const busId =
-                option.attr('data-bus-id') || '';
-
-
-            const bus =
-                option.attr('data-bus') || '—';
-
-
-            const equipeId =
-                option.attr('data-equipe-id') || '';
-
-
-            const equipe =
-                option.attr('data-equipe') || '—';
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | RÉSUMÉ DU VOYAGE
-            |--------------------------------------------------------------------------
-            */
-
-            $('#voyageInformations')
-                .removeClass('d-none');
-
-
-            $('#infoVoyage')
-                .text(code);
-
-
-            $('#infoLigne')
-                .text(ligne);
-
-
-            $('#infoStatut')
-                .text(statut);
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | ANCIEN BUS
-            |--------------------------------------------------------------------------
-            */
-
-            $('#ancienBusLabel')
-                .val(bus);
-
-
-            $('#ancienBusId')
-                .val(busId);
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | ANCIENNE ÉQUIPE
-            |--------------------------------------------------------------------------
-            */
-
-            $('#ancienneEquipeLabel')
-                .val(equipe);
-
-
-            $('#ancienneEquipeId')
-                .val(equipeId);
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | RÉINITIALISER LE BUS DE REMPLACEMENT
-            |--------------------------------------------------------------------------
-            */
-
-            $('#nouveauBus')
-                .val('');
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | LE BUS ACTUEL NE PEUT PAS ÊTRE LE BUS DE REMPLACEMENT
-            |--------------------------------------------------------------------------
-            */
-
-            $('#nouveauBus option')
-                .prop('disabled', false);
-
-
-            if (busId) {
-
-                $('#nouveauBus option[value="' + busId + '"]')
-                    .prop('disabled', true);
-
-            }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | RÉINITIALISER L'ÉQUIPE
-            |--------------------------------------------------------------------------
-            */
-
-            $('#nouvelleEquipe')
-                .val('');
-
-        }
-    );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | TYPE DE REMPLACEMENT
-    |--------------------------------------------------------------------------
-    */
-
-    $(document).on(
-        'change',
-        '#affectationType',
-        function () {
-
-            const type = $(this).val();
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | BUS
-            |--------------------------------------------------------------------------
-            */
-
-            if (
-                type === 'remplacement_bus'
-                ||
-                type === 'remplacement_bus_equipe'
-            ) {
-
-                $('#blocNouveauBus')
-                    .removeClass('d-none');
-
-
-                $('#nouveauBus')
-                    .prop('required', true);
-
-            }
-
-            else {
-
-                $('#blocNouveauBus')
-                    .addClass('d-none');
-
-
-                $('#nouveauBus')
-                    .prop('required', false)
-                    .val('');
-
-            }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | ÉQUIPE
-            |--------------------------------------------------------------------------
-            */
-
-            if (
-                type === 'remplacement_equipe'
-                ||
-                type === 'remplacement_bus_equipe'
-            ) {
-
-                $('#blocNouvelleEquipe')
-                    .removeClass('d-none');
-
-
-                $('#nouvelleEquipe')
-                    .prop('required', true);
-
-            }
-
-            else {
-
-                $('#blocNouvelleEquipe')
-                    .addClass('d-none');
-
-
-                $('#nouvelleEquipe')
-                    .prop('required', false)
-                    .val('');
-
-            }
-
-        }
-    );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | ================================================================
     | SUPPRESSION
-    | ================================================================
     |--------------------------------------------------------------------------
     */
 
@@ -933,7 +749,6 @@ $(document).ready(function () {
         function (e) {
 
             e.preventDefault();
-
 
             const form = this;
 
@@ -970,6 +785,199 @@ $(document).ready(function () {
 
         }
     );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PRÉREMPLISSAGE DEPUIS UN INCIDENT
+    |--------------------------------------------------------------------------
+    |
+    | Exemple :
+    |
+    | /affectations?voyage_id=10&motif=Incident...
+    |
+    | Ici, on ne cherche PAS le voyage dans la table affectations.
+    |
+    | On prend voyage_id directement dans l'URL,
+    | puis on sélectionne ce voyage dans le formulaire.
+    |
+    */
+
+    const urlParams =
+        new URLSearchParams(
+            window.location.search
+        );
+
+
+    const voyageId =
+        urlParams.get('voyage_id');
+
+
+    const motif =
+        urlParams.get('motif');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SI ON ARRIVE DEPUIS UN INCIDENT
+    |--------------------------------------------------------------------------
+    */
+
+    if (voyageId) {
+
+        /*
+        | Le modal existe déjà car create.blade.php
+        | a été inclus juste au-dessus.
+        */
+
+        const modal =
+            $('#modalCreateAffectation');
+
+
+        const select =
+            $('#affectationVoyage');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | VÉRIFIER QUE LE VOYAGE EXISTE DANS LE FORMULAIRE
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            modal.length
+            &&
+            select.length
+        ) {
+
+            const option =
+                select.find(
+                    'option[value="' + voyageId + '"]'
+                );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | LE VOYAGE EST PRÉSENT
+            |--------------------------------------------------------------------------
+            */
+
+            if (option.length) {
+
+                /*
+                | Sélectionner le voyage.
+                */
+
+                select.val(
+                    voyageId
+                );
+
+
+                /*
+                | Déclencher le changement.
+                |
+                | Cela permet au formulaire de récupérer :
+                | - le bus actuel
+                | - l'équipe actuelle
+                | - les informations du voyage
+                */
+
+                select.trigger(
+                    'change'
+                );
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | TYPE
+                |--------------------------------------------------------------------------
+                */
+
+                const type =
+                    $('#affectationType');
+
+
+                if (type.length) {
+
+                    type.val(
+                        'remplacement_bus'
+                    );
+
+
+                    type.trigger(
+                        'change'
+                    );
+
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | MOTIF
+                |--------------------------------------------------------------------------
+                */
+
+                if (
+                    motif
+                    &&
+                    $('#affectationMotif').length
+                ) {
+
+                    $('#affectationMotif')
+                        .val(
+                            motif
+                        );
+
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | OUVRIR LE FORMULAIRE
+                |--------------------------------------------------------------------------
+                */
+
+                setTimeout(
+                    function () {
+
+                        modal.modal(
+                            'show'
+                        );
+
+                    },
+                    200
+                );
+
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | VOYAGE ABSENT DE LA LISTE
+            |--------------------------------------------------------------------------
+            */
+
+            else {
+
+                Swal.fire({
+
+                    icon: 'error',
+
+                    title: 'Voyage introuvable',
+
+                    text:
+                        'Le voyage sélectionné par l’incident n’est pas disponible dans le formulaire d’affectation.',
+
+                    confirmButtonText: 'OK',
+
+                    confirmButtonColor: '#dc3545'
+
+                });
+
+            }
+
+        }
+
+    }
 
 });
 

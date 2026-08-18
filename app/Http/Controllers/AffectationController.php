@@ -9,16 +9,12 @@ use App\Models\Voyage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
 
 class AffectationController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | VÉRIFICATION DES DROITS
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * Vérifie si l'utilisateur peut accéder aux affectations.
+     */
     private function peutAcceder(): bool
     {
         $user = Auth::user();
@@ -36,21 +32,17 @@ class AffectationController extends Controller
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | INDEX
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * Liste des affectations.
+     */
     public function index(Request $request)
     {
-        $user = Auth::user();
-
-        if (!$user) {
+        if (!Auth::check()) {
             return redirect()
                 ->route('login')
                 ->with('error', 'Vous devez être connecté.');
         }
+
 
         if (!$this->peutAcceder()) {
             return redirect()
@@ -62,8 +54,26 @@ class AffectationController extends Controller
         }
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | FILTRES
+        |--------------------------------------------------------------------------
+        */
+
         $search = $request->input('search');
+
         $type = $request->input('type');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PRÉREMPLISSAGE DEPUIS INCIDENT
+        |--------------------------------------------------------------------------
+        */
+
+        $prefillVoyageId = $request->input('voyage_id');
+
+        $prefillMotif = $request->input('motif');
 
 
         /*
@@ -76,69 +86,67 @@ class AffectationController extends Controller
             'voyage.ligne',
             'ancienBus',
             'nouveauBus',
-            'ancienneEquipe.chauffeurTitulaire',
-            'ancienneEquipe.chauffeurSecondaire',
-            'nouvelleEquipe.chauffeurTitulaire',
-            'nouvelleEquipe.chauffeurSecondaire',
+            'ancienneEquipe',
+            'nouvelleEquipe',
             'user',
         ])
 
-        ->when($search, function ($query) use ($search) {
+            ->when($search, function ($query) use ($search) {
 
-            $query->where(function ($q) use ($search) {
+                $query->where(function ($q) use ($search) {
 
-                $q->where(
-                    'motif',
-                    'like',
-                    '%' . $search . '%'
-                )
-
-                ->orWhereHas('voyage', function ($voyage) use ($search) {
-
-                    $voyage->where(
-                        'code',
+                    $q->where(
+                        'motif',
                         'like',
                         '%' . $search . '%'
-                    );
+                    )
 
-                })
+                    ->orWhereHas('voyage', function ($voyage) use ($search) {
 
-                ->orWhereHas('ancienBus', function ($bus) use ($search) {
+                        $voyage->where(
+                            'code',
+                            'like',
+                            '%' . $search . '%'
+                        );
 
-                    $bus->where(
-                        'numero',
-                        'like',
-                        '%' . $search . '%'
-                    );
+                    })
 
-                })
+                    ->orWhereHas('ancienBus', function ($bus) use ($search) {
 
-                ->orWhereHas('nouveauBus', function ($bus) use ($search) {
+                        $bus->where(
+                            'numero',
+                            'like',
+                            '%' . $search . '%'
+                        );
 
-                    $bus->where(
-                        'numero',
-                        'like',
-                        '%' . $search . '%'
-                    );
+                    })
+
+                    ->orWhereHas('nouveauBus', function ($bus) use ($search) {
+
+                        $bus->where(
+                            'numero',
+                            'like',
+                            '%' . $search . '%'
+                        );
+
+                    });
 
                 });
 
-            });
+            })
 
-        })
+            ->when($type, function ($query) use ($type) {
 
-        ->when($type, function ($query) use ($type) {
+                $query->where(
+                    'type',
+                    $type
+                );
 
-            $query->where(
-                'type',
-                $type
-            );
+            })
 
-        })
-
-        ->latest()
-        ->paginate(15)
-        ->withQueryString();
+            ->latest()
+            ->paginate(15)
+            ->withQueryString();
 
 
         /*
@@ -146,43 +154,91 @@ class AffectationController extends Controller
         | VOYAGES
         |--------------------------------------------------------------------------
         |
-        | On récupère les voyages qui peuvent encore être concernés
-        | par une affectation.
+        | On récupère les voyages normalement utilisables.
         |
         */
 
-        $voyages = Voyage::with([
+        $voyagesQuery = Voyage::with([
             'ligne',
             'bus',
-            'equipe.chauffeurTitulaire',
-            'equipe.chauffeurSecondaire',
-        ])
+            'equipe',
+        ]);
 
-        ->whereIn('statut', [
-            'planifie',
-            'en_cours',
-        ])
 
-        ->latest()
-        ->get();
+        /*
+        |--------------------------------------------------------------------------
+        | VOYAGES UTILISABLES
+        |--------------------------------------------------------------------------
+        */
+
+        $voyagesQuery->whereIn(
+            'statut',
+            [
+                'planifie',
+                'en_cours',
+            ]
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SI ON ARRIVE DEPUIS UN INCIDENT
+        |--------------------------------------------------------------------------
+        |
+        | On force également l'ajout du voyage demandé,
+        | même si son statut n'est pas dans la liste ci-dessus.
+        |
+        */
+
+        if ($prefillVoyageId) {
+
+            $voyagePrefill = Voyage::with([
+                'ligne',
+                'bus',
+                'equipe',
+            ])->find($prefillVoyageId);
+
+
+            if ($voyagePrefill) {
+
+                $voyagesQuery->orWhere(
+                    'id',
+                    $voyagePrefill->id
+                );
+
+            }
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | RÉCUPÉRATION DES VOYAGES
+        |--------------------------------------------------------------------------
+        */
+
+        $voyages = $voyagesQuery
+
+            ->orderByDesc('date_depart')
+
+            ->orderByDesc('heure_depart')
+
+            ->get();
 
 
         /*
         |--------------------------------------------------------------------------
         | BUS DISPONIBLES
         |--------------------------------------------------------------------------
-        |
-        | IMPORTANT :
-        | uniquement les bus dont le statut est "disponible".
-        |
         */
 
         $busesDisponibles = Bus::where(
             'statut',
             'disponible'
         )
-        ->orderBy('numero')
-        ->get();
+
+            ->orderBy('numero')
+
+            ->get();
 
 
         /*
@@ -191,8 +247,16 @@ class AffectationController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $equipes = Equipe::orderBy('nom')->get();
+        $equipes = Equipe::orderBy(
+            'nom'
+        )->get();
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | VUE
+        |--------------------------------------------------------------------------
+        */
 
         return view(
             'affectations.index',
@@ -202,34 +266,19 @@ class AffectationController extends Controller
                 'busesDisponibles',
                 'equipes',
                 'search',
-                'type'
+                'type',
+                'prefillVoyageId',
+                'prefillMotif'
             )
         );
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | STORE
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * Enregistrer une affectation.
+     */
     public function store(Request $request)
     {
-        $user = Auth::user();
-
-        if (!$user) {
-            return redirect()
-                ->route('login')
-                ->with('error', 'Vous devez être connecté.');
-        }
-
-        if (!$this->peutAcceder()) {
-            return back()
-                ->with('error', 'Vous n\'êtes pas autorisé à créer une affectation.');
-        }
-
-
         $validated = $request->validate([
 
             'voyage_id' => [
@@ -237,23 +286,29 @@ class AffectationController extends Controller
                 'exists:voyages,id',
             ],
 
+            'type' => [
+                'required',
+                'in:remplacement_bus,remplacement_equipe,remplacement_bus_equipe',
+            ],
+
+            'ancien_bus_id' => [
+                'nullable',
+                'exists:bus,id',
+            ],
+
             'nouveau_bus_id' => [
                 'nullable',
                 'exists:bus,id',
             ],
 
-            'nouvelle_equipe_id' => [
+            'ancienne_equipe_id' => [
                 'nullable',
                 'exists:equipes,id',
             ],
 
-            'type' => [
-                'required',
-                Rule::in([
-                    'remplacement_bus',
-                    'remplacement_equipe',
-                    'remplacement_bus_equipe',
-                ]),
+            'nouvelle_equipe_id' => [
+                'nullable',
+                'exists:equipes,id',
             ],
 
             'motif' => [
@@ -269,48 +324,35 @@ class AffectationController extends Controller
 
             'heure_affectation' => [
                 'required',
-                'date_format:H:i,H:i:s',
+                'date_format:H:i',
             ],
 
             'observation' => [
                 'nullable',
                 'string',
             ],
+
         ]);
 
 
         /*
         |--------------------------------------------------------------------------
-        | RÉCUPÉRATION DU VOYAGE
+        | VOYAGE
         |--------------------------------------------------------------------------
         */
 
         $voyage = Voyage::with([
             'bus',
             'equipe',
-        ])->find(
+        ])->findOrFail(
             $validated['voyage_id']
         );
 
 
-        if (!$voyage) {
-
-            return back()
-                ->withInput()
-                ->with(
-                    'error',
-                    'Le voyage sélectionné est introuvable.'
-                );
-        }
-
-
         /*
         |--------------------------------------------------------------------------
-        | ANCIEN BUS / ANCIENNE ÉQUIPE
+        | RESSOURCES ACTUELLES
         |--------------------------------------------------------------------------
-        |
-        | Ils viennent TOUJOURS du voyage.
-        |
         */
 
         $ancienBusId = $voyage->bus_id;
@@ -330,59 +372,54 @@ class AffectationController extends Controller
             $validated['type'] === 'remplacement_bus_equipe'
         ) {
 
-            if (empty($validated['nouveau_bus_id'])) {
-
-                return back()
-                    ->withInput()
-                    ->with(
-                        'error',
-                        'Veuillez sélectionner le bus de remplacement.'
-                    );
-            }
-
-
-            /*
-            | Le nouveau bus doit être différent de l'ancien.
-            */
-
             if (
-                (int) $validated['nouveau_bus_id']
-                ===
-                (int) $ancienBusId
+                empty($validated['nouveau_bus_id'])
             ) {
 
                 return back()
                     ->withInput()
-                    ->with(
-                        'error',
-                        'Le bus de remplacement doit être différent du bus actuel.'
-                    );
+                    ->withErrors([
+                        'nouveau_bus_id' =>
+                            'Veuillez sélectionner un bus de remplacement.',
+                    ]);
             }
 
-
-            /*
-            | Le nouveau bus doit être disponible.
-            */
 
             $nouveauBus = Bus::where(
                 'id',
                 $validated['nouveau_bus_id']
             )
-            ->where(
-                'statut',
-                'disponible'
-            )
-            ->first();
+                ->where(
+                    'statut',
+                    'disponible'
+                )
+                ->first();
 
 
             if (!$nouveauBus) {
 
                 return back()
                     ->withInput()
-                    ->with(
-                        'error',
-                        'Le bus sélectionné n\'est pas disponible.'
-                    );
+                    ->withErrors([
+                        'nouveau_bus_id' =>
+                            'Le bus sélectionné n’est pas disponible.',
+                    ]);
+            }
+
+
+            if (
+                $ancienBusId !== null
+                &&
+                (int) $ancienBusId ===
+                (int) $validated['nouveau_bus_id']
+            ) {
+
+                return back()
+                    ->withInput()
+                    ->withErrors([
+                        'nouveau_bus_id' =>
+                            'Le nouveau bus doit être différent du bus actuel.',
+                    ]);
             }
         }
 
@@ -399,221 +436,135 @@ class AffectationController extends Controller
             $validated['type'] === 'remplacement_bus_equipe'
         ) {
 
-            if (empty($validated['nouvelle_equipe_id'])) {
-
-                return back()
-                    ->withInput()
-                    ->with(
-                        'error',
-                        'Veuillez sélectionner la nouvelle équipe.'
-                    );
-            }
-
-
             if (
-                (int) $validated['nouvelle_equipe_id']
-                ===
-                (int) $ancienneEquipeId
+                empty($validated['nouvelle_equipe_id'])
             ) {
 
                 return back()
                     ->withInput()
-                    ->with(
-                        'error',
-                        'La nouvelle équipe doit être différente de l\'équipe actuelle.'
-                    );
+                    ->withErrors([
+                        'nouvelle_equipe_id' =>
+                            'Veuillez sélectionner une nouvelle équipe.',
+                    ]);
+            }
+
+
+            if (
+                $ancienneEquipeId !== null
+                &&
+                (int) $ancienneEquipeId ===
+                (int) $validated['nouvelle_equipe_id']
+            ) {
+
+                return back()
+                    ->withInput()
+                    ->withErrors([
+                        'nouvelle_equipe_id' =>
+                            'La nouvelle équipe doit être différente de l’équipe actuelle.',
+                    ]);
             }
         }
 
 
         /*
         |--------------------------------------------------------------------------
-        | CRÉATION DE L'HISTORIQUE
+        | CRÉATION
         |--------------------------------------------------------------------------
+        |
+        | Le voyage conserve son bus et son équipe.
+        | L'affectation garde uniquement la trace du remplacement.
+        |
         */
 
-        try {
+        DB::transaction(function () use (
+            $validated,
+            $ancienBusId,
+            $ancienneEquipeId
+        ) {
 
-            DB::transaction(function () use (
-                $validated,
-                $ancienBusId,
-                $ancienneEquipeId,
-                $user
-            ) {
+            Affectation::create([
 
-                Affectation::create([
+                'voyage_id' =>
+                    $validated['voyage_id'],
 
-                    'voyage_id' =>
-                        $validated['voyage_id'],
+                'ancien_bus_id' =>
+                    $ancienBusId,
 
-                    /*
-                    | Anciennes ressources :
-                    | elles viennent du voyage.
-                    */
+                'nouveau_bus_id' =>
+                    $validated['nouveau_bus_id'] ?? null,
 
-                    'ancien_bus_id' =>
-                        $ancienBusId,
+                'ancienne_equipe_id' =>
+                    $ancienneEquipeId,
 
-                    'ancienne_equipe_id' =>
-                        $ancienneEquipeId,
+                'nouvelle_equipe_id' =>
+                    $validated['nouvelle_equipe_id'] ?? null,
 
+                'type' =>
+                    $validated['type'],
 
-                    /*
-                    | Nouvelles ressources :
-                    | elles représentent le relais.
-                    */
+                'motif' =>
+                    $validated['motif'],
 
-                    'nouveau_bus_id' =>
-                        $validated['nouveau_bus_id'] ?? null,
+                'date_affectation' =>
+                    $validated['date_affectation'],
 
-                    'nouvelle_equipe_id' =>
-                        $validated['nouvelle_equipe_id'] ?? null,
+                'heure_affectation' =>
+                    $validated['heure_affectation'],
 
+                'observation' =>
+                    $validated['observation'] ?? null,
 
-                    'type' =>
-                        $validated['type'],
+                'user_id' =>
+                    Auth::id(),
 
-                    'motif' =>
-                        $validated['motif'],
-
-                    'date_affectation' =>
-                        $validated['date_affectation'],
-
-                    'heure_affectation' =>
-                        $validated['heure_affectation'],
-
-                    'observation' =>
-                        $validated['observation'] ?? null,
-
-                    'user_id' =>
-                        $user->id,
-                ]);
+            ]);
+        });
 
 
-                /*
-                |--------------------------------------------------------------------------
-                | IMPORTANT
-                |--------------------------------------------------------------------------
-                |
-                | ON NE MODIFIE PAS :
-                |
-                | $voyage->bus_id
-                | $voyage->equipe_id
-                |
-                | Le voyage conserve ses ressources initiales.
-                |
-                */
-            });
-
-
-            return redirect()
-                ->route('affectations.index')
-                ->with(
-                    'success',
-                    'Affectation enregistrée avec succès.'
-                );
-
-        } catch (\Throwable $e) {
-
-            return back()
-                ->withInput()
-                ->with(
-                    'error',
-                    'Impossible d\'enregistrer l\'affectation : '
-                    . $e->getMessage()
-                );
-        }
+        return redirect()
+            ->route('affectations.index')
+            ->with(
+                'success',
+                'L’affectation a été enregistrée avec succès.'
+            );
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | SHOW
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * Afficher une affectation.
+     */
     public function show(Affectation $affectation)
     {
-        $user = Auth::user();
-
-        if (!$user) {
-            return redirect()
-                ->route('login');
-        }
-
-        if (!$this->peutAcceder()) {
-
-            return redirect()
-                ->route('dashboard')
-                ->with(
-                    'error',
-                    'Vous n\'êtes pas autorisé à consulter cette affectation.'
-                );
-        }
-
-
         $affectation->load([
             'voyage.ligne',
             'ancienBus',
             'nouveauBus',
-            'ancienneEquipe.chauffeurTitulaire',
-            'ancienneEquipe.chauffeurSecondaire',
-            'nouvelleEquipe.chauffeurTitulaire',
-            'nouvelleEquipe.chauffeurSecondaire',
+            'ancienneEquipe',
+            'nouvelleEquipe',
             'user',
         ]);
 
 
         return view(
-            'affectations.modal.show',
+            'affectations.show',
             compact('affectation')
         );
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | UPDATE
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * Modifier une affectation.
+     */
     public function update(
         Request $request,
         Affectation $affectation
     ) {
 
-        $user = Auth::user();
-
-        if (!$user) {
-
-            return redirect()
-                ->route('login');
-        }
-
-
-        if (
-            $user->role !== 'admin'
-            &&
-            $user->role !== 'directeur_exploitation'
-        ) {
-
-            return back()
-                ->with(
-                    'error',
-                    'Vous n\'êtes pas autorisé à modifier une affectation.'
-                );
-        }
-
-
         $validated = $request->validate([
 
             'type' => [
                 'required',
-                Rule::in([
-                    'remplacement_bus',
-                    'remplacement_equipe',
-                    'remplacement_bus_equipe',
-                ]),
+                'in:remplacement_bus,remplacement_equipe,remplacement_bus_equipe',
             ],
 
             'nouveau_bus_id' => [
@@ -639,21 +590,16 @@ class AffectationController extends Controller
 
             'heure_affectation' => [
                 'required',
-                'date_format:H:i,H:i:s',
+                'date_format:H:i:s',
             ],
 
             'observation' => [
                 'nullable',
                 'string',
             ],
+
         ]);
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | BUS
-        |--------------------------------------------------------------------------
-        */
 
         if (
             $validated['type'] === 'remplacement_bus'
@@ -661,60 +607,57 @@ class AffectationController extends Controller
             $validated['type'] === 'remplacement_bus_equipe'
         ) {
 
-            if (empty($validated['nouveau_bus_id'])) {
-
-                return back()
-                    ->withInput()
-                    ->with(
-                        'error',
-                        'Veuillez sélectionner le bus de remplacement.'
-                    );
-            }
-
-
             if (
-                (int) $validated['nouveau_bus_id']
-                ===
-                (int) $affectation->ancien_bus_id
+                empty($validated['nouveau_bus_id'])
             ) {
 
                 return back()
                     ->withInput()
-                    ->with(
-                        'error',
-                        'Le nouveau bus doit être différent de l\'ancien bus.'
-                    );
+                    ->withErrors([
+                        'nouveau_bus_id' =>
+                            'Veuillez sélectionner un bus de remplacement.',
+                    ]);
             }
 
 
-            $busDisponible = Bus::where(
+            $nouveauBus = Bus::where(
                 'id',
                 $validated['nouveau_bus_id']
             )
-            ->where(
-                'statut',
-                'disponible'
-            )
-            ->exists();
+                ->where(
+                    'statut',
+                    'disponible'
+                )
+                ->first();
 
 
-            if (!$busDisponible) {
+            if (!$nouveauBus) {
 
                 return back()
                     ->withInput()
-                    ->with(
-                        'error',
-                        'Le bus sélectionné n\'est plus disponible.'
-                    );
+                    ->withErrors([
+                        'nouveau_bus_id' =>
+                            'Le bus sélectionné n’est pas disponible.',
+                    ]);
+            }
+
+
+            if (
+                $affectation->ancien_bus_id !== null
+                &&
+                (int) $affectation->ancien_bus_id ===
+                (int) $validated['nouveau_bus_id']
+            ) {
+
+                return back()
+                    ->withInput()
+                    ->withErrors([
+                        'nouveau_bus_id' =>
+                            'Le nouveau bus doit être différent du bus actuel.',
+                    ]);
             }
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | ÉQUIPE
-        |--------------------------------------------------------------------------
-        */
 
         if (
             $validated['type'] === 'remplacement_equipe'
@@ -722,29 +665,32 @@ class AffectationController extends Controller
             $validated['type'] === 'remplacement_bus_equipe'
         ) {
 
-            if (empty($validated['nouvelle_equipe_id'])) {
-
-                return back()
-                    ->withInput()
-                    ->with(
-                        'error',
-                        'Veuillez sélectionner la nouvelle équipe.'
-                    );
-            }
-
-
             if (
-                (int) $validated['nouvelle_equipe_id']
-                ===
-                (int) $affectation->ancienne_equipe_id
+                empty($validated['nouvelle_equipe_id'])
             ) {
 
                 return back()
                     ->withInput()
-                    ->with(
-                        'error',
-                        'La nouvelle équipe doit être différente de l\'ancienne équipe.'
-                    );
+                    ->withErrors([
+                        'nouvelle_equipe_id' =>
+                            'Veuillez sélectionner une nouvelle équipe.',
+                    ]);
+            }
+
+
+            if (
+                $affectation->ancienne_equipe_id !== null
+                &&
+                (int) $affectation->ancienne_equipe_id ===
+                (int) $validated['nouvelle_equipe_id']
+            ) {
+
+                return back()
+                    ->withInput()
+                    ->withErrors([
+                        'nouvelle_equipe_id' =>
+                            'La nouvelle équipe doit être différente de l’équipe actuelle.',
+                    ]);
             }
         }
 
@@ -753,11 +699,6 @@ class AffectationController extends Controller
 
             'type' =>
                 $validated['type'],
-
-            /*
-            | On conserve toujours les anciennes valeurs
-            | déjà enregistrées dans l'historique.
-            */
 
             'nouveau_bus_id' =>
                 $validated['nouveau_bus_id'] ?? null,
@@ -776,6 +717,7 @@ class AffectationController extends Controller
 
             'observation' =>
                 $validated['observation'] ?? null,
+
         ]);
 
 
@@ -783,41 +725,17 @@ class AffectationController extends Controller
             ->route('affectations.index')
             ->with(
                 'success',
-                'Affectation modifiée avec succès.'
+                'L’affectation a été modifiée avec succès.'
             );
     }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | DESTROY
-    |--------------------------------------------------------------------------
-    */
-
-    public function destroy(Affectation $affectation)
-    {
-        $user = Auth::user();
-
-        if (!$user) {
-
-            return redirect()
-                ->route('login');
-        }
-
-
-        if (
-            $user->role !== 'admin'
-            &&
-            $user->role !== 'directeur_exploitation'
-        ) {
-
-            return back()
-                ->with(
-                    'error',
-                    'Vous n\'êtes pas autorisé à supprimer une affectation.'
-                );
-        }
-
+    /**
+     * Supprimer une affectation.
+     */
+    public function destroy(
+        Affectation $affectation
+    ) {
 
         $affectation->delete();
 
@@ -826,7 +744,7 @@ class AffectationController extends Controller
             ->route('affectations.index')
             ->with(
                 'success',
-                'Affectation supprimée avec succès.'
+                'L’affectation a été supprimée avec succès.'
             );
     }
 }
